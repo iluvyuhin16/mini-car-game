@@ -9,6 +9,7 @@ var joystickDeltaY = 0;
 // Track button states
 var gasPressed = false;
 var brakePressed = false;
+var boostPressed = false;
 
 function copyTouch({ identifier, pageX, pageY }) {
   return { identifier, pageX, pageY };
@@ -29,7 +30,7 @@ class TouchControl {
     this.joystickContainer = document.getElementById('joystickContainer');
     this.joystickBase = document.getElementById('joystickBase');
     this.joystickKnob = document.getElementById('joystickKnob');
-    this.gasBtn = document.getElementById('gasBtn');
+    this.boostBtn = document.getElementById('boostBtn');
     this.brakeBtn = document.getElementById('brakeBtn');
 
     this.joystickCenterX = 0;
@@ -51,11 +52,11 @@ class TouchControl {
       this.joystickContainer.addEventListener('touchcancel', this.handleJoystickEnd.bind(this), { passive: false });
     }
 
-    // Gas button events
-    if (this.gasBtn) {
-      this.gasBtn.addEventListener('touchstart', this.handleGasStart.bind(this), { passive: false });
-      this.gasBtn.addEventListener('touchend', this.handleGasEnd.bind(this), { passive: false });
-      this.gasBtn.addEventListener('touchcancel', this.handleGasEnd.bind(this), { passive: false });
+    // Boost button events (Push to the Max)
+    if (this.boostBtn) {
+      this.boostBtn.addEventListener('touchstart', this.handleBoostStart.bind(this), { passive: false });
+      this.boostBtn.addEventListener('touchend', this.handleBoostEnd.bind(this), { passive: false });
+      this.boostBtn.addEventListener('touchcancel', this.handleBoostEnd.bind(this), { passive: false });
     }
 
     // Brake button events
@@ -154,20 +155,26 @@ class TouchControl {
     joystickDeltaY = dy / this.joystickRadius;
   }
 
-  // ---- Gas Button Handlers ----
-  handleGasStart(e) {
+  // ---- Boost Button Handlers (Push to the Max) ----
+  handleBoostStart(e) {
     e.preventDefault();
     e.stopPropagation();
-    gasPressed = true;
-    this.gasBtn.classList.add('active');
+    boostPressed = true;
+    if (this.boostBtn) {
+      this.boostBtn.classList.add('active');
+    }
+    // Trigger boost activation if available
+    if (typeof window.activateBoost === 'function') {
+      window.activateBoost();
+    }
   }
 
-  handleGasEnd(e) {
+  handleBoostEnd(e) {
     e.preventDefault();
     e.stopPropagation();
-    gasPressed = false;
-    if (this.gasBtn) {
-      this.gasBtn.classList.remove('active');
+    boostPressed = false;
+    if (this.boostBtn) {
+      this.boostBtn.classList.remove('active');
     }
   }
 

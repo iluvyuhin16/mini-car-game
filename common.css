@@ -63,10 +63,17 @@ body {
 }
 
 /* ---- Joystick (Left Side) ---- */
-.joystick-container {
+.left-controls {
   position: absolute;
   bottom: 80px;
   left: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.joystick-container {
   width: 120px;
   height: 120px;
   pointer-events: auto;
@@ -94,6 +101,56 @@ body {
   transform: translate(-50%, -50%);
   box-shadow: 0 4px 8px rgba(0,0,0,0.4);
   transition: transform 0.05s ease-out;
+}
+
+/* ---- Push to the Max Boost Button ---- */
+.boost-btn {
+  width: 140px;
+  height: 50px;
+  background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+  border: 3px solid #ce93d8;
+  border-radius: 25px;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4), inset 0 2px 10px rgba(255,255,255,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.boost-btn:active,
+.boost-btn.active {
+  background: linear-gradient(135deg, #7b1fa2 0%, #512da8 100%);
+  transform: scale(0.95);
+}
+
+.boost-btn:disabled {
+  background: linear-gradient(135deg, #424242 0%, #616161 100%);
+  border-color: #757575;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.boost-btn .btn-icon {
+  font-size: 18px;
+}
+
+.boost-btn .btn-label {
+  font-size: 7px;
+  margin-top: 2px;
+}
+
+.boost-cooldown {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: #fff;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.boost-btn:disabled .boost-cooldown {
+  width: 100%;
+  background: #ffeb3b;
 }
 
 /* ---- Gas/Brake Buttons (Right Side) ---- */
@@ -172,9 +229,13 @@ body {
 
 /* Mobile adjustments for smaller screens */
 @media (max-width: 360px) {
-  .joystick-container {
+  .left-controls {
     left: 15px;
     bottom: 60px;
+    gap: 10px;
+  }
+
+  .joystick-container {
     width: 100px;
     height: 100px;
   }
@@ -187,6 +248,15 @@ body {
   .joystick-knob {
     width: 40px;
     height: 40px;
+  }
+
+  .boost-btn {
+    width: 110px;
+    height: 40px;
+  }
+
+  .boost-btn .btn-label {
+    font-size: 6px;
   }
 
   .button-container {

@@ -496,24 +496,24 @@
   	}
   	.speed-line-left {
   		/* Lines on left side angled outward-left */
-  		transform: rotate(15deg);
+  		transform: rotate(5deg);
   	}
   	.speed-line-right {
   		/* Lines on right side angled outward-right */
-  		transform: rotate(-15deg);
+  		transform: rotate(-5deg);
   	}
   	@keyframes speedLineMove {
-  		from { transform: translateY(-150px) rotate(15deg); opacity: 0; }
+  		from { transform: translateY(-150px) rotate(5deg); opacity: 0; }
   		10% { opacity: 1; }
-  		to { transform: translateY(calc(100% + 50px)) rotate(15deg); opacity: 0; }
+  		to { transform: translateY(calc(100% + 50px)) rotate(5deg); opacity: 0; }
   	}
   	.speed-line-right {
   		animation-name: speedLineMoveRight;
   	}
   	@keyframes speedLineMoveRight {
-  		from { transform: translateY(-150px) rotate(-15deg); opacity: 0; }
+  		from { transform: translateY(-150px) rotate(-5deg); opacity: 0; }
   		10% { opacity: 1; }
-  		to { transform: translateY(calc(100% + 50px)) rotate(-15deg); opacity: 0; }
+  		to { transform: translateY(calc(100% + 50px)) rotate(-5deg); opacity: 0; }
   	}
 
   	/* ========== ROAD SPEED EFFECT ========== */
@@ -701,7 +701,7 @@
     <div id="hud">
       <span id="timer" class="hud timer-display">時間: <span id="timer_value" class="value">120</span></span>
       <span id="score" class="hud score-display">得分: <span id="score_value" class="value">0</span></span>
-      <span id="speed"            class="hud"><span id="speed_value" class="value">0</span> mph</span>
+      <span id="speed"            class="hud"><span id="speed_value" class="value">0</span> km/h</span>
       <span id="current_lap_time" class="hud">Time: <span id="current_lap_time_value" class="value">0.0</span></span>
       <span id="fast_lap_time"    class="hud">Fastest Lap: <span id="fast_lap_time_value" class="value">0.0</span></span>
     </div>
@@ -711,19 +711,22 @@
 
     <!-- ========== MOBILE TOUCH CONTROLS ========== -->
     <div id="touchControls" class="touch-controls">
-      <!-- Left Side: Virtual Joystick -->
-      <div id="joystickContainer" class="joystick-container">
-        <div id="joystickBase" class="joystick-base">
-          <div id="joystickKnob" class="joystick-knob"></div>
+      <!-- Left Side: Virtual Joystick + Push to the Max -->
+      <div id="leftControls" class="left-controls">
+        <div id="boostBtn" class="control-btn boost-btn">
+          <span class="btn-icon">⚡</span>
+          <span class="btn-label">Push to the Max</span>
+          <div id="boostCooldown" class="boost-cooldown"></div>
+        </div>
+        <div id="joystickContainer" class="joystick-container">
+          <div id="joystickBase" class="joystick-base">
+            <div id="joystickKnob" class="joystick-knob"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Right Side: Gas and Brake Buttons -->
+      <!-- Right Side: Brake Button -->
       <div id="buttonContainer" class="button-container">
-        <div id="gasBtn" class="control-btn gas-btn">
-          <span class="btn-icon">▲</span>
-          <span class="btn-label">油門</span>
-        </div>
         <div id="brakeBtn" class="control-btn brake-btn">
           <span class="btn-icon">■</span>
           <span class="btn-label">剎車</span>
@@ -758,6 +761,14 @@ var spBoostTimer = 0;
 var shieldActive = false;
 var comboCount = 0;
 var maxCombo = 0;
+
+// Push to the Max Boost System
+var pushToMaxCharges = 0;
+var maxPushToMaxCharges = 3;
+var pushToMaxCooldown = 0;
+var pushToMaxCooldownTime = 20; // 20 seconds cooldown
+var pushToMaxBoostActive = false;
+var pushToMaxBoostTimer = 0;
 var comboTimer = 0;
 var totalDistance = 0;
 var coinsCollected = 0;
@@ -947,6 +958,12 @@ function startGame() {
   comboCount = 0;
   maxCombo = 0;
   comboTimer = 0;
+  // Push to the Max boost reset
+  pushToMaxCharges = 0;
+  pushToMaxCooldown = 0;
+  pushToMaxBoostActive = false;
+  pushToMaxBoostTimer = 0;
+  updateBoostButtonUI();
   totalDistance = 0;
   coinsCollected = 0;
   screenShake = { active: false, intensity: 0, duration: 0 };
@@ -1066,17 +1083,19 @@ function collectItem(type) {
     showBoostIndicator('shield');
     showScreenFlash('shield');
   } else if (type.effect === 'xpboost') {
+    // XP now charges the Push to the Max boost meter
     gameScore += 500;
-    xpBoostActive = true;
-    xpBoostTimer = 5;
-    comboCount = 0; // Reset combo on XP boost
-    showBoostIndicator('xp');
-    showScreenFlash('xp');
+    if (pushToMaxCharges < maxPushToMaxCharges) {
+      pushToMaxCharges++;
+      showBoostIndicator('xp');
+      showScreenFlash('xp');
+      updateBoostButtonUI();
+    }
   } else if (type.effect === 'spboost') {
     spBoostActive = true;
     spBoostTimer = 5;
     comboCount = 0; // Reset combo on SP boost
-    // Instant boost to max speed (240 MPH)
+    // Instant boost to max speed (120 KM/H)
     speed = maxSpeed * 1.5;
     showBoostIndicator('sp');
     showScreenFlash('sp');
@@ -1366,6 +1385,54 @@ function showBoostIndicator(type) {
   }, 4500);
 }
 
+// ========== PUSH TO THE MAX BOOST SYSTEM ==========
+function updateBoostButtonUI() {
+  var boostBtn = document.getElementById('boostBtn');
+  var boostCooldown = document.getElementById('boostCooldown');
+
+  if (!boostBtn || !boostCooldown) return;
+
+  if (pushToMaxCharges > 0 && pushToMaxCooldown <= 0) {
+    boostBtn.disabled = false;
+    boostBtn.classList.remove('cooldown');
+  } else {
+    boostBtn.disabled = true;
+    boostBtn.classList.add('cooldown');
+  }
+
+  // Update cooldown bar
+  if (pushToMaxCooldown > 0) {
+    var cooldownPercent = (1 - (pushToMaxCooldown / pushToMaxCooldownTime)) * 100;
+    boostCooldown.style.width = cooldownPercent + '%';
+  } else {
+    boostCooldown.style.width = '100%';
+  }
+}
+
+// Activate Push to the Max boost (called from touch.js)
+window.activateBoost = function() {
+  if (currentState !== GameState.PLAYING) return;
+  if (pushToMaxCharges <= 0) return;
+  if (pushToMaxCooldown > 0) return;
+
+  // Consume one charge
+  pushToMaxCharges--;
+
+  // Activate boost - 120 KM/H speed
+  pushToMaxBoostActive = true;
+  pushToMaxBoostTimer = 3; // 3 seconds boost duration
+
+  // Instant speed boost to 120 KM/H
+  speed = maxSpeed * 1.5;
+
+  // Start cooldown
+  pushToMaxCooldown = pushToMaxCooldownTime;
+
+  showBoostIndicator('push');
+  showScreenFlash('xp');
+  updateBoostButtonUI();
+};
+
 // ========== END GAME ==========
 function endGame() {
   currentState = GameState.ENDED;
@@ -1419,6 +1486,12 @@ function resetToStart() {
   comboCount = 0;
   maxCombo = 0;
   comboTimer = 0;
+  // Push to the Max boost reset
+  pushToMaxCharges = 0;
+  pushToMaxCooldown = 0;
+  pushToMaxBoostActive = false;
+  pushToMaxBoostTimer = 0;
+  updateBoostButtonUI();
   totalDistance = 0;
   coinsCollected = 0;
   playerName = '';
@@ -1745,6 +1818,20 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
           spBoostTimer = 0;
         }
       }
+      // Push to the Max boost timer
+      if (pushToMaxBoostActive) {
+        pushToMaxBoostTimer -= dt;
+        if (pushToMaxBoostTimer <= 0) {
+          pushToMaxBoostActive = false;
+          pushToMaxBoostTimer = 0;
+        }
+      }
+      // Push to the Max cooldown (always ticks down)
+      if (pushToMaxCooldown > 0) {
+        pushToMaxCooldown -= dt;
+        if (pushToMaxCooldown < 0) pushToMaxCooldown = 0;
+        updateBoostButtonUI();
+      }
 
       // Update combo timer
       if (comboCount > 0) {
@@ -1819,12 +1906,14 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
       playerX = playerX - (dx * speedPercent * playerSegment.curve * centrifugal);
 
-      if (keyFaster)
-        speed = Util.accelerate(speed, effectiveAccel, dt);
-      else if (keySlower)
+      // Auto-forward: car always accelerates unless braking
+      if (keySlower) {
+        // Brake when brake is pressed
         speed = Util.accelerate(speed, breaking, dt);
-      else
-        speed = Util.accelerate(speed, effectiveDecel, dt);
+      } else {
+        // Auto-accelerate forward
+        speed = Util.accelerate(speed, effectiveAccel, dt);
+      }
 
       // Sprite collision detection
       for(n = 0 ; n < playerSegment.sprites.length ; n++) {
@@ -1857,9 +1946,15 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         for(n = 0 ; n < playerSegment.cars.length ; n++) {
           car  = playerSegment.cars[n];
           carW = car.sprite.w * SPRITES.SCALE;
+          // Use lane-based collision width (fixed width relative to road)
+          // Player and cars occupy roughly 1/lanes to 2/lanes of the road
+          var laneCollisionWidth = 0.4; // About 40% of road width per vehicle
           if (speed > car.speed) {
-            if (Util.overlap(playerX, playerW, car.offset, carW, 0.8)) {
+            if (Util.overlap(playerX, laneCollisionWidth, car.offset, laneCollisionWidth, 0.8)) {
               speed    = car.speed * (car.speed/speed);
+              // Also apply crash deceleration like sprite collisions
+              crashDecel.active = true;
+              crashDecel.targetSpeed = Math.max(car.speed, maxSpeed * 0.3);
               position = Util.increase(car.z, -playerZ, trackLength);
               break;
             }
@@ -1882,7 +1977,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
       // Air wall - keep player on road
       playerX = Util.limit(playerX, -1, 1);     // air wall at road edges
 
-      // Speed limit - higher during SP boost (to show 240 MPH)
+      // Speed limit - 80 km/h normal, 120 km/h during SP boost
       var effectiveMaxSpeed = spBoostActive ? maxSpeed * 1.5 : maxSpeed;
       speed   = Util.limit(speed, 0, effectiveMaxSpeed);
 
@@ -1908,9 +2003,10 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         }
       }
 
-      // Calculate MPH (240 at max SP boost speed)
-      var mph = Math.round((240 / (maxSpeed * 1.5)) * speed);
-      updateHud('speed', mph);
+      // Calculate KM/H (120 at max SP boost speed, 80 normal max)
+      // Internal maxSpeed = 80 km/h equivalent, boost makes it 120 km/h
+      var kmh = Math.round((speed / (maxSpeed * 1.5)) * 120);
+      updateHud('speed', kmh);
       updateHud('current_lap_time', formatTime(currentLapTime));
     }
 
