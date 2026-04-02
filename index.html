@@ -2031,25 +2031,18 @@ function resetToStart() {
 
         var spriteScale = segment.p1.screen.scale * 0.5;
 
-        // Calculate distance-based fade in (from far to near)
-        // Scale ranges from very small (far) to larger (near)
-        // Start appearing when scale > 0.001, fully visible at scale > 0.02
-        var minVisibleScale = 0.001;
-        var fullVisibleScale = 0.02;
-        var distanceFade = Math.min(1, Math.max(0, (spriteScale - minVisibleScale) / (fullVisibleScale - minVisibleScale)));
-
-        // Skip if too far to be visible
-        if (distanceFade <= 0) continue;
+        // Skip if too far (scale too small)
+        if (spriteScale < 0.0005) continue;
 
         var spriteX = segment.p1.screen.x + (spriteScale * c.offset * roadWidth * width/2);
         // Position collectibles on the road surface using perspective
         var spriteY = segment.p1.screen.y + (segment.p1.screen.scale * 30);
 
         var baseSize = spriteScale * roadWidth * width/4;
-        // Minimum visible size scales with distance
-        if (baseSize < 3) baseSize = 3;
+        // Allow smaller sizes for distant collectibles
+        if (baseSize < 2) baseSize = 2;
 
-        // Calculate clipping - how much is below the clip line
+        // Calculate clipping
         var clipY = segment.clip;
         var destH = baseSize * 2;
         var destW = baseSize * 2;
@@ -2058,18 +2051,15 @@ function resetToStart() {
         var clipH = clipY ? Math.max(0, destY + destH - clipY) : 0;
         if (clipH >= destH) continue; // Completely clipped
 
-        // Apply distance-based fade (far = more transparent)
-        var alpha = distanceFade;
-
-        // Also apply fade near clip line for smoother transition
-        var fadeStart = clipY - 50;
+        // Apply smooth fade near clip line
+        var fadeStart = clipY - 80;
+        var alpha = 1;
         if (spriteY > fadeStart) {
-          var clipAlpha = Math.max(0, 1 - (spriteY - fadeStart) / 50);
-          alpha = Math.min(alpha, clipAlpha);
+          alpha = Math.max(0, 1 - (spriteY - fadeStart) / 80);
         }
 
         if (c.type.name === 'gold' && goldcoinImage) {
-          // Draw gold coin image with clipping and scaling
+          // Draw gold coin image with clipping
           if (clipH > 0) {
             var srcH = goldcoinImage.naturalHeight * (1 - clipH / destH);
             ctx.drawImage(goldcoinImage, 0, goldcoinImage.naturalHeight - srcH, goldcoinImage.naturalWidth, srcH,
@@ -2081,27 +2071,28 @@ function resetToStart() {
           }
         } else {
           // Draw XP or SP as circles with symbols
-          if (alpha > 0) {
-            ctx.globalAlpha = alpha * 0.4;
+          if (alpha > 0 && baseSize > 4) {
+            // Glow effect
+            ctx.globalAlpha = alpha * 0.5;
             ctx.beginPath();
             ctx.arc(spriteX, spriteY, baseSize * 1.5, 0, Math.PI * 2);
             ctx.fillStyle = c.type.color;
             ctx.fill();
 
-            // Draw main circle
+            // Main circle
             ctx.globalAlpha = alpha;
             ctx.beginPath();
             ctx.arc(spriteX, spriteY, baseSize, 0, Math.PI * 2);
             ctx.fillStyle = c.type.color;
             ctx.fill();
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth = Math.max(1, baseSize * 0.15);
+            ctx.lineWidth = Math.max(1, baseSize * 0.2);
             ctx.stroke();
 
-            // Draw text/symbol (only when large enough)
-            if (baseSize > 8) {
+            // Text symbol (only when large enough to be readable)
+            if (baseSize > 12) {
               ctx.fillStyle = '#fff';
-              ctx.font = 'bold ' + Math.max(8, baseSize * 1.2) + 'px Arial';
+              ctx.font = 'bold ' + Math.max(10, baseSize) + 'px Arial';
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
 
