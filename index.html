@@ -1898,8 +1898,8 @@ function resetToStart() {
       // Air wall - keep player on road
       playerX = Util.limit(playerX, -1, 1);     // air wall at road edges
 
-      // Speed limit - 80 km/h normal, 120 km/h during SP boost
-      var effectiveMaxSpeed = spBoostActive ? maxSpeed * 1.5 : maxSpeed;
+      // Speed limit - 80 km/h normal, 96 km/h internal during boost (displays 120)
+      var effectiveMaxSpeed = spBoostActive ? maxSpeed * 1.2 : maxSpeed;
       speed   = Util.limit(speed, 0, effectiveMaxSpeed);
 
       skyOffset  = Util.increase(skyOffset,  skySpeed  * playerSegment.curve * (position-startPosition)/segmentLength * getSpeedParallaxFactor(), 1);
@@ -1924,9 +1924,12 @@ function resetToStart() {
         }
       }
 
-      // Calculate KM/H (120 at max SP boost speed, 80 normal max)
-      // Internal maxSpeed = 80 km/h equivalent, boost makes it 120 km/h
-      var kmh = Math.round((speed / (maxSpeed * 1.5)) * 120);
+      // Calculate KM/H
+      // Normal: 80 km/h, Boost (1.2x): displays 80 at normal speed, 120 at full boost
+      var kmh = Math.round((speed / maxSpeed) * 80);
+      if (spBoostActive) {
+        kmh = Math.round((speed / (maxSpeed * 1.2)) * 120);
+      }
       updateHud('speed', kmh);
       updateHud('current_lap_time', formatTime(currentLapTime));
     }
