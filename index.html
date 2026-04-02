@@ -1,0 +1,2598 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Pixel Racing</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="common.css" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+  	/* ========== 8-BIT RETRO STYLE ========== */
+  	* {
+  		image-rendering: pixelated;
+  		-webkit-font-smoothing: none;
+  		-moz-osx-font-smoothing: none;
+  	}
+
+  	.top-div { display: block; margin: 4px; padding: 2px; margin-left: 20px }
+  	.top-div input { font-size: normal; width: 40px; text-align: center; border: 2px solid #fff; background: #000; color: #fff; }
+  	.top-div span { font-size: x-small; font-weight: bold; padding: 2px; margin: 2px; color: #fff; }
+
+  	/* ========== START SCREEN STYLES - MOBILE FIRST ========== */
+  	.start-screen {
+  		position: fixed;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		background: #000;
+  		display: flex;
+  		flex-direction: column;
+  		justify-content: center;
+  		align-items: center;
+  		z-index: 1000;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  	}
+  	.start-screen h1 {
+  		font-size: 2em;
+  		color: #c81d25;
+  		margin-bottom: 40px;
+  		text-align: center;
+  		text-shadow: 4px 4px 0 #8b0000;
+  		line-height: 1.5;
+  	}
+  	.loading-container {
+  		width: 280px;
+  		height: 24px;
+  		background: #222;
+  		border: 4px solid #fff;
+  		display: flex;
+  		flex-direction: column;
+  	}
+  	.loading-bar {
+  		height: 12px;
+  		width: 0%;
+  		background: #c81d25;
+  		margin: 4px;
+  	}
+  	.loading-text {
+  		margin-top: 15px;
+  		font-size: 0.6em;
+  		color: #fff;
+  	}
+
+  	/* Mobile start screen adjustments */
+  	@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
+  		.start-screen h1 {
+  			font-size: 1.5em;
+  			margin-bottom: 30px;
+  		}
+  		.loading-container {
+  			width: 240px;
+  		}
+  	}
+
+  	/* ========== POPUP STYLES ========== */
+  	.popup-overlay {
+  		position: fixed;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		background: rgba(0,0,0,0.9);
+  		display: none;
+  		justify-content: center;
+  		align-items: center;
+  		z-index: 1001;
+  	}
+  	.popup-content {
+  		background: #000;
+  		border: 4px solid #fff;
+  		padding: 20px;
+  		max-width: 400px;
+  		width: 90%;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  		font-size: 0.6em;
+  	}
+  	.popup-content h2 {
+  		color: #c81d25;
+  		text-align: center;
+  		margin-bottom: 20px;
+  		font-size: 1.2em;
+  		text-shadow: 3px 3px 0 #8b0000;
+  	}
+  	.popup-content .rules {
+  		background: #111;
+  		border: 2px solid #444;
+  		padding: 15px;
+  		margin-bottom: 20px;
+  		line-height: 2;
+  	}
+  	.popup-content .rules p {
+  		margin: 10px 0;
+  	}
+  	.popup-content .rules .icon {
+  		margin-right: 10px;
+  	}
+  	.popup-content .consent {
+  		display: flex;
+  		align-items: center;
+  		margin: 20px 0;
+  	}
+  	.popup-content .consent input {
+  		margin-right: 10px;
+  		width: 20px;
+  		height: 20px;
+  		accent-color: #c81d25;
+  	}
+  	.popup-content button {
+  		width: 100%;
+  		padding: 15px;
+  		font-size: 1em;
+  		background: #c81d25;
+  		border: 4px solid #fff;
+  		cursor: pointer;
+  		font-weight: bold;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  	}
+  	.popup-content button:hover {
+  		background: #e84a3a;
+  	}
+  	.popup-content button:disabled {
+  		background: #444;
+  		border-color: #666;
+  		cursor: not-allowed;
+  	}
+
+  	/* ========== REGISTRATION FORM ========== */
+  	.reg-form {
+  		text-align: center;
+  	}
+  	.reg-form input {
+  		width: 100%;
+  		padding: 12px;
+  		margin: 10px 0;
+  		font-size: 1em;
+  		border: 4px solid #fff;
+  		background: #000;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  		box-sizing: border-box;
+  	}
+  	.reg-form input::placeholder {
+  		color: #666;
+  	}
+  	.reg-form button {
+  		margin-top: 20px;
+  	}
+
+  	/* ========== COUNTDOWN STYLES ========== */
+  	.countdown-overlay {
+  		position: fixed;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		background: #000;
+  		display: none;
+  		justify-content: center;
+  		align-items: center;
+  		z-index: 1002;
+  	}
+  	.countdown-number {
+  		font-size: 8em;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  		text-shadow: 8px 8px 0 #c81d25;
+  	}
+  	@keyframes pulse {
+  		0% { transform: scale(1); }
+  		100% { transform: scale(1); }
+  	}
+
+  	/* Mobile countdown adjustments */
+  	@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
+  		.countdown-number {
+  			font-size: 6em;
+  		}
+  	}
+
+  	/* ========== HUD UPDATES - MOBILE OPTIMIZED ========== */
+  	#hud {
+  		background-color: #000;
+  		border-bottom: 4px solid #fff;
+  		font-family: 'Press Start 2P', monospace;
+  		font-size: 0.65em;
+  		display: flex;
+  		justify-content: space-between;
+  		align-items: center;
+  		padding: 8px 10px;
+  		flex-wrap: wrap;
+  		gap: 5px;
+  	}
+  	#hud .hud {
+  		background-color: #222;
+  		border: 2px solid #fff;
+  		color: #fff;
+  		padding: 5px 8px;
+  	}
+  	#hud .score-display {
+  		background: #c81d25;
+  		border: 3px solid #fff;
+  		color: #fff;
+  		font-weight: bold;
+  	}
+  	#hud .timer-display {
+  		background: #c81d25;
+  		border: 3px solid #fff;
+  		color: #fff;
+  		font-weight: bold;
+  	}
+  	#hud #speed {
+  		font-size: 0.8em;
+  	}
+  	#hud #current_lap_time,
+  	#hud #fast_lap_time {
+  		display: none; /* Hide on mobile to save space */
+  	}
+
+  	/* Mobile specific HUD sizing */
+  	@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
+  		#hud {
+  			font-size: 0.5em;
+  			padding: 5px 8px;
+  		}
+  		#hud .hud {
+  			padding: 4px 6px;
+  		}
+  		#hud .score-display,
+  		#hud .timer-display {
+  			padding: 4px 8px;
+  		}
+  	}
+  	.boost-indicator {
+  		position: fixed;
+  		top: 80px;
+  		left: 50%;
+  		transform: translateX(-50%);
+  		padding: 10px 20px;
+  		font-size: 0.8em;
+  		font-weight: bold;
+  		display: none;
+  		z-index: 100;
+  		font-family: 'Press Start 2P', monospace;
+  		border: 3px solid #fff;
+  	}
+  	.boost-indicator.xp {
+  		background: #9b59b6;
+  		color: #fff;
+  	}
+  	.boost-indicator.sp {
+  		background: #3498db;
+  		color: #fff;
+  	}
+
+  	/* ========== JOYSTICK STYLES - MOBILE FIRST ========== */
+  	.joystick-container {
+  		position: fixed;
+  		bottom: 50px;
+  		left: 30px;
+  		width: 140px;
+  		height: 140px;
+  		background: rgba(0,0,0,0.6);
+  		border: 4px solid rgba(255,255,255,0.5);
+  		border-radius: 50%;
+  		display: none;
+  		z-index: 100;
+  		touch-action: none;
+  	}
+  	.joystick-knob {
+  		position: absolute;
+  		width: 60px;
+  		height: 60px;
+  		background: rgba(200,29,37,0.9);
+  		border: 4px solid #fff;
+  		border-radius: 50%;
+  		top: 50%;
+  		left: 50%;
+  		transform: translate(-50%, -50%);
+  		touch-action: none;
+  	}
+  	.joystick-label {
+  		position: absolute;
+  		bottom: -30px;
+  		left: 50%;
+  		transform: translateX(-50%);
+  		color: #fff;
+  		font-size: 10px;
+  		font-family: 'Press Start 2P', monospace;
+  		white-space: nowrap;
+  	}
+
+  	/* Show joystick only on touch devices */
+  	@media (hover: none) and (pointer: coarse) {
+  		.joystick-container {
+  			display: block;
+  		}
+  	}
+
+  	/* ========== MOBILE CONTROLS - PROMINENT ========== */
+  	.mobile-controls {
+  		position: fixed;
+  		bottom: 50px;
+  		right: 30px;
+  		display: none;
+  		flex-direction: column;
+  		gap: 15px;
+  		z-index: 100;
+  	}
+  	.mobile-btn {
+  		width: 90px;
+  		height: 90px;
+  		font-family: 'Press Start 2P', monospace;
+  		font-size: 0.7em;
+  		border: 4px solid #fff;
+  		border-radius: 15px;
+  		cursor: pointer;
+  		text-align: center;
+  		line-height: 1.4;
+  		user-select: none;
+  		-webkit-user-select: none;
+  		touch-action: manipulation;
+  	}
+  	.gas-btn {
+  		background: #c81d25;
+  		color: #fff;
+  		box-shadow: 0 6px 0 #8b0000;
+  	}
+  	.gas-btn:active {
+  		transform: translateY(4px);
+  		box-shadow: 0 2px 0 #8b0000;
+  	}
+  	.brake-btn {
+  		background: #333;
+  		color: #fff;
+  		box-shadow: 0 6px 0 #111;
+  	}
+  	.brake-btn:active {
+  		transform: translateY(4px);
+  		box-shadow: 0 2px 0 #111;
+  	}
+  	@media (hover: none) and (pointer: coarse) {
+  		.mobile-controls {
+  			display: flex;
+  		}
+  	}
+
+  	/* ========== TAP TO START (MOBILE) ========== */
+  	.tap-to-start {
+  		position: fixed;
+  		top: 50%;
+  		left: 50%;
+  		transform: translate(-50%, -50%);
+  		font-size: 1.2em;
+  		color: #fff;
+  		text-align: center;
+  		z-index: 1001;
+  		display: none;
+  		animation: tapPulse 1.5s ease-in-out infinite;
+  	}
+  	.tap-to-start span {
+  		display: block;
+  		font-size: 0.6em;
+  		margin-top: 10px;
+  		color: #888;
+  	}
+  	@keyframes tapPulse {
+  		0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  		50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
+  	}
+  	@media (hover: none) and (pointer: coarse) {
+  		.tap-to-start {
+  			display: block;
+  		}
+  	}
+
+  	/* ========== PORTRAIT MODE ========== */
+  	@media (max-aspect-ratio: 1/1) and (hover: none) and (pointer: coarse) {
+  		.joystick-container {
+  			width: 120px;
+  			height: 120px;
+  			bottom: 30px;
+  			left: 20px;
+  		}
+  		.joystick-knob {
+  			width: 50px;
+  			height: 50px;
+  		}
+  		.mobile-controls {
+  			bottom: 30px;
+  			right: 20px;
+  		}
+  		.mobile-btn {
+  			width: 80px;
+  			height: 80px;
+  			font-size: 0.6em;
+  		}
+  	}
+
+  	/* ========== END GAME SCREEN ========== */
+  	.end-screen {
+  		position: fixed;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		background: #000;
+  		display: none;
+  		flex-direction: column;
+  		justify-content: center;
+  		align-items: center;
+  		z-index: 1003;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  	}
+  	.end-screen h1 {
+  		font-size: 2em;
+  		color: #c81d25;
+  		margin-bottom: 30px;
+  		text-shadow: 4px 4px 0 #8b0000;
+  	}
+  	.end-screen .player-name {
+  		font-size: 1em;
+  		margin-bottom: 20px;
+  	}
+  	.end-screen .final-score {
+  		font-size: 3em;
+  		color: #c81d25;
+  		text-shadow: 6px 6px 0 #8b0000;
+  		margin-bottom: 40px;
+  	}
+  	.end-screen button {
+  		padding: 15px 30px;
+  		font-size: 1em;
+  		background: #c81d25;
+  		border: 4px solid #fff;
+  		cursor: pointer;
+  		font-weight: bold;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  	}
+  	.end-screen button:hover {
+  		background: #e84a3a;
+  	}
+
+  	/* ========== COMBO INDICATOR ========== */
+  	.boost-indicator.combo {
+  		background: #c81d25;
+  		color: #fff;
+  	}
+  	.boost-indicator.combo .combo-count {
+  		font-size: 1.2em;
+  	}
+
+  	/* ========== SHIELD INDICATOR ========== */
+  	.boost-indicator.shield {
+  		background: #00ff00;
+  		color: #000;
+  	}
+
+  	/* ========== SCREEN EFFECTS ========== */
+  	.screen-flash {
+  		position: fixed;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		pointer-events: none;
+  		z-index: 999;
+  		opacity: 0;
+  	}
+  	.screen-flash.xp {
+  		background: #9b59b6;
+  		animation: flash 0.3s ease-out;
+  	}
+  	.screen-flash.sp {
+  		background: #3498db;
+  		animation: flash 0.3s ease-out;
+  	}
+  	.screen-flash.shield {
+  		background: #00ff00;
+  		animation: flash 0.3s ease-out;
+  	}
+  	.screen-flash.gold {
+  		background: #c81d25;
+  		animation: flash 0.2s ease-out;
+  	}
+  	@keyframes flash {
+  		0% { opacity: 0.6; }
+  		100% { opacity: 0; }
+  	}
+
+  	.crash-overlay {
+  		position: fixed;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		pointer-events: none;
+  		z-index: 998;
+  		opacity: 0;
+  		background: #ff0000;
+  	}
+  	.crash-overlay.active {
+  		animation: crashFlash 0.5s ease-out;
+  	}
+  	@keyframes crashFlash {
+  		0% { opacity: 0.5; }
+  		100% { opacity: 0; }
+  	}
+
+  	/* ========== MOBILE CONTROLS ========== */
+  	.mobile-controls {
+  		position: fixed;
+  		bottom: 20px;
+  		right: 20px;
+  		display: none;
+  		flex-direction: column;
+  		gap: 10px;
+  		z-index: 100;
+  	}
+  	.mobile-btn {
+  		width: 70px;
+  		height: 70px;
+  		font-family: 'Press Start 2P', monospace;
+  		font-size: 0.6em;
+  		border: 4px solid #fff;
+  		cursor: pointer;
+  		text-align: center;
+  		line-height: 1.3;
+  	}
+  	.gas-btn {
+  		background: #c81d25;
+  		color: #fff;
+  	}
+  	.brake-btn {
+  		background: #444;
+  		color: #fff;
+  	}
+  	.mobile-btn:active {
+  		transform: scale(0.95);
+  	}
+  	@media (hover: none) and (pointer: coarse) {
+  		.mobile-controls {
+  			display: flex;
+  		}
+  	}
+
+  	/* ========== END SCREEN STATS ========== */
+  	.stats-container {
+  		display: flex;
+  		flex-direction: column;
+  		gap: 15px;
+  		margin-bottom: 30px;
+  		width: 280px;
+  	}
+  	.stat-item {
+  		display: flex;
+  		justify-content: space-between;
+  		align-items: center;
+  		background: #111;
+  		border: 2px solid #444;
+  		padding: 10px 15px;
+  	}
+  	.stat-label {
+  		font-size: 0.6em;
+  		color: #888;
+  	}
+  	.stat-value {
+  		font-size: 0.8em;
+  		color: #fff;
+  	}
+  	.stat-value.final-score {
+  		color: #c81d25;
+  		font-size: 1em;
+  	}
+  	.stat-item.highscore {
+  		background: #c81d25;
+  		border-color: #fff;
+  		justify-content: center;
+  	}
+  	.stat-item.highscore .stat-label {
+  		color: #fff;
+  	}
+
+  	/* ========== TIMER WARNING ========== */
+  	#hud .timer-warning {
+  		background: #ff0000 !important;
+  		animation: timerBlink 0.5s ease-in-out infinite;
+  	}
+  	@keyframes timerBlink {
+  		0%, 100% { opacity: 1; }
+  		50% { opacity: 0.5; }
+  	}
+
+  	/* ========== SPEED LINES - WITH ANGLE EFFECT ========== */
+  	.speed-lines {
+  		position: absolute;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		pointer-events: none;
+  		z-index: 50;
+  		opacity: 0;
+  		transition: opacity 0.5s;
+  	}
+  	.speed-lines.active {
+  		opacity: 1;
+  	}
+  	.speed-lines.sp-boost .speed-line {
+  		background: linear-gradient(to bottom, transparent 0%, rgba(52, 152, 219, 1) 40%, rgba(52, 152, 219, 1) 60%, transparent 100%);
+  		box-shadow: 0 0 15px rgba(52, 152, 219, 0.8);
+  	}
+  	.speed-vignette.sp-boost {
+  		box-shadow: inset 0 0 150px rgba(52, 152, 219, 0.3), inset 0 0 100px rgba(0,0,0,0.4);
+  	}
+  	.speed-line {
+  		position: absolute;
+  		width: 4px;
+  		height: 100px;
+  		background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,0.9) 60%, transparent 100%);
+  		border-radius: 2px;
+  		transform-origin: center top;
+  	}
+  	.speed-line-left {
+  		/* Lines on left side angled outward-left */
+  		transform: rotate(15deg);
+  	}
+  	.speed-line-right {
+  		/* Lines on right side angled outward-right */
+  		transform: rotate(-15deg);
+  	}
+  	@keyframes speedLineMove {
+  		from { transform: translateY(-150px) rotate(15deg); opacity: 0; }
+  		10% { opacity: 1; }
+  		to { transform: translateY(calc(100% + 50px)) rotate(15deg); opacity: 0; }
+  	}
+  	.speed-line-right {
+  		animation-name: speedLineMoveRight;
+  	}
+  	@keyframes speedLineMoveRight {
+  		from { transform: translateY(-150px) rotate(-15deg); opacity: 0; }
+  		10% { opacity: 1; }
+  		to { transform: translateY(calc(100% + 50px)) rotate(-15deg); opacity: 0; }
+  	}
+
+  	/* ========== ROAD SPEED EFFECT ========== */
+  	.road-speed-effect {
+  		position: absolute;
+  		bottom: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 25%;
+  		background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+  		pointer-events: none;
+  		z-index: 40;
+  		opacity: 0;
+  		transition: opacity 0.5s;
+  	}
+  	.road-speed-effect.active {
+  		opacity: 1;
+  	}
+
+  	/* ========== SPEED VIGNETTE ========== */
+  	.speed-vignette {
+  		position: absolute;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		pointer-events: none;
+  		z-index: 45;
+  		box-shadow: inset 0 0 80px rgba(0,0,0,0);
+  		transition: box-shadow 0.5s;
+  	}
+  	.speed-vignette.active {
+  		box-shadow: inset 0 0 120px rgba(0,0,0,0.4);
+  	}
+
+  	/* ========== OFF ROAD WARNING ========== */
+  	.offroad-warning {
+  		position: absolute;
+  		top: 50%;
+  		left: 50%;
+  		transform: translate(-50%, -50%);
+  		font-size: 0.8em;
+  		color: #ff0;
+  		font-family: 'Press Start 2P', monospace;
+  		text-shadow: 2px 2px 0 #000;
+  		display: none;
+  		z-index: 100;
+  		animation: warningBlink 0.4s ease-in-out infinite;
+  	}
+  	.offroad-warning.active {
+  		display: block;
+  	}
+  	@keyframes warningBlink {
+  		0%, 100% { opacity: 1; }
+  		50% { opacity: 0.4; }
+  	}
+
+  	/* ========== HIGH SPEED SHAKE ========== */
+  	@keyframes highSpeedShake {
+  		0%, 100% { transform: translateX(0); }
+  		25% { transform: translateX(-2px); }
+  		75% { transform: translateX(2px); }
+  	}
+
+  	/* ========== CONFIRM BUTTON ========== */
+  	.confirm-btn {
+  		width: 100%;
+  		padding: 15px;
+  		font-size: 1em;
+  		background: #c81d25;
+  		border: 4px solid #fff;
+  		cursor: pointer;
+  		font-weight: bold;
+  		color: #fff;
+  		font-family: 'Press Start 2P', monospace;
+  		margin-top: 15px;
+  	}
+  	.confirm-btn:hover {
+  		background: #e84a3a;
+  	}
+  </style>
+  
+  	<meta property="og:title" content="Retro Racing" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://angrybud.com/games/f430/" />
+	<meta property="og:description" content="Webgame, webapp, classic 2D racing" />
+	<meta property="og:image" content="https://angrybud.com/games/pixelracing/javascript_f430_racer_Scr2.jpg" />
+
+    <meta name="twitter:title" content="Retro Racer 2D" />
+    <meta name="twitter:description" content="Webgame, webapp, classic racing" />
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://angrybud.com/games/pixelracing/javascript_f430_racer_Scr2.jpg">
+
+
+</head>
+
+<body onresize="reset(detect_screen ())">
+
+<!-- ========== START SCREEN ========== -->
+<div id="startScreen" class="start-screen">
+  <h1>奪金挑戰賽</h1>
+  <div class="loading-container">
+    <div id="loadingBar" class="loading-bar"></div>
+  </div>
+  <p id="loadingText" class="loading-text">載入中...</p>
+</div>
+
+<!-- ========== INTRODUCTION POPUP ========== -->
+<div id="introPopup" class="popup-overlay">
+  <div class="popup-content">
+    <h2>遊戲玩法</h2>
+    <div class="rules">
+      <p><span class="icon">🚗</span> 行車時會有基本積分</p>
+      <p><span class="icon">🪙</span> 食到黃金 +1000 分</p>
+      <p><span class="icon">⭐</span> 食到 XP 獲得 2 倍積分狀態 5 秒</p>
+      <p><span class="icon">⚡</span> 食到 SP 獲得 1.5 倍加速 5 秒</p>
+      <p><span class="icon">🛡️</span> 食到護盾可抵擋一次碰撞</p>
+      <p><span class="icon">🔥</span> 連續食金幣有 Combo 加成！</p>
+      <p><span class="icon">⏱️</span> 遊戲限時 120 秒</p>
+    </div>
+    <div class="consent">
+      <input type="checkbox" id="consentCheckbox">
+      <label for="consentCheckbox">我同意使用個人資料</label>
+    </div>
+    <button id="consentSubmit" disabled>提交</button>
+  </div>
+</div>
+
+<!-- ========== REGISTRATION POPUP ========== -->
+<div id="regPopup" class="popup-overlay">
+  <div class="popup-content reg-form">
+    <h2>輸入資料</h2>
+    <input type="text" id="playerName" placeholder="請輸入姓名" maxlength="20">
+    <input type="tel" id="playerPhone" placeholder="請輸入電話" maxlength="15">
+    <button id="startGameBtn">開始遊戲</button>
+  </div>
+</div>
+
+<!-- ========== COUNTDOWN OVERLAY ========== -->
+<div id="countdownOverlay" class="countdown-overlay">
+  <div id="countdownNumber" class="countdown-number">3</div>
+</div>
+
+<!-- ========== BOOST INDICATORS ========== -->
+<div id="xpIndicator" class="boost-indicator xp">2X 積分!</div>
+<div id="spIndicator" class="boost-indicator sp">1.5X 加速!</div>
+<div id="shieldIndicator" class="boost-indicator shield">🛡️ 護盾保護!</div>
+<div id="comboIndicator" class="boost-indicator combo" style="display:none;">COMBO <span id="comboCount">x1</span></div>
+
+<!-- ========== SCREEN EFFECTS ========== -->
+<div id="screenFlash" class="screen-flash"></div>
+<div id="crashOverlay" class="crash-overlay"></div>
+
+<!-- ========== MOBILE CONTROLS ========== -->
+<div id="mobileControls" class="mobile-controls">
+  <button id="gasBtn" class="mobile-btn gas-btn">▲<br>GAS</button>
+  <button id="brakeBtn" class="mobile-btn brake-btn">■<br>BRAKE</button>
+</div>
+
+<!-- ========== JOYSTICK ========== -->
+<div id="joystickContainer" class="joystick-container">
+  <div id="joystickKnob" class="joystick-knob"></div>
+  <span class="joystick-direction joystick-dir-left">◀</span>
+  <span class="joystick-direction joystick-dir-right">▶</span>
+  <span class="joystick-label">拖動控制方向</span>
+</div>
+
+<!-- ========== TAP TO START (MOBILE ONLY) ========== -->
+<div id="tapToStart" class="tap-to-start">
+  點擊開始遊戲
+  <span>輕觸螢幕即可</span>
+</div>
+
+<!-- ========== TIME SELECTION (removed - fixed 90s) ========== -->
+
+<!-- ========== END GAME SCREEN ========== -->
+<div id="endScreen" class="end-screen">
+  <h1>遊戲結束!</h1>
+  <p class="player-name">玩家: <span id="endPlayerName"></span></p>
+  <div class="stats-container">
+    <div class="stat-item">
+      <span class="stat-label">最終得分</span>
+      <span class="stat-value final-score" id="endFinalScore">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">最高 Combo</span>
+      <span class="stat-value" id="endMaxCombo">x0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">金幣數量</span>
+      <span class="stat-value" id="endCoinsCollected">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">行駛距離</span>
+      <span class="stat-value" id="endDistance">0 m</span>
+    </div>
+    <div class="stat-item highscore" id="highScoreItem" style="display:none;">
+      <span class="stat-label">🏆 新紀錄!</span>
+    </div>
+  </div>
+  <button id="playAgainBtn">再玩一次</button>
+</div>
+
+<!-- <div class="top-div">
+ <input disabled id="resolution" value="high" /> 
+ <input disabled id="lanes" value="4">
+ <span id="currentRoadWidth"></span><input disabled id="roadWidth" value="2000" />
+ <span id="currentCameraHeight"></span><input disabled id="cameraHeight" value="1000" />
+ <span id="currentDrawDistance"></span><input disabled id="drawDistance" value="300" />
+ <span id="currentFieldOfView"></span><input disabled id="fieldOfView" value="100" />
+ <span id="currentFogDensity"></span><input disabled id="fogDensity" value="5" />
+</div> -->
+
+  <div id="racer">
+    <!-- ========== SPEED EFFECTS ========== -->
+    <div id="speedLines" class="speed-lines"></div>
+    <div id="roadSpeedEffect" class="road-speed-effect"></div>
+    <div id="speedVignette" class="speed-vignette"></div>
+    <div id="offroadWarning" class="offroad-warning">⚠️ 偏離賽道! ⚠️</div>
+    <div id="hud">
+      <span id="timer" class="hud timer-display">時間: <span id="timer_value" class="value">120</span></span>
+      <span id="score" class="hud score-display">得分: <span id="score_value" class="value">0</span></span>
+      <span id="speed"            class="hud"><span id="speed_value" class="value">0</span> mph</span>
+      <span id="current_lap_time" class="hud">Time: <span id="current_lap_time_value" class="value">0.0</span></span>
+      <span id="fast_lap_time"    class="hud">Fastest Lap: <span id="fast_lap_time_value" class="value">0.0</span></span>
+    </div>
+    <canvas id="canvas">
+      Sorry, cannot run because your browser does not support &lt;canvas&gt; element
+    </canvas></div>
+
+
+  <script src="touch.js"></script>
+  <script src="common.js"></script>
+
+  <script>
+// ========== GAME STATE MANAGEMENT ==========
+var GameState = {
+  LOADING: 'loading',
+  INTRO: 'intro',
+  REGISTRATION: 'registration',
+  COUNTDOWN: 'countdown',
+  PLAYING: 'playing',
+  ENDED: 'ended'
+};
+
+var currentState = GameState.LOADING;
+var playerName = '';
+var playerPhone = '';
+var gameScore = 0;
+var gameTimer = 120; // Fixed 120 seconds
+var xpBoostActive = false;
+var xpBoostTimer = 0;
+var spBoostActive = false;
+var spBoostTimer = 0;
+var shieldActive = false;
+var comboCount = 0;
+var maxCombo = 0;
+var comboTimer = 0;
+var totalDistance = 0;
+var coinsCollected = 0;
+var baseScorePerUnitDistance = 0.01;
+
+// ========== SCREEN EFFECTS ==========
+var screenShake = { active: false, intensity: 0, duration: 0 };
+
+// ========== CRASH DECELERATION ==========
+var crashDecel = { active: false, targetSpeed: 0 };
+
+// ========== CAR VISUAL SCALE ==========
+var CAR_SCALE = 2.2; // Scale multiplier for other cars (2.2 = 120% larger)
+
+// ========== HIGH SCORE ==========
+var HIGH_SCORE_KEY = 'pixelRacer_highScore';
+function getHighScore() {
+  return parseInt(localStorage.getItem(HIGH_SCORE_KEY) || '0');
+}
+function setHighScore(score) {
+  localStorage.setItem(HIGH_SCORE_KEY, score.toString());
+}
+
+// ========== COLLECTIBLES ==========
+var collectibles = [];
+var COLLECTIBLE_TYPES = {
+  GOLD: { name: 'gold', points: 1000, color: '#c81d25', spawn: 0.60 },
+  XP: { name: 'xp', points: 0, color: '#9B59B6', effect: 'xpboost', spawn: 0.23 },
+  SP: { name: 'sp', points: 0, color: '#3498DB', effect: 'spboost', spawn: 0.12 },
+  SHIELD: { name: 'shield', points: 0, color: '#00FF00', effect: 'shield', spawn: 0.05 }
+};
+
+// ========== START SCREEN LOGIC ==========
+function initStartScreen() {
+  console.log('initStartScreen called');
+  var loadingBar = document.getElementById('loadingBar');
+  var loadingText = document.getElementById('loadingText');
+  var progress = 0;
+
+  var loadingInterval = setInterval(function() {
+    progress += Math.random() * 15 + 5;
+    console.log('Loading progress:', progress);
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(loadingInterval);
+      loadingText.textContent = '載入完成!';
+      console.log('Loading complete, showing intro');
+      setTimeout(function() {
+        document.getElementById('startScreen').style.display = 'none';
+        // For mobile: show tap to start, for desktop: show intro popup
+        if (isTouchDevice()) {
+          showTapToStart();
+        } else {
+          showIntroPopup();
+        }
+      }, 500);
+    }
+    loadingBar.style.width = progress + '%';
+  }, 200);
+}
+
+// ========== TAP TO START (MOBILE) ==========
+function showTapToStart() {
+  currentState = GameState.INTRO;
+  var tapEl = document.getElementById('tapToStart');
+
+  // For mobile, we skip registration and go straight to game
+  document.getElementById('startScreen').style.display = 'none';
+  tapEl.style.display = 'block';
+
+  var startHandler = function(e) {
+    e.preventDefault();
+    tapEl.style.display = 'none';
+    document.removeEventListener('touchstart', startHandler);
+    document.removeEventListener('click', startHandler);
+    startGameDirect();
+  };
+
+  document.addEventListener('touchstart', startHandler, { passive: false });
+  document.addEventListener('click', startHandler);
+}
+
+// ========== START GAME DIRECTLY (MOBILE) ==========
+function startGameDirect() {
+  playerName = 'MobilePlayer';
+  playerPhone = '';
+  startCountdown();
+}
+
+// ========== CHECK IF TOUCH DEVICE ==========
+function isTouchDevice() {
+  return ('ontouchstart' in window) ||
+         (navigator.maxTouchPoints > 0) ||
+         (navigator.msMaxTouchPoints > 0);
+}
+
+// ========== INTRO POPUP LOGIC ==========
+function showIntroPopup() {
+  currentState = GameState.INTRO;
+  var popup = document.getElementById('introPopup');
+  var checkbox = document.getElementById('consentCheckbox');
+  var submitBtn = document.getElementById('consentSubmit');
+
+  popup.style.display = 'flex';
+  checkbox.checked = false;
+  submitBtn.disabled = true;
+
+  checkbox.onchange = function() {
+    submitBtn.disabled = !checkbox.checked;
+  };
+
+  submitBtn.onclick = function() {
+    popup.style.display = 'none';
+    showRegPopup();
+  };
+}
+
+// ========== REGISTRATION POPUP LOGIC ==========
+function showRegPopup() {
+  currentState = GameState.REGISTRATION;
+  var popup = document.getElementById('regPopup');
+  var nameInput = document.getElementById('playerName');
+  var phoneInput = document.getElementById('playerPhone');
+  var startBtn = document.getElementById('startGameBtn');
+
+  popup.style.display = 'flex';
+  nameInput.value = '';
+  phoneInput.value = '';
+
+  startBtn.onclick = function() {
+    if (nameInput.value.trim() === '') {
+      alert('請輸入姓名');
+      return;
+    }
+    if (phoneInput.value.trim() === '') {
+      alert('請輸入電話');
+      return;
+    }
+    playerName = nameInput.value.trim();
+    playerPhone = phoneInput.value.trim();
+    popup.style.display = 'none';
+    startCountdown();
+  };
+}
+
+// ========== COUNTDOWN LOGIC ==========
+function startCountdown() {
+  currentState = GameState.COUNTDOWN;
+  var overlay = document.getElementById('countdownOverlay');
+  var numberEl = document.getElementById('countdownNumber');
+  overlay.style.display = 'flex';
+
+  var count = 3;
+  numberEl.textContent = count;
+
+  var countdownInterval = setInterval(function() {
+    count--;
+    if (count > 0) {
+      numberEl.textContent = count;
+      numberEl.style.animation = 'none';
+      numberEl.offsetHeight; // Trigger reflow
+      numberEl.style.animation = 'pulse 1s ease-in-out';
+    } else {
+      clearInterval(countdownInterval);
+      numberEl.textContent = 'GO!';
+      numberEl.style.animation = 'none';
+      numberEl.offsetHeight;
+      numberEl.style.animation = 'pulse 1s ease-in-out';
+      setTimeout(function() {
+        overlay.style.display = 'none';
+        startGame();
+      }, 500);
+    }
+  }, 1000);
+}
+
+// ========== GAME START ==========
+function startGame() {
+  currentState = GameState.PLAYING;
+  gameScore = 0;
+  gameTimer = 120; // Always fixed 120 seconds
+  xpBoostActive = false;
+  xpBoostTimer = 0;
+  spBoostActive = false;
+  spBoostTimer = 0;
+  shieldActive = false;
+  comboCount = 0;
+  maxCombo = 0;
+  comboTimer = 0;
+  totalDistance = 0;
+  coinsCollected = 0;
+  screenShake = { active: false, intensity: 0, duration: 0 };
+
+  // Reset player position
+  playerX = 0;
+  speed = 0;
+  position = 0;
+  crashDecel.active = false;
+  crashDecel.targetSpeed = 0;
+
+  // Generate collectibles
+  generateCollectibles();
+
+  // Start timer
+  startGameTimer();
+}
+
+// ========== GAME TIMER ==========
+var timerInterval = null;
+function startGameTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(function() {
+    if (currentState !== GameState.PLAYING) return;
+
+    gameTimer--;
+    updateHud('timer', gameTimer);
+
+    // Timer warning when less than 10 seconds
+    var timerEl = document.getElementById('timer');
+    if (gameTimer <= 10) {
+      timerEl.classList.add('timer-warning');
+    } else {
+      timerEl.classList.remove('timer-warning');
+    }
+
+    if (gameTimer <= 0) {
+      endGame();
+    }
+  }, 1000);
+}
+
+// ========== GENERATE COLLECTIBLES ==========
+function generateCollectibles() {
+  collectibles = [];
+  var numCollectibles = 100; // Number of collectibles on the track
+
+  for (var i = 0; i < numCollectibles; i++) {
+    var rand = Math.random();
+    var type;
+
+    if (rand < COLLECTIBLE_TYPES.GOLD.spawn) {
+      type = COLLECTIBLE_TYPES.GOLD;
+    } else if (rand < COLLECTIBLE_TYPES.GOLD.spawn + COLLECTIBLE_TYPES.XP.spawn) {
+      type = COLLECTIBLE_TYPES.XP;
+    } else if (rand < COLLECTIBLE_TYPES.GOLD.spawn + COLLECTIBLE_TYPES.XP.spawn + COLLECTIBLE_TYPES.SP.spawn) {
+      type = COLLECTIBLE_TYPES.SP;
+    } else {
+      type = COLLECTIBLE_TYPES.SHIELD;
+    }
+
+    // Place collectible at random position on track
+    var segmentIndex = Math.floor(Math.random() * segments.length);
+    var lane = (Math.random() - 0.5) * 1.6; // Random lane position
+
+    collectibles.push({
+      type: type,
+      segmentIndex: segmentIndex,
+      offset: lane,
+      collected: false
+    });
+  }
+}
+
+// ========== CHECK COLLECTIBLE COLLISION ==========
+function checkCollectibleCollision() {
+  var playerSegment = findSegment(position + playerZ);
+
+  // Normalize playerX from -3 to 3 range to -1 to 1 range for comparison
+  var normalizedPlayerX = playerX / 3;
+
+  for (var i = 0; i < collectibles.length; i++) {
+    var c = collectibles[i];
+    if (c.collected) continue;
+    if (c.segmentIndex !== playerSegment.index) continue;
+
+    // Check if player is near this collectible (wider collision range for easier pickup)
+    var dx = Math.abs(normalizedPlayerX - c.offset);
+    if (dx < 0.4) {
+      c.collected = true;
+      collectItem(c.type);
+    }
+  }
+}
+
+// ========== REGENERATE COLLECTIBLES ==========
+function regenerateCollectibles() {
+  // Regenerate collected collectibles
+  var collectedCount = 0;
+  for (var i = 0; i < collectibles.length; i++) {
+    if (collectibles[i].collected) {
+      collectedCount++;
+    }
+  }
+
+  // If more than 50% collected, regenerate all
+  if (collectedCount > collectibles.length * 0.5) {
+    generateCollectibles();
+  }
+}
+
+function collectItem(type) {
+  var pointsEarned = 0;
+
+  if (type.name === 'shield') {
+    shieldActive = true;
+    showBoostIndicator('shield');
+    showScreenFlash('shield');
+  } else if (type.effect === 'xpboost') {
+    gameScore += 500;
+    xpBoostActive = true;
+    xpBoostTimer = 5;
+    comboCount = 0; // Reset combo on XP boost
+    showBoostIndicator('xp');
+    showScreenFlash('xp');
+  } else if (type.effect === 'spboost') {
+    spBoostActive = true;
+    spBoostTimer = 5;
+    comboCount = 0; // Reset combo on SP boost
+    // Instant boost to max speed (240 MPH)
+    speed = maxSpeed * 1.5;
+    showBoostIndicator('sp');
+    showScreenFlash('sp');
+  } else {
+    // Gold - apply combo multiplier
+    coinsCollected++;
+    comboCount++;
+    if (comboCount > maxCombo) maxCombo = comboCount;
+    comboTimer = 3; // 3 seconds to maintain combo
+
+    var comboMultiplier = 1;
+    if (comboCount >= 10) comboMultiplier = 5;
+    else if (comboCount >= 5) comboMultiplier = 3;
+    else if (comboCount >= 3) comboMultiplier = 2;
+
+    pointsEarned = type.points * comboMultiplier;
+    if (xpBoostActive) pointsEarned *= 2;
+    gameScore += Math.floor(pointsEarned);
+
+    showScreenFlash('gold');
+    updateComboDisplay();
+    showGoldCollectEffect(pointsEarned);
+  }
+  updateHud('score', gameScore);
+}
+
+// ========== GOLD COLLECTION EFFECT ==========
+function showGoldCollectEffect(points) {
+  var racer = document.getElementById('racer');
+
+  // Create bouncing coin container
+  var coinContainer = document.createElement('div');
+  coinContainer.style.cssText =
+    'position:absolute;' +
+    'left:50%;' +
+    'top:40%;' +
+    'transform:translateX(-50%);' +
+    'z-index:200;' +
+    'pointer-events:none;' +
+    'animation:coinBounceContainer 0.8s ease-out forwards;';
+
+  // Create coin element with CSS styling
+  var coin = document.createElement('div');
+  coin.style.cssText =
+    'width:40px;' +
+    'height:40px;' +
+    'background:radial-gradient(circle at 30% 30%, #ffd700, #b8860b);' +
+    'border-radius:50%;' +
+    'border:3px solid #daa520;' +
+    'box-shadow:inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,215,0,0.6);' +
+    'display:flex;' +
+    'align-items:center;' +
+    'justify-content:center;' +
+    'font-size:20px;' +
+    'color:#8b6914;' +
+    'font-weight:bold;' +
+    'animation:coinFlip 0.4s ease-in-out 2, coinBounce 0.3s ease-out 3;';
+
+  // Add $ symbol to coin
+  coin.textContent = '$';
+
+  // Create floating text
+  var floatText = document.createElement('div');
+  floatText.textContent = '+' + Math.floor(points);
+  floatText.style.cssText =
+    'position:absolute;' +
+    'left:50%;' +
+    'transform:translateX(-50%);' +
+    'top:70px;' +
+    'font-size:1em;' +
+    'font-family:\'Press Start 2P\',monospace;' +
+    'color:#ffd700;' +
+    'text-shadow:2px 2px 0 #000, -1px -1px 0 #000;' +
+    'white-space:nowrap;';
+
+  coinContainer.appendChild(coin);
+  coinContainer.appendChild(floatText);
+
+  // Add bounce animations
+  var style = document.createElement('style');
+  style.id = 'goldFloatStyle';
+  var existingStyle = document.getElementById('goldFloatStyle');
+  if (existingStyle) existingStyle.remove();
+
+  style.textContent = '@keyframes coinBounceContainer {' +
+    '0% { opacity:1; transform:translateX(-50%) translateY(0); }' +
+    '100% { opacity:0; transform:translateX(-50%) translateY(-60px); }' +
+    '}' +
+    '@keyframes coinFlip {' +
+    '0% { transform:scaleX(1); }' +
+    '50% { transform:scaleX(0.1); }' +
+    '100% { transform:scaleX(1); }' +
+    '}' +
+    '@keyframes coinBounce {' +
+    '0%,100% { transform:translateY(0) rotate(0deg); }' +
+    '50% { transform:translateY(-20px) rotate(15deg); }' +
+    '}';
+  document.head.appendChild(style);
+
+  racer.appendChild(coinContainer);
+
+  // Remove after animation
+  setTimeout(function() {
+    if (coinContainer.parentNode) {
+      coinContainer.remove();
+    }
+  }, 1200);
+}
+
+// ========== COMBO SYSTEM ==========
+function updateComboDisplay() {
+  var comboIndicator = document.getElementById('comboIndicator');
+  var comboCountEl = document.getElementById('comboCount');
+
+  if (comboCount >= 2) {
+    var multiplier = comboCount >= 10 ? 5 : comboCount >= 5 ? 3 : comboCount >= 3 ? 2 : 1;
+    comboCountEl.textContent = 'x' + multiplier + ' (' + comboCount + ')';
+    comboIndicator.style.display = 'block';
+  } else {
+    comboIndicator.style.display = 'none';
+  }
+}
+
+// ========== SCREEN FLASH EFFECT ==========
+function showScreenFlash(type) {
+  var flash = document.getElementById('screenFlash');
+  flash.className = 'screen-flash ' + type;
+  setTimeout(function() {
+    flash.className = 'screen-flash';
+  }, 300);
+}
+
+// ========== SCREEN SHAKE EFFECT ==========
+function triggerScreenShake(intensity, duration) {
+  screenShake = { active: true, intensity: intensity, duration: duration };
+}
+
+function showCrashFlash() {
+  var crash = document.getElementById('crashOverlay');
+  crash.classList.add('active');
+  setTimeout(function() {
+    crash.classList.remove('active');
+  }, 500);
+}
+
+function updateScreenShake(dt) {
+  if (screenShake.active) {
+    screenShake.duration -= dt;
+    if (screenShake.duration <= 0) {
+      screenShake.active = false;
+      canvas.style.transform = '';
+    } else {
+      var shakeX = (Math.random() - 0.5) * screenShake.intensity;
+      var shakeY = (Math.random() - 0.5) * screenShake.intensity;
+      canvas.style.transform = 'translate(' + shakeX + 'px, ' + shakeY + 'px)';
+    }
+  }
+}
+
+// ========== SPEED EFFECTS ==========
+var speedLinesGenerated = false;
+
+// Speed parallax factor - enhances background movement at high speeds
+function getSpeedParallaxFactor() {
+  var speedPercent = speed / maxSpeed;
+  // At low speed (0-30%): normal parallax (1.0)
+  // At high speed (30-100%): enhanced parallax (1.0 to 3.0)
+  if (speedPercent < 0.3) return 1.0;
+  return 1.0 + (speedPercent - 0.3) * 3.0;
+}
+
+// Dynamic FOV - widens at high speeds for acceleration feel
+function getDynamicFov() {
+  var baseFov = 100; // Original FOV
+  var speedPercent = speed / maxSpeed;
+  // At high speed, FOV increases to 130 (more peripheral vision = faster feel)
+  return baseFov + speedPercent * 30;
+}
+
+// Dynamic camera depth based on speed
+function getDynamicCameraDepth() {
+  var dynamicFov = getDynamicFov();
+  return 1 / Math.tan((dynamicFov/2) * Math.PI/180);
+}
+
+// Also increase road width feel at high speeds
+function getSpeedRoadWidth() {
+  var speedPercent = speed / maxSpeed;
+  // Slight road width increase at high speed for wider view feel
+  return roadWidth * (1 + speedPercent * 0.1);
+}
+
+function updateSpeedEffects() {
+  var speedPercent = speed / maxSpeed;
+  var spBoostPercent = spBoostActive ? speed / (maxSpeed * 1.5) : 0;
+  var effectiveSpeedPercent = spBoostActive ? spBoostPercent : speedPercent;
+  var speedLinesEl = document.getElementById('speedLines');
+  var roadEffectEl = document.getElementById('roadSpeedEffect');
+  var vignetteEl = document.getElementById('speedVignette');
+  var offroadEl = document.getElementById('offroadWarning');
+
+  // Generate speed lines once if not exists
+  if (!speedLinesGenerated) {
+    generateSpeedLines();
+    speedLinesGenerated = true;
+  }
+
+  // Speed-based effects (activate at 50% speed, or lower during SP boost)
+  var effectThreshold = spBoostActive ? 0.3 : 0.5;
+  if (effectiveSpeedPercent > effectThreshold) {
+    var effectIntensity = (effectiveSpeedPercent - effectThreshold) / (1 - effectThreshold); // 0 to 1
+
+    // Show angled speed lines
+    speedLinesEl.classList.add('active');
+    roadEffectEl.classList.add('active');
+
+    // SP boost extra effects
+    if (spBoostActive) {
+      speedLinesEl.classList.add('sp-boost');
+      vignetteEl.classList.add('sp-boost');
+    } else {
+      speedLinesEl.classList.remove('sp-boost');
+      vignetteEl.classList.remove('sp-boost');
+    }
+
+    // Adjust speed line animation speed based on speed
+    var lines = speedLinesEl.querySelectorAll('.speed-line');
+    lines.forEach(function(line) {
+      var duration = 0.6 - (effectIntensity * 0.4); // Faster at higher speeds
+      line.style.animationDuration = duration + 's';
+    });
+
+    // Vignette effect
+    vignetteEl.classList.add('active');
+    var vignetteIntensity = spBoostActive ? 0.5 : 0.3;
+    vignetteEl.style.boxShadow = 'inset 0 0 ' + (80 + effectIntensity * 100) + 'px rgba(0,0,0,' + (vignetteIntensity + effectIntensity * 0.4) + ')';
+
+    // Camera shake at high speeds
+    if (effectiveSpeedPercent > 0.7 && !screenShake.active) {
+      canvas.style.animation = 'highSpeedShake ' + (0.15 / effectIntensity) + 's infinite';
+    } else if (effectiveSpeedPercent <= 0.7) {
+      canvas.style.animation = '';
+    }
+  } else {
+    speedLinesEl.classList.remove('active');
+    roadEffectEl.classList.remove('active');
+    vignetteEl.classList.remove('active');
+    speedLinesEl.classList.remove('sp-boost');
+    vignetteEl.classList.remove('sp-boost');
+    canvas.style.animation = '';
+  }
+
+  // Off-road warning
+  if (playerX < -1 || playerX > 1) {
+    offroadEl.classList.add('active');
+  } else {
+    offroadEl.classList.remove('active');
+  }
+}
+
+function generateSpeedLines() {
+  var container = document.getElementById('speedLines');
+  container.innerHTML = '';
+
+  // Create speed lines on left and right sides with angles
+  for (var i = 0; i < 16; i++) {
+    var line = document.createElement('div');
+    line.className = 'speed-line';
+
+    // Alternate left and right sides
+    if (i % 2 === 0) {
+      // Left side - angled outward left
+      line.classList.add('speed-line-left');
+      line.style.left = (3 + Math.random() * 12) + '%';
+    } else {
+      // Right side - angled outward right
+      line.classList.add('speed-line-right');
+      line.style.right = (3 + Math.random() * 12) + '%';
+    }
+
+    // Randomize starting position and delay
+    line.style.top = Math.random() * 100 + '%';
+    line.style.animationDelay = Math.random() * 0.4 + 's';
+    line.style.height = (80 + Math.random() * 60) + 'px';
+
+    container.appendChild(line);
+  }
+}
+
+function showBoostIndicator(type) {
+  var indicator = document.getElementById(type + 'Indicator');
+  indicator.style.display = 'block';
+  setTimeout(function() {
+    indicator.style.display = 'none';
+  }, 4500);
+}
+
+// ========== END GAME ==========
+function endGame() {
+  currentState = GameState.ENDED;
+  if (timerInterval) clearInterval(timerInterval);
+
+  // Calculate total distance
+  totalDistance = Math.floor(position / 100); // Convert to approximate meters
+
+  // Check high score
+  var currentHighScore = getHighScore();
+  var isNewHighScore = gameScore > currentHighScore;
+  if (isNewHighScore) {
+    setHighScore(gameScore);
+  }
+
+  // Update end screen
+  document.getElementById('endPlayerName').textContent = playerName;
+  document.getElementById('endFinalScore').textContent = gameScore;
+  document.getElementById('endMaxCombo').textContent = 'x' + maxCombo + (maxCombo >= 3 ? ' ⚡' : '');
+  document.getElementById('endCoinsCollected').textContent = coinsCollected;
+  document.getElementById('endDistance').textContent = totalDistance + ' m';
+
+  // Show high score badge if new record
+  var highScoreItem = document.getElementById('highScoreItem');
+  if (isNewHighScore) {
+    highScoreItem.style.display = 'flex';
+  } else {
+    highScoreItem.style.display = 'none';
+  }
+
+  document.getElementById('endScreen').style.display = 'flex';
+  document.getElementById('hud').style.display = 'none';
+
+  // Hide combo indicator
+  document.getElementById('comboIndicator').style.display = 'none';
+}
+
+function resetToStart() {
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('hud').style.display = 'block';
+  document.getElementById('startScreen').style.display = 'flex';
+
+  // Reset all game state
+  gameScore = 0;
+  gameTimer = 120;
+  xpBoostActive = false;
+  xpBoostTimer = 0;
+  spBoostActive = false;
+  spBoostTimer = 0;
+  shieldActive = false;
+  comboCount = 0;
+  maxCombo = 0;
+  comboTimer = 0;
+  totalDistance = 0;
+  coinsCollected = 0;
+  playerName = '';
+  playerPhone = '';
+  playerX = 0;
+  speed = 0;
+  position = 0;
+  crashDecel.active = false;
+  crashDecel.targetSpeed = 0;
+
+  // Reset UI elements
+  updateHud('score', 0);
+  updateHud('timer', 120);
+  document.getElementById('timer').classList.remove('timer-warning');
+
+  // Clear collectibles
+  collectibles = [];
+
+  // Reset speed effects
+  speedLinesGenerated = false;
+  var speedLinesEl = document.getElementById('speedLines');
+  var roadEffectEl = document.getElementById('roadSpeedEffect');
+  var vignetteEl = document.getElementById('speedVignette');
+  var offroadEl = document.getElementById('offroadWarning');
+  if (speedLinesEl) speedLinesEl.classList.remove('active');
+  if (roadEffectEl) roadEffectEl.classList.remove('active');
+  if (vignetteEl) vignetteEl.classList.remove('active');
+  if (offroadEl) offroadEl.classList.remove('active');
+  canvas.style.animation = '';
+
+  initStartScreen();
+}
+
+// ========== MOBILE CONTROLS ==========
+function initMobileControls() {
+  var gasBtn = document.getElementById('gasBtn');
+  var brakeBtn = document.getElementById('brakeBtn');
+
+  // Gas button
+  gasBtn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    keyFaster = true;
+    keySlower = false;
+  });
+  gasBtn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    keyFaster = false;
+  });
+  gasBtn.addEventListener('mousedown', function() {
+    keyFaster = true;
+    keySlower = false;
+  });
+  gasBtn.addEventListener('mouseup', function() {
+    keyFaster = false;
+  });
+  gasBtn.addEventListener('mouseleave', function() {
+    keyFaster = false;
+  });
+
+  // Brake button
+  brakeBtn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    keySlower = true;
+    keyFaster = false;
+  });
+  brakeBtn.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    keySlower = false;
+  });
+  brakeBtn.addEventListener('mousedown', function() {
+    keySlower = true;
+    keyFaster = false;
+  });
+  brakeBtn.addEventListener('mouseup', function() {
+    keySlower = false;
+  });
+  brakeBtn.addEventListener('mouseleave', function() {
+    keySlower = false;
+  });
+}
+
+// Initialize mobile controls when game loads
+document.addEventListener('DOMContentLoaded', function() {
+  initMobileControls();
+});
+
+// Also initialize immediately if script loads after DOM
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  initMobileControls();
+}
+
+</script>
+<script>
+
+	  // detects the screen and ajusts the game
+	  // Fixed to always use mobile portrait layout (9:16 aspect ratio)
+	  //
+	  function detect_screen ()
+	  {
+	  	var ww = window.innerWidth;
+	  	var wh = window.innerHeight - 4;
+
+	  	// Always use portrait aspect ratio (9:16)
+	  	var aspectRatio = 9 / 16;
+
+	  	// Calculate dimensions that fit in viewport with portrait ratio
+	  	var gameWidth, gameHeight;
+
+	  	if (ww / wh > aspectRatio) {
+	  		// Viewport is wider than needed - fit height, calculate width
+	  		gameHeight = wh;
+	  		gameWidth = wh * aspectRatio;
+	  	} else {
+	  		// Viewport is taller than needed - fit width, calculate height
+	  		gameWidth = ww;
+	  		gameHeight = ww / aspectRatio;
+	  	}
+
+	  	// Ensure html and body are properly set up for centering
+	  	document.documentElement.style.width = '100%';
+	  	document.documentElement.style.height = '100%';
+	  	document.documentElement.style.margin = '0';
+	  	document.documentElement.style.padding = '0';
+	  	document.documentElement.style.overflow = 'hidden';
+
+	  	document.body.style.width = '100%';
+	  	document.body.style.height = '100%';
+	  	document.body.style.margin = '0';
+	  	document.body.style.padding = '0';
+	  	document.body.style.backgroundColor = '#000';
+	  	document.body.style.overflow = 'hidden';
+	  	document.body.style.display = 'flex';
+	  	document.body.style.justifyContent = 'center';
+	  	document.body.style.alignItems = 'center';
+
+	  	var domCanvas = Dom.get('canvas');
+	  	var domRacer = Dom.get('racer');
+	  	var domHud = Dom.get('hud');
+
+	  	// Apply fixed dimensions to canvas and racer
+	  	gameWidth = Math.floor(gameWidth);
+	  	gameHeight = Math.floor(gameHeight);
+
+	  	domCanvas.style.width = gameWidth + 'px';
+	  	domCanvas.style.height = gameHeight + 'px';
+	  	domCanvas.style.position = 'relative';
+	  	domCanvas.style.margin = '0';
+
+	  	domRacer.style.width = gameWidth + 'px';
+	  	domRacer.style.height = gameHeight + 'px';
+	  	domRacer.style.position = 'relative';
+	  	domRacer.style.margin = '0';
+
+	  	domHud.style.width = gameWidth + 'px';
+
+	  	return { 'width' : gameWidth, 'height' : gameHeight };
+	  }
+	  
+	  var activate_flag = false;
+	  
+	  // sends data from key touches into physics mechanism
+	  //
+	  function touch_update() {
+
+	  	if (! ongoingTouches.length && ! activate_flag && joystickTouchId === null) return;
+	  	if (! ongoingTouches.length && ! activate_flag && joystickTouchId === null) return;
+	  	if (joystickTouchId !== null) {
+	  		// Joystick is being used for steering
+	  		activate_flag = true;
+	  		keyLeft = false;
+	  		keyRight = false;
+
+	  		// Apply joystick steering with a threshold to prevent drift
+	  		if (joystickDeltaX < -0.15) {
+	  			keyLeft = true;
+	  		} else if (joystickDeltaX > 0.15) {
+	  			keyRight = true;
+	  		}
+
+	  		// Joystick auto-accelerates
+	  		keyFaster = true;
+	  		keySlower = false;
+
+	  		if (speed == 0) {
+	  			activate_flag = false;
+	  		}
+	  		return;
+	  	}
+
+	  	if (! activate_flag) activate_flag = true;
+	  	keyLeft = false;
+	  	keyRight = false;
+	  		  	
+	  	for ( var i = 0; i < ongoingTouches.length; i++ )
+	  	{
+	  		if ( ongoingTouches[i].pageX < width/2 ) {
+	  			keyLeft = true;
+	  		} else
+	  		if ( ongoingTouches[i].pageX > width/2 ) {
+	  			keyRight = true;
+	  		}
+	  	}
+	  	
+		if ( keyLeft && keyRight ) { keySlower = true; keyLeft = false; keyRight = false; }
+		else { keyFaster  = true; }
+		
+		if ( speed == 0 ) activate_flag = false;
+
+	  }
+	  
+	  var touch = new TouchControl(document.getElementsByTagName("canvas")[0]);
+	  	  
+
+//////////
+///
+///      END OF CUSTOM CODE (one more block ahead)
+///
+/////////
+
+
+    var fps            = 60;                      // how many 'update' frames per second
+    var step           = 1/fps;                   // how long is each frame (in seconds)
+    var width          = 1024;                    // logical canvas width
+    var height         = 512;                     // logical canvas height
+    var centrifugal    = 0.3;                     // centrifugal force multiplier when going around curves
+    var offRoadDecel   = 0.99;                    // speed multiplier when off road (e.g. you lose 2% speed each update frame)
+    var skySpeed       = 0.001;                   // background sky layer scroll speed when going around curve (or up hill)
+    var hillSpeed      = 0.002;                   // background hill layer scroll speed when going around curve (or up hill)
+    var treeSpeed      = 0.003;                   // background tree layer scroll speed when going around curve (or up hill)
+    var skyOffset      = 0;                       // current sky scroll offset
+    var hillOffset     = 0;                       // current hill scroll offset
+    var treeOffset     = 0;                       // current tree scroll offset
+    var segments       = [];                      // array of road segments
+    var cars           = [];                      // array of cars on the road
+//    var stats          = Game.stats('fps');       // mr.doobs FPS counter
+    var canvas         = Dom.get('canvas');       // our canvas...
+    var ctx            = canvas.getContext('2d'); // ...and its drawing context
+    var background     = null;                    // our background image (loaded below)
+    var sprites        = null;                    // our spritesheet (loaded below)
+    var goldcoinImage  = null;                    // gold coin image (loaded below)
+    var resolution     = null;                    // scaling factor to provide resolution independence (computed)
+    var roadWidth      = 2000;                    // actually half the roads width, easier math if the road spans from -roadWidth to +roadWidth
+    var segmentLength  = 200;                     // length of a single segment
+    var rumbleLength   = 3;                       // number of segments per red/white rumble strip
+    var trackLength    = null;                    // z length of entire track (computed)
+    var lanes          = 3;                       // number of lanes
+    var fieldOfView    = 100;                     // angle (degrees) for field of view
+    var cameraHeight   = 1100;                    // z height of camera
+    var cameraDepth    = null;                    // z distance camera is from screen (computed)
+    var drawDistance   = 300;                     // number of segments to draw
+    var playerX        = 0;                       // player x offset from center of road (-1 to 1 to stay independent of roadWidth)
+    var playerZ        = null;                    // player relative z distance from camera (computed)
+    var fogDensity     = 5;                       // exponential fog density
+    var position       = 0;                       // current camera Z position (add playerZ to get player's absolute Z position)
+    var speed          = 0;                       // current speed
+    var maxSpeed       = segmentLength/step;      // top speed (ensure we can't move more than 1 segment in a single frame to make collision detection easier)
+    var accel          =  maxSpeed/5;             // acceleration rate - tuned until it 'felt' right
+    var breaking       = -maxSpeed;               // deceleration rate when braking
+    var decel          = -maxSpeed/5;             // 'natural' deceleration rate when neither accelerating, nor braking
+    var offRoadDecel   = -maxSpeed/2;             // off road deceleration is somewhere in between
+    var offRoadLimit   =  maxSpeed/4;             // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
+    var totalCars      = 200;                     // total number of cars on the road
+    var currentLapTime = 0;                       // current lap time
+    var lastLapTime    = null;                    // last lap time
+
+    var keyLeft        = false;
+    var keyRight       = false;
+    var keyFaster      = false;
+    var keySlower      = false;
+
+    var hud = {
+      speed:            { value: null, dom: Dom.get('speed_value')            },
+      current_lap_time: { value: null, dom: Dom.get('current_lap_time_value') },
+      fast_lap_time:    { value: null, dom: Dom.get('fast_lap_time_value')    },
+      timer:            { value: null, dom: Dom.get('timer_value')            },
+      score:            { value: null, dom: Dom.get('score_value')            }
+    }
+
+    //=========================================================================
+    // UPDATE THE GAME WORLD
+    //=========================================================================
+
+
+///
+/// CUSTOM BLOCK 2
+///
+
+	var find_dimensions = detect_screen();
+	width = find_dimensions.width;
+	height = find_dimensions.height;
+	
+	//window.addEventListener("orientationchange", function(e) { window.location.reload(); } )
+///
+///
+///  END OF CUSTOM CODE (2)
+///
+/////
+
+    function update(dt) {
+
+    touch_update();
+
+    // Only run game logic when in playing state
+    var effectiveAccel = accel;
+    var effectiveDecel = decel;
+
+    if (currentState === GameState.PLAYING) {
+      // Update boost timers
+      if (xpBoostActive) {
+        xpBoostTimer -= dt;
+        if (xpBoostTimer <= 0) {
+          xpBoostActive = false;
+          xpBoostTimer = 0;
+        }
+      }
+      if (spBoostActive) {
+        spBoostTimer -= dt;
+        if (spBoostTimer <= 0) {
+          spBoostActive = false;
+          spBoostTimer = 0;
+        }
+      }
+
+      // Update combo timer
+      if (comboCount > 0) {
+        comboTimer -= dt;
+        if (comboTimer <= 0) {
+          comboCount = 0;
+          comboTimer = 0;
+          updateComboDisplay();
+        }
+      }
+
+      // Update screen shake
+      updateScreenShake(dt);
+
+      // Update speed effects (visual feedback)
+      updateSpeedEffects();
+
+      // Apply SP speed boost
+      if (spBoostActive) {
+        effectiveAccel = accel * 1.5;
+      }
+
+      // Score accumulation based on distance traveled
+      if (speed > 0) {
+        var distanceTraveled = speed * dt;
+        totalDistance += distanceTraveled;
+        var scoreGain = distanceTraveled * 0.5; // 0.5 points per unit distance
+        if (xpBoostActive) scoreGain *= 2;
+        gameScore += Math.floor(scoreGain);
+        updateHud('score', gameScore);
+      }
+
+      // Check collectible collisions
+      checkCollectibleCollision();
+
+      // Regenerate collectibles if needed
+      regenerateCollectibles();
+    } else if (currentState !== GameState.COUNTDOWN) {
+      // Reset keys if not playing
+      keyLeft = false;
+      keyRight = false;
+      keyFaster = false;
+      keySlower = false;
+      return; // Skip game update if not playing
+    }
+
+      var n, car, carW, sprite, spriteW;
+      var playerSegment = findSegment(position+playerZ);
+      var playerW       = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE;
+      var speedPercent  = speed/maxSpeed;
+      var dx            = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
+      var startPosition = position;
+
+      updateCars(dt, playerSegment, playerW);
+
+      position = Util.increase(position, dt * speed, trackLength);
+
+      if (keyLeft)
+        playerX = playerX - dx;
+      else if (keyRight)
+        playerX = playerX + dx;
+
+      playerX = playerX - (dx * speedPercent * playerSegment.curve * centrifugal);
+
+      if (keyFaster)
+        speed = Util.accelerate(speed, effectiveAccel, dt);
+      else if (keySlower)
+        speed = Util.accelerate(speed, breaking, dt);
+      else
+        speed = Util.accelerate(speed, effectiveDecel, dt);
+
+
+      if ((playerX < -1) || (playerX > 1)) {
+
+        if (speed > offRoadLimit)
+          speed = Util.accelerate(speed, offRoadDecel, dt);
+
+        for(n = 0 ; n < playerSegment.sprites.length ; n++) {
+          sprite  = playerSegment.sprites[n];
+          spriteW = sprite.source.w * SPRITES.SCALE;
+          if (Util.overlap(playerX, playerW, sprite.offset + spriteW/2 * (sprite.offset > 0 ? 1 : -1), spriteW)) {
+            // Crash penalty - but shield protects
+            if (!shieldActive) {
+              // Smooth gradual deceleration instead of immediate drop
+              crashDecel.active = true;
+              crashDecel.targetSpeed = maxSpeed/5;
+              triggerScreenShake(20, 0.3);
+              showCrashFlash();
+              comboCount = 0; // Reset combo on crash
+              updateComboDisplay();
+            } else {
+              // Shield absorbs hit but still slows down gradually
+              shieldActive = false;
+              crashDecel.active = true;
+              crashDecel.targetSpeed = speed * 0.5;
+              triggerScreenShake(10, 0.2);
+            }
+            position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of sprite (at front of segment)
+            break;
+          }
+        }
+      }
+
+      // SP boost ignores car collisions
+      if (!spBoostActive) {
+        for(n = 0 ; n < playerSegment.cars.length ; n++) {
+          car  = playerSegment.cars[n];
+          carW = car.sprite.w * SPRITES.SCALE;
+          if (speed > car.speed) {
+            if (Util.overlap(playerX, playerW, car.offset, carW, 0.8)) {
+              speed    = car.speed * (car.speed/speed);
+              position = Util.increase(car.z, -playerZ, trackLength);
+              break;
+            }
+          }
+        }
+      }
+
+      // Handle smooth crash deceleration
+      if (crashDecel.active) {
+        // Use a strong deceleration rate to gradually slow down
+        var crashDecelRate = -maxSpeed * 3; // 3x normal deceleration
+        speed = Util.accelerate(speed, crashDecelRate, dt);
+        // Check if we've reached or passed the target speed
+        if (speed <= crashDecel.targetSpeed) {
+          speed = crashDecel.targetSpeed;
+          crashDecel.active = false;
+        }
+      }
+
+      playerX = Util.limit(playerX, -3, 3);     // dont ever let it go too far out of bounds
+
+      // Speed limit - higher during SP boost (to show 240 MPH)
+      var effectiveMaxSpeed = spBoostActive ? maxSpeed * 1.5 : maxSpeed;
+      speed   = Util.limit(speed, 0, effectiveMaxSpeed);
+
+      skyOffset  = Util.increase(skyOffset,  skySpeed  * playerSegment.curve * (position-startPosition)/segmentLength * getSpeedParallaxFactor(), 1);
+      hillOffset = Util.increase(hillOffset, hillSpeed * playerSegment.curve * (position-startPosition)/segmentLength * getSpeedParallaxFactor(), 1);
+      treeOffset = Util.increase(treeOffset, treeSpeed * playerSegment.curve * (position-startPosition)/segmentLength * getSpeedParallaxFactor(), 1);
+
+      if (position > playerZ) {
+        if (currentLapTime && (startPosition < playerZ)) {
+          lastLapTime    = currentLapTime;
+          currentLapTime = 0;
+          if (lastLapTime <= Util.toFloat(Dom.storage.fast_lap_time)) {
+            Dom.storage.fast_lap_time = lastLapTime;
+            updateHud('fast_lap_time', formatTime(lastLapTime));
+            Dom.addClassName('fast_lap_time', 'fastest');
+          }
+          else {
+            Dom.removeClassName('fast_lap_time', 'fastest');
+          }
+        }
+        else {
+          currentLapTime += dt;
+        }
+      }
+
+      // Calculate MPH (240 at max SP boost speed)
+      var mph = Math.round((240 / (maxSpeed * 1.5)) * speed);
+      updateHud('speed', mph);
+      updateHud('current_lap_time', formatTime(currentLapTime));
+    }
+
+    //-------------------------------------------------------------------------
+
+    function updateCars(dt, playerSegment, playerW) {
+      var n, car, oldSegment, newSegment;
+      for(n = 0 ; n < cars.length ; n++) {
+        car         = cars[n];
+        oldSegment  = findSegment(car.z);
+        car.offset  = car.offset + updateCarOffset(car, oldSegment, playerSegment, playerW);
+        car.z       = Util.increase(car.z, dt * car.speed, trackLength);
+        car.percent = Util.percentRemaining(car.z, segmentLength); // useful for interpolation during rendering phase
+        newSegment  = findSegment(car.z);
+        if (oldSegment != newSegment) {
+          index = oldSegment.cars.indexOf(car);
+          oldSegment.cars.splice(index, 1);
+          newSegment.cars.push(car);
+        }
+      }
+    }
+
+    function updateCarOffset(car, carSegment, playerSegment, playerW) {
+
+      var i, j, dir, segment, otherCar, otherCarW, lookahead = 20, carW = car.sprite.w * SPRITES.SCALE;
+
+      // optimization, dont bother steering around other cars when 'out of sight' of the player
+      if ((carSegment.index - playerSegment.index) > drawDistance)
+        return 0;
+
+      for(i = 1 ; i < lookahead ; i++) {
+        segment = segments[(carSegment.index+i)%segments.length];
+
+        if ((segment === playerSegment) && (car.speed > speed) && (Util.overlap(playerX, playerW, car.offset, carW, 1.2))) {
+          if (playerX > 0.5)
+            dir = -1;
+          else if (playerX < -0.5)
+            dir = 1;
+          else
+            dir = (car.offset > playerX) ? 1 : -1;
+          return dir * 1/i * (car.speed-speed)/maxSpeed; // the closer the cars (smaller i) and the greated the speed ratio, the larger the offset
+        }
+
+        for(j = 0 ; j < segment.cars.length ; j++) {
+          otherCar  = segment.cars[j];
+          otherCarW = otherCar.sprite.w * SPRITES.SCALE;
+          if ((car.speed > otherCar.speed) && Util.overlap(car.offset, carW, otherCar.offset, otherCarW, 1.2)) {
+            if (otherCar.offset > 0.5)
+              dir = -1;
+            else if (otherCar.offset < -0.5)
+              dir = 1;
+            else
+              dir = (car.offset > otherCar.offset) ? 1 : -1;
+            return dir * 1/i * (car.speed-otherCar.speed)/maxSpeed;
+          }
+        }
+      }
+
+      // if no cars ahead, but I have somehow ended up off road, then steer back on
+      if (car.offset < -0.9)
+        return 0.1;
+      else if (car.offset > 0.9)
+        return -0.1;
+      else
+        return 0;
+    }
+
+    //-------------------------------------------------------------------------
+
+    function updateHud(key, value) { // accessing DOM can be slow, so only do it if value has changed
+      if (hud[key].value !== value) {
+        hud[key].value = value;
+        Dom.set(hud[key].dom, value);
+      }
+    }
+
+    function formatTime(dt) {
+      var minutes = Math.floor(dt/60);
+      var seconds = Math.floor(dt - (minutes * 60));
+      var tenths  = Math.floor(10 * (dt - Math.floor(dt)));
+      if (minutes > 0)
+        return minutes + "." + (seconds < 10 ? "0" : "") + seconds + "." + tenths;
+      else
+        return seconds + "." + tenths;
+    }
+
+    //=========================================================================
+    // RENDER THE GAME WORLD
+    //=========================================================================
+
+    // ========== COLLECTIBLE RENDERING ==========
+    function renderCollectiblesInSegment(segment, segmentDrawIndex) {
+      if (!segment.p1.screen.scale) return;
+
+      for (var i = 0; i < collectibles.length; i++) {
+        var c = collectibles[i];
+        if (c.collected) continue;
+        if (c.segmentIndex !== segment.index) continue;
+
+        var spriteScale = segment.p1.screen.scale * 0.5;
+        var spriteX = segment.p1.screen.x + (spriteScale * c.offset * roadWidth * width/2);
+        var spriteY = segment.p1.screen.y - 50;
+
+        var size = spriteScale * roadWidth * width/4;
+        if (size < 10) size = 10;
+
+        if (c.type.name === 'gold' && goldcoinImage) {
+          // Draw gold coin image
+          ctx.drawImage(goldcoinImage, spriteX - size, spriteY - size, size * 2, size * 2);
+        } else {
+          // Draw XP or SP as circles with symbols
+          // Draw glow effect
+          ctx.beginPath();
+          ctx.arc(spriteX, spriteY, size * 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = c.type.color + '40'; // Add transparency
+          ctx.fill();
+
+          // Draw main circle
+          ctx.beginPath();
+          ctx.arc(spriteX, spriteY, size, 0, Math.PI * 2);
+          ctx.fillStyle = c.type.color;
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Draw text/symbol
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold ' + (size * 1.2) + 'px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          var symbol = '';
+          if (c.type.name === 'xp') symbol = '2X';
+          else if (c.type.name === 'sp') symbol = 'SP';
+
+          ctx.fillText(symbol, spriteX, spriteY);
+        }
+      }
+    }
+
+    function render() {
+      var baseSegment   = findSegment(position);
+      var basePercent   = Util.percentRemaining(position, segmentLength);
+      var playerSegment = findSegment(position+playerZ);
+      var playerPercent = Util.percentRemaining(position+playerZ, segmentLength);
+      var playerY       = Util.interpolate(playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent);
+      var maxy          = height;
+
+      var x  = 0;
+      var dx = - (baseSegment.curve * basePercent);
+
+      // Dynamic camera based on speed for acceleration feel
+      var dynamicCameraDepth = getDynamicCameraDepth();
+      var dynamicRoadWidth = getSpeedRoadWidth();
+
+      ctx.clearRect(0, 0, width, height);
+
+      Render.background(ctx, background, width, height, BACKGROUND.SKY,   skyOffset,  resolution * skySpeed  * playerY);
+      Render.background(ctx, background, width, height, BACKGROUND.HILLS, hillOffset, resolution * hillSpeed * playerY);
+      Render.background(ctx, background, width, height, BACKGROUND.TREES, treeOffset, resolution * treeSpeed * playerY);
+
+      var n, i, segment, car, sprite, spriteScale, spriteX, spriteY;
+
+      for(n = 0 ; n < drawDistance ; n++) {
+
+        segment        = segments[(baseSegment.index + n) % segments.length];
+        segment.looped = segment.index < baseSegment.index;
+        segment.fog    = Util.exponentialFog(n/drawDistance, fogDensity);
+        segment.clip   = maxy;
+
+        Util.project(segment.p1, (playerX * dynamicRoadWidth) - x,      playerY + cameraHeight, position - (segment.looped ? trackLength : 0), dynamicCameraDepth, width, height, dynamicRoadWidth);
+        Util.project(segment.p2, (playerX * dynamicRoadWidth) - x - dx, playerY + cameraHeight, position - (segment.looped ? trackLength : 0), dynamicCameraDepth, width, height, dynamicRoadWidth);
+
+        x  = x + dx;
+        dx = dx + segment.curve;
+
+        if ((segment.p1.camera.z <= dynamicCameraDepth)         || // behind us
+            (segment.p2.screen.y >= segment.p1.screen.y) || // back face cull
+            (segment.p2.screen.y >= maxy))                  // clip by (already rendered) hill
+          continue;
+
+        Render.segment(ctx, width, lanes,
+                       segment.p1.screen.x,
+                       segment.p1.screen.y,
+                       segment.p1.screen.w,
+                       segment.p2.screen.x,
+                       segment.p2.screen.y,
+                       segment.p2.screen.w,
+                       segment.fog,
+                       segment.color);
+
+        maxy = segment.p1.screen.y;
+      }
+
+      for(n = (drawDistance-1) ; n > 0 ; n--) {
+        segment = segments[(baseSegment.index + n) % segments.length];
+
+        for(i = 0 ; i < segment.cars.length ; i++) {
+          car         = segment.cars[i];
+          sprite      = car.sprite;
+          spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent) * CAR_SCALE;
+          spriteX     = Util.interpolate(segment.p1.screen.x,     segment.p2.screen.x,     car.percent) + (spriteScale * car.offset * dynamicRoadWidth * width/2);
+          spriteY     = Util.interpolate(segment.p1.screen.y,     segment.p2.screen.y,     car.percent);
+          Render.sprite(ctx, width, height, resolution, dynamicRoadWidth, sprites, car.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
+        }
+
+        for(i = 0 ; i < segment.sprites.length ; i++) {
+          sprite      = segment.sprites[i];
+          spriteScale = segment.p1.screen.scale;
+          spriteX     = segment.p1.screen.x + (spriteScale * sprite.offset * dynamicRoadWidth * width/2);
+          spriteY     = segment.p1.screen.y;
+          Render.sprite(ctx, width, height, resolution, dynamicRoadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
+        }
+
+        // Render collectibles
+        if (currentState === GameState.PLAYING) {
+          renderCollectiblesInSegment(segment, n);
+        }
+
+        if (segment == playerSegment) {
+          Render.player(ctx, width, height, resolution, dynamicRoadWidth, sprites, speed/maxSpeed,
+                        dynamicCameraDepth/playerZ,
+                        width/2,
+                        (height/2) - (dynamicCameraDepth/playerZ * Util.interpolate(playerSegment.p1.camera.y, playerSegment.p2.camera.y, playerPercent) * height/2),
+                        speed * (keyLeft ? -1 : keyRight ? 1 : 0),
+                        playerSegment.p2.world.y - playerSegment.p1.world.y);
+        }
+      }
+    }
+
+    function findSegment(z) {
+      return segments[Math.floor(z/segmentLength) % segments.length]; 
+    }
+
+    //=========================================================================
+    // BUILD ROAD GEOMETRY
+    //=========================================================================
+
+    function lastY() { return (segments.length == 0) ? 0 : segments[segments.length-1].p2.world.y; }
+
+    function addSegment(curve, y) {
+      var n = segments.length;
+      segments.push({
+          index: n,
+             p1: { world: { y: lastY(), z:  n   *segmentLength }, camera: {}, screen: {} },
+             p2: { world: { y: y,       z: (n+1)*segmentLength }, camera: {}, screen: {} },
+          curve: curve,
+        sprites: [],
+           cars: [],
+          color: Math.floor(n/rumbleLength)%2 ? COLORS.DARK : COLORS.LIGHT
+      });
+    }
+
+    function addSprite(n, sprite, offset) {
+      segments[n].sprites.push({ source: sprite, offset: offset });
+    }
+
+    function addRoad(enter, hold, leave, curve, y) {
+      var startY   = lastY();
+      var endY     = startY + (Util.toInt(y, 0) * segmentLength);
+      var n, total = enter + hold + leave;
+      for(n = 0 ; n < enter ; n++)
+        addSegment(Util.easeIn(0, curve, n/enter), Util.easeInOut(startY, endY, n/total));
+      for(n = 0 ; n < hold  ; n++)
+        addSegment(curve, Util.easeInOut(startY, endY, (enter+n)/total));
+      for(n = 0 ; n < leave ; n++)
+        addSegment(Util.easeInOut(curve, 0, n/leave), Util.easeInOut(startY, endY, (enter+hold+n)/total));
+    }
+
+    var ROAD = {
+      LENGTH: { NONE: 0, SHORT:  25, MEDIUM:   50, LONG:  100 },
+      HILL:   { NONE: 0, LOW:    20, MEDIUM:   40, HIGH:   60 },
+      CURVE:  { NONE: 0, EASY:    2, MEDIUM:    4, HARD:    6 }
+    };
+
+    function addStraight(num) {
+      num = num || ROAD.LENGTH.MEDIUM;
+      addRoad(num, num, num, 0, 0);
+    }
+
+    function addHill(num, height) {
+      num    = num    || ROAD.LENGTH.MEDIUM;
+      height = height || ROAD.HILL.MEDIUM;
+      addRoad(num, num, num, 0, height);
+    }
+
+    function addCurve(num, curve, height) {
+      num    = num    || ROAD.LENGTH.MEDIUM;
+      curve  = curve  || ROAD.CURVE.MEDIUM;
+      height = height || ROAD.HILL.NONE;
+      addRoad(num, num, num, curve, height);
+    }
+        
+    function addLowRollingHills(num, height) {
+      num    = num    || ROAD.LENGTH.SHORT;
+      height = height || ROAD.HILL.LOW;
+      addRoad(num, num, num,  0,                height/2);
+      addRoad(num, num, num,  0,               -height);
+      addRoad(num, num, num,  ROAD.CURVE.EASY,  height);
+      addRoad(num, num, num,  0,                0);
+      addRoad(num, num, num, -ROAD.CURVE.EASY,  height/2);
+      addRoad(num, num, num,  0,                0);
+    }
+
+    function addSCurves() {
+      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  -ROAD.CURVE.EASY,    ROAD.HILL.NONE);
+      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,   ROAD.CURVE.MEDIUM,  ROAD.HILL.MEDIUM);
+      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,   ROAD.CURVE.EASY,   -ROAD.HILL.LOW);
+      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  -ROAD.CURVE.EASY,    ROAD.HILL.MEDIUM);
+      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  -ROAD.CURVE.MEDIUM, -ROAD.HILL.MEDIUM);
+    }
+
+    function addBumps() {
+      addRoad(10, 10, 10, 0,  5);
+      addRoad(10, 10, 10, 0, -2);
+      addRoad(10, 10, 10, 0, -5);
+      addRoad(10, 10, 10, 0,  8);
+      addRoad(10, 10, 10, 0,  5);
+      addRoad(10, 10, 10, 0, -7);
+      addRoad(10, 10, 10, 0,  5);
+      addRoad(10, 10, 10, 0, -2);
+    }
+
+    function addDownhillToEnd(num) {
+      num = num || 200;
+      addRoad(num, num, num, -ROAD.CURVE.EASY, -lastY()/segmentLength);
+    }
+
+    function resetRoad() {
+      segments = [];
+
+      addStraight(ROAD.LENGTH.SHORT);
+      addLowRollingHills();
+      addSCurves();
+      addCurve(ROAD.LENGTH.MEDIUM, ROAD.CURVE.MEDIUM, ROAD.HILL.LOW);
+      addBumps();
+      addLowRollingHills();
+      addCurve(ROAD.LENGTH.LONG*2, ROAD.CURVE.MEDIUM, ROAD.HILL.MEDIUM);
+      addStraight();
+      addHill(ROAD.LENGTH.MEDIUM, ROAD.HILL.HIGH);
+      addSCurves();
+      addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.MEDIUM, ROAD.HILL.NONE);
+      addHill(ROAD.LENGTH.LONG, ROAD.HILL.HIGH);
+      addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM, -ROAD.HILL.LOW);
+      addBumps();
+      addHill(ROAD.LENGTH.LONG, -ROAD.HILL.MEDIUM);
+      addStraight();
+      addSCurves();
+      addDownhillToEnd();
+
+      resetSprites();
+      resetCars();
+
+      segments[findSegment(playerZ).index + 2].color = COLORS.START;
+      segments[findSegment(playerZ).index + 3].color = COLORS.START;
+      for(var n = 0 ; n < rumbleLength ; n++)
+        segments[segments.length-1-n].color = COLORS.FINISH;
+
+      trackLength = segments.length * segmentLength;
+    }
+
+    function resetSprites() {
+      var n, i;
+
+      addSprite(20,  SPRITES.BILLBOARD07, -1);
+      addSprite(40,  SPRITES.BILLBOARD06, -1);
+      addSprite(60,  SPRITES.BILLBOARD08, -1);
+      addSprite(80,  SPRITES.BILLBOARD09, -1);
+      addSprite(100, SPRITES.BILLBOARD01, -1);
+      addSprite(120, SPRITES.BILLBOARD02, -1);
+      addSprite(140, SPRITES.BILLBOARD03, -1);
+      addSprite(160, SPRITES.BILLBOARD04, -1);
+      addSprite(180, SPRITES.BILLBOARD05, -1);
+
+      addSprite(240,                  SPRITES.BILLBOARD07, -1.2);
+      addSprite(240,                  SPRITES.BILLBOARD06,  1.2);
+      addSprite(segments.length - 25, SPRITES.BILLBOARD07, -1.2);
+      addSprite(segments.length - 25, SPRITES.BILLBOARD06,  1.2);
+
+      for(n = 10 ; n < 200 ; n += 4 + Math.floor(n/100)) {
+        addSprite(n, SPRITES.PALM_TREE, 0.5 + Math.random()*0.5);
+        addSprite(n, SPRITES.PALM_TREE,   1 + Math.random()*2);
+      }
+
+      for(n = 250 ; n < 1000 ; n += 5) {
+        addSprite(n,     SPRITES.COLUMN, 1.1);
+        addSprite(n + Util.randomInt(0,5), SPRITES.TREE1, -1 - (Math.random() * 2));
+        addSprite(n + Util.randomInt(0,5), SPRITES.TREE2, -1 - (Math.random() * 2));
+      }
+
+      for(n = 200 ; n < segments.length ; n += 3) {
+        addSprite(n, Util.randomChoice(SPRITES.PLANTS), Util.randomChoice([1,-1]) * (2 + Math.random() * 5));
+      }
+
+      var side, sprite, offset;
+      for(n = 1000 ; n < (segments.length-50) ; n += 100) {
+        side      = Util.randomChoice([1, -1]);
+        addSprite(n + Util.randomInt(0, 50), Util.randomChoice(SPRITES.BILLBOARDS), -side);
+        for(i = 0 ; i < 20 ; i++) {
+          sprite = Util.randomChoice(SPRITES.PLANTS);
+          offset = side * (1.5 + Math.random());
+          addSprite(n + Util.randomInt(0, 50), sprite, offset);
+        }
+          
+      }
+
+    }
+
+    function resetCars() {
+      cars = [];
+      var n, car, segment, offset, z, sprite, speed;
+      for (var n = 0 ; n < totalCars ; n++) {
+        offset = Math.random() * Util.randomChoice([-0.8, 0.8]);
+        z      = Math.floor(Math.random() * segments.length) * segmentLength;
+        sprite = Util.randomChoice(SPRITES.CARS);
+        speed  = maxSpeed/4 + Math.random() * maxSpeed/(sprite == SPRITES.SEMI ? 4 : 2);
+        car = { offset: offset, z: z, sprite: sprite, speed: speed };
+        segment = findSegment(car.z);
+        segment.cars.push(car);
+        cars.push(car);
+      }
+    }
+
+    //=========================================================================
+    // THE GAME LOOP
+    //=========================================================================
+
+    Game.run({
+      canvas: canvas, render: render, update: update, /* stats: stats, */ step: step,
+      images: ["background", "sprites", "goldcoin"],
+      keys: [
+        { keys: [KEY.LEFT,  KEY.A], mode: 'down', action: function() { keyLeft   = true;  } },
+        { keys: [KEY.RIGHT, KEY.D], mode: 'down', action: function() { keyRight  = true;  } },
+        { keys: [KEY.UP,    KEY.W], mode: 'down', action: function() { keyFaster = true;  } },
+        { keys: [KEY.DOWN,  KEY.S], mode: 'down', action: function() { keySlower = true;  } },
+        { keys: [KEY.LEFT,  KEY.A], mode: 'up',   action: function() { keyLeft   = false; } },
+        { keys: [KEY.RIGHT, KEY.D], mode: 'up',   action: function() { keyRight  = false; } },
+        { keys: [KEY.UP,    KEY.W], mode: 'up',   action: function() { keyFaster = false; } },
+        { keys: [KEY.DOWN,  KEY.S], mode: 'up',   action: function() { keySlower = false; } }
+      ],
+      ready: function(images) {
+        console.log('Game ready callback called');
+        background = images[0];
+        sprites    = images[1];
+        goldcoinImage = images[2];
+        reset();
+        Dom.storage.fast_lap_time = Dom.storage.fast_lap_time || 180;
+        updateHud('fast_lap_time', formatTime(Util.toFloat(Dom.storage.fast_lap_time)));
+
+        // Load standalone player car images (overrides spritesheet for player car)
+        Render.loadPlayerImages('images/');
+
+        // Initialize start screen after game is ready
+        console.log('Calling initStartScreen');
+        initStartScreen();
+
+        // Setup play again button
+        document.getElementById('playAgainBtn').onclick = resetToStart;
+      }
+    });
+
+    function reset(options) {
+      options       = options || {};
+      canvas.width  = width  = Util.toInt(options.width,          width);
+      canvas.height = height = Util.toInt(options.height,         height);
+      lanes                  = Util.toInt(options.lanes,          lanes);
+      roadWidth              = Util.toInt(options.roadWidth,      roadWidth);
+      cameraHeight           = Util.toInt(options.cameraHeight,   cameraHeight);
+      drawDistance           = Util.toInt(options.drawDistance,   drawDistance);
+      fogDensity             = Util.toInt(options.fogDensity,     fogDensity);
+      fieldOfView            = Util.toInt(options.fieldOfView,    fieldOfView);
+      segmentLength          = Util.toInt(options.segmentLength,  segmentLength);
+      rumbleLength           = Util.toInt(options.rumbleLength,   rumbleLength);
+      cameraDepth            = 1 / Math.tan((fieldOfView/2) * Math.PI/180);
+      playerZ                = (cameraHeight * cameraDepth);
+      resolution             = height/480;
+      refreshTweakUI();
+
+      if ((segments.length==0) || (options.segmentLength) || (options.rumbleLength))
+        resetRoad(); // only rebuild road when necessary
+    }
+
+    //=========================================================================
+    // TWEAK UI HANDLERS
+    //=========================================================================
+
+/*    Dom.on('resolution', 'change', function(ev) {
+      var w, h, ratio;
+      switch(ev.target.options[ev.target.selectedIndex].value) {
+        case 'fine':   w = 1280; h = 960;  ratio=w/width; break;
+        case 'high':   w = 1024; h = 768;  ratio=w/width; break;
+        case 'medium': w = 640;  h = 480;  ratio=w/width; break;
+        case 'low':    w = 480;  h = 360;  ratio=w/width; break;
+      }
+      reset({ width: w, height: h })
+      Dom.blur(ev);
+    });*/
+
+//    Dom.on('lanes',          'change', function(ev) { Dom.blur(ev); reset({ lanes:         ev.target.options[ev.target.selectedIndex].value }); });
+//    Dom.on('roadWidth',      'change', function(ev) { Dom.blur(ev); reset({ roadWidth:     Util.limit(Util.toInt(ev.target.value), Util.toInt(ev.target.getAttribute('min')), Util.toInt(ev.target.getAttribute('max'))) }); });
+//    Dom.on('cameraHeight',   'change', function(ev) { Dom.blur(ev); reset({ cameraHeight:  Util.limit(Util.toInt(ev.target.value), Util.toInt(ev.target.getAttribute('min')), Util.toInt(ev.target.getAttribute('max'))) }); });
+//    Dom.on('drawDistance',   'change', function(ev) { Dom.blur(ev); reset({ drawDistance:  Util.limit(Util.toInt(ev.target.value), Util.toInt(ev.target.getAttribute('min')), Util.toInt(ev.target.getAttribute('max'))) }); });
+//    Dom.on('fieldOfView',    'change', function(ev) { Dom.blur(ev); reset({ fieldOfView:   Util.limit(Util.toInt(ev.target.value), Util.toInt(ev.target.getAttribute('min')), Util.toInt(ev.target.getAttribute('max'))) }); });
+//    Dom.on('fogDensity',     'change', function(ev) { Dom.blur(ev); reset({ fogDensity:    Util.limit(Util.toInt(ev.target.value), Util.toInt(ev.target.getAttribute('min')), Util.toInt(ev.target.getAttribute('max'))) }); });
+
+    function refreshTweakUI() {
+//      Dom.get('lanes').selectedIndex = lanes-1;
+//      Dom.get('currentRoadWidth').innerHTML      = Dom.get('roadWidth').value      = roadWidth;
+//      Dom.get('currentCameraHeight').innerHTML   = Dom.get('cameraHeight').value   = cameraHeight;
+//      Dom.get('currentDrawDistance').innerHTML   = Dom.get('drawDistance').value   = drawDistance;
+//      Dom.get('currentFieldOfView').innerHTML    = Dom.get('fieldOfView').value    = fieldOfView;
+//      Dom.get('currentFogDensity').innerHTML     = Dom.get('fogDensity').value     = fogDensity;
+		return;
+    }
+
+    //=========================================================================
+
+  </script>
+
+</body> 
+</html>
