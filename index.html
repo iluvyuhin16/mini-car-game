@@ -525,32 +525,30 @@
   	.speed-line {
   		position: absolute;
   		width: 4px;
-  		height: 100px;
-  		background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,0.9) 60%, transparent 100%);
+  		background: linear-gradient(to center, transparent 0%, rgba(255,255,255,0.9) 30%, rgba(255,255,255,0.9) 70%, transparent 100%);
   		border-radius: 2px;
-  		transform-origin: center top;
+  		opacity: 0;
   	}
   	.speed-line-left {
-  		/* Lines on left side angled outward-left */
-  		transform: rotate(5deg);
+  		left: 0;
+  		top: 50%;
+  		transform-origin: left center;
+  		transform: rotate(20deg);
   	}
   	.speed-line-right {
-  		/* Lines on right side angled outward-right */
-  		transform: rotate(-5deg);
+  		right: 0;
+  		top: 50%;
+  		transform-origin: right center;
+  		transform: rotate(-20deg);
   	}
-  	@keyframes speedLineMove {
-  		from { transform: translateY(-150px) rotate(5deg); opacity: 0; }
+  	@keyframes speedLineConverge {
+  		0% { opacity: 0; height: 10px; }
   		10% { opacity: 1; }
-  		to { transform: translateY(calc(100% + 50px)) rotate(5deg); opacity: 0; }
+  		100% { opacity: 0; height: 200px; }
   	}
-  	.speed-line-right {
-  		animation-name: speedLineMoveRight;
-  	}
-  	@keyframes speedLineMoveRight {
-  		from { transform: translateY(-150px) rotate(-5deg); opacity: 0; }
-  		10% { opacity: 1; }
-  		to { transform: translateY(calc(100% + 50px)) rotate(-5deg); opacity: 0; }
-  	}
+  	.speed-line { animation: speedLineConverge 0.4s linear infinite; }
+  	.speed-line-left { animation-name: speedLineConverge; }
+  	.speed-line-right { animation-name: speedLineConverge; }
 
   	/* ========== ROAD SPEED EFFECT ========== */
   	.road-speed-effect {
@@ -1375,26 +1373,26 @@ function generateSpeedLines() {
   var container = document.getElementById('speedLines');
   container.innerHTML = '';
 
-  // Create speed lines on left and right sides with angles
-  for (var i = 0; i < 16; i++) {
+  // Create speed lines that converge toward center
+  for (var i = 0; i < 20; i++) {
     var line = document.createElement('div');
     line.className = 'speed-line';
 
-    // Alternate left and right sides
+    // Alternate left and right sides, positioned at screen edges
     if (i % 2 === 0) {
-      // Left side - angled outward left
+      // Left side - lines go from left edge toward center
       line.classList.add('speed-line-left');
-      line.style.left = (3 + Math.random() * 12) + '%';
+      line.style.left = '0';
+      line.style.top = (5 + (i / 2) * 9) + '%';
     } else {
-      // Right side - angled outward right
+      // Right side - lines go from right edge toward center
       line.classList.add('speed-line-right');
-      line.style.right = (3 + Math.random() * 12) + '%';
+      line.style.right = '0';
+      line.style.top = (5 + (i / 2) * 9) + '%';
     }
 
-    // Randomize starting position and delay
-    line.style.top = Math.random() * 100 + '%';
+    // Randomize animation delay
     line.style.animationDelay = Math.random() * 0.4 + 's';
-    line.style.height = (80 + Math.random() * 60) + 'px';
 
     container.appendChild(line);
   }
