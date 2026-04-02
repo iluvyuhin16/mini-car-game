@@ -707,8 +707,30 @@
     </div>
     <canvas id="canvas">
       Sorry, cannot run because your browser does not support &lt;canvas&gt; element
-    </canvas></div>
+    </canvas>
 
+    <!-- ========== MOBILE TOUCH CONTROLS ========== -->
+    <div id="touchControls" class="touch-controls">
+      <!-- Left Side: Virtual Joystick -->
+      <div id="joystickContainer" class="joystick-container">
+        <div id="joystickBase" class="joystick-base">
+          <div id="joystickKnob" class="joystick-knob"></div>
+        </div>
+      </div>
+
+      <!-- Right Side: Gas and Brake Buttons -->
+      <div id="buttonContainer" class="button-container">
+        <div id="gasBtn" class="control-btn gas-btn">
+          <span class="btn-icon">▲</span>
+          <span class="btn-label">油門</span>
+        </div>
+        <div id="brakeBtn" class="control-btn brake-btn">
+          <span class="btn-icon">■</span>
+          <span class="btn-label">剎車</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="touch.js"></script>
   <script src="common.js"></script>
@@ -1555,33 +1577,65 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 	  
 	  var activate_flag = false;
 
-	  // sends data from key touches into physics mechanism (swipe only - no joystick)
-	  //
+	  // New touch input system using joystick and gas/brake buttons
+	  // joystickDeltaX: -1 (left) to 1 (right)
+	  // joystickDeltaY: -1 (up) to 1 (down)
+	  // gasPressed: boolean
+	  // brakePressed: boolean
 	  function touch_update() {
+	  	// Only process if we have active touch input
+	  	if (!joystickTouchId && !gasPressed && !brakePressed && !ongoingTouches.length) {
+	  		// No touch input - keyboard will handle if available
+	  		return;
+	  	}
 
-	  	if (! ongoingTouches.length && ! activate_flag) return;
-
-	  	if (! activate_flag) activate_flag = true;
+	  	// Reset keys
 	  	keyLeft = false;
 	  	keyRight = false;
 
-	  	for ( var i = 0; i < ongoingTouches.length; i++ )
-	  	{
-	  		if ( ongoingTouches[i].pageX < width/2 ) {
-	  			keyLeft = true;
-	  		} else
-	  		if ( ongoingTouches[i].pageX > width/2 ) {
-	  			keyRight = true;
-	  		}
+	  	// Process joystick input for steering
+	  	if (joystickDeltaX < -0.15) {
+	  		keyLeft = true;
+	  	} else if (joystickDeltaX > 0.15) {
+	  		keyRight = true;
 	  	}
 
-		if ( keyLeft && keyRight ) { keySlower = true; keyLeft = false; keyRight = false; }
-		else { keyFaster  = true; }
+	  	// Process gas/brake buttons
+	  	if (gasPressed && !brakePressed) {
+	  		keyFaster = true;
+	  		keySlower = false;
+	  	} else if (brakePressed && !gasPressed) {
+	  		keySlower = true;
+	  		keyFaster = false;
+	  	} else if (brakePressed && gasPressed) {
+	  		// Both pressed = brake (safety)
+	  		keySlower = true;
+	  		keyFaster = false;
+	  	} else if (!joystickTouchId && ongoingTouches.length === 0) {
+	  		// No button pressed and no joystick - use keyboard defaults
+	  		// (don't override keyFaster/keySlower if using keyboard)
+	  	}
 
-		if ( speed == 0 ) activate_flag = false;
-
+	  	// Fallback: if no joystick and no buttons but have canvas touches, use old swipe behavior
+	  	if (!joystickTouchId && !gasPressed && !brakePressed && ongoingTouches.length > 0) {
+	  		keyFaster = true;
+	  		keyLeft = false;
+	  		keyRight = false;
+	  		for (var i = 0; i < ongoingTouches.length; i++) {
+	  			if (ongoingTouches[i].pageX < width / 2) {
+	  				keyLeft = true;
+	  			} else if (ongoingTouches[i].pageX > width / 2) {
+	  				keyRight = true;
+	  			}
+	  		}
+	  		if (keyLeft && keyRight) {
+	  			keySlower = true;
+	  			keyLeft = false;
+	  			keyRight = false;
+	  		}
+	  	}
 	  }
-	  
+
 	  var touch = new TouchControl(document.getElementsByTagName("canvas")[0]);
 	  	  
 
@@ -1748,10 +1802,20 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
       position = Util.increase(position, dt * speed, trackLength);
 
-      if (keyLeft)
-        playerX = playerX - dx;
-      else if (keyRight)
-        playerX = playerX + dx;
+      // Steering: use joystickDeltaX for proportional control when available
+      var steerInput = 0;
+      if (joystickTouchId !== null) {
+        // Joystick active: use proportional steering
+        steerInput = joystickDeltaX;
+      } else {
+        // Keyboard fallback
+        if (keyLeft) steerInput = -1;
+        else if (keyRight) steerInput = 1;
+      }
+
+      if (steerInput !== 0) {
+        playerX = playerX + (steerInput * dx);
+      }
 
       playerX = playerX - (dx * speedPercent * playerSegment.curve * centrifugal);
 
@@ -2069,11 +2133,18 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         }
 
         if (segment == playerSegment) {
+          // Calculate steer for sprite display - use joystick if active
+          var displaySteer = 0;
+          if (joystickTouchId !== null) {
+            displaySteer = joystickDeltaX * speed;
+          } else {
+            displaySteer = speed * (keyLeft ? -1 : (keyRight ? 1 : 0));
+          }
           Render.player(ctx, width, height, resolution, dynamicRoadWidth, sprites, speed/maxSpeed,
                         dynamicCameraDepth/playerZ,
                         width/2,
                         (height/2) - (dynamicCameraDepth/playerZ * Util.interpolate(playerSegment.p1.camera.y, playerSegment.p2.camera.y, playerPercent) * height/2),
-                        speed * (keyLeft ? -1 : keyRight ? 1 : 0),
+                        displaySteer,
                         playerSegment.p2.world.y - playerSegment.p1.world.y);
         }
       }
