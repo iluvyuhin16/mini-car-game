@@ -2030,12 +2030,24 @@ function resetToStart() {
         if (c.segmentIndex !== segment.index) continue;
 
         var spriteScale = segment.p1.screen.scale * 0.5;
+
+        // Calculate distance-based fade in (from far to near)
+        // Scale ranges from very small (far) to larger (near)
+        // Start appearing when scale > 0.001, fully visible at scale > 0.02
+        var minVisibleScale = 0.001;
+        var fullVisibleScale = 0.02;
+        var distanceFade = Math.min(1, Math.max(0, (spriteScale - minVisibleScale) / (fullVisibleScale - minVisibleScale)));
+
+        // Skip if too far to be visible
+        if (distanceFade <= 0) continue;
+
         var spriteX = segment.p1.screen.x + (spriteScale * c.offset * roadWidth * width/2);
         // Position collectibles on the road surface using perspective
         var spriteY = segment.p1.screen.y + (segment.p1.screen.scale * 30);
 
         var baseSize = spriteScale * roadWidth * width/4;
-        if (baseSize < 10) baseSize = 10;
+        // Minimum visible size scales with distance
+        if (baseSize < 3) baseSize = 3;
 
         // Calculate clipping - how much is below the clip line
         var clipY = segment.clip;
@@ -2046,25 +2058,29 @@ function resetToStart() {
         var clipH = clipY ? Math.max(0, destY + destH - clipY) : 0;
         if (clipH >= destH) continue; // Completely clipped
 
-        // Apply fade near clip line for smoother transition
-        var fadeStart = clipY - 50; // Start fading 50px before clip
-        var alpha = 1;
+        // Apply distance-based fade (far = more transparent)
+        var alpha = distanceFade;
+
+        // Also apply fade near clip line for smoother transition
+        var fadeStart = clipY - 50;
         if (spriteY > fadeStart) {
-          alpha = Math.max(0, 1 - (spriteY - fadeStart) / 50);
+          var clipAlpha = Math.max(0, 1 - (spriteY - fadeStart) / 50);
+          alpha = Math.min(alpha, clipAlpha);
         }
 
         if (c.type.name === 'gold' && goldcoinImage) {
-          // Draw gold coin image with clipping
+          // Draw gold coin image with clipping and scaling
           if (clipH > 0) {
             var srcH = goldcoinImage.naturalHeight * (1 - clipH / destH);
             ctx.drawImage(goldcoinImage, 0, goldcoinImage.naturalHeight - srcH, goldcoinImage.naturalWidth, srcH,
                           spriteX - baseSize, clipY - srcH, baseSize * 2, srcH);
           } else {
+            ctx.globalAlpha = alpha;
             ctx.drawImage(goldcoinImage, spriteX - baseSize, spriteY - baseSize, baseSize * 2, baseSize * 2);
+            ctx.globalAlpha = 1;
           }
         } else {
           // Draw XP or SP as circles with symbols
-          // Draw glow effect with fade
           if (alpha > 0) {
             ctx.globalAlpha = alpha * 0.4;
             ctx.beginPath();
@@ -2079,20 +2095,22 @@ function resetToStart() {
             ctx.fillStyle = c.type.color;
             ctx.fill();
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = Math.max(1, baseSize * 0.15);
             ctx.stroke();
 
-            // Draw text/symbol
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold ' + (baseSize * 1.2) + 'px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            // Draw text/symbol (only when large enough)
+            if (baseSize > 8) {
+              ctx.fillStyle = '#fff';
+              ctx.font = 'bold ' + Math.max(8, baseSize * 1.2) + 'px Arial';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
 
-            var symbol = '';
-            if (c.type.name === 'xp') symbol = '2X';
-            else if (c.type.name === 'sp') symbol = 'SP';
+              var symbol = '';
+              if (c.type.name === 'xp') symbol = '2X';
+              else if (c.type.name === 'sp') symbol = 'SP';
 
-            ctx.fillText(symbol, spriteX, spriteY);
+              ctx.fillText(symbol, spriteX, spriteY);
+            }
             ctx.globalAlpha = 1;
           }
         }
