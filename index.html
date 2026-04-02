@@ -4,6 +4,7 @@
 <head>
   <title>Pixel Racing</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <link href="common.css" rel="stylesheet" type="text/css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
@@ -239,18 +240,31 @@
   		display: none; /* Hide on mobile to save space */
   	}
 
-  	/* Mobile specific HUD sizing */
+  	/* Mobile specific HUD sizing - iPhone 15 Pro */
   	@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
   		#hud {
-  			font-size: 0.5em;
-  			padding: 5px 8px;
+  			font-size: 1em;
+  			padding: 8px 12px;
   		}
   		#hud .hud {
-  			padding: 4px 6px;
+  			padding: 8px 12px;
+  			font-size: 1.2em;
   		}
   		#hud .score-display,
   		#hud .timer-display {
-  			padding: 4px 8px;
+  			padding: 8px 16px;
+  			font-size: 1.3em;
+  		}
+  		#hud #speed {
+  			font-size: 1.5em;
+  		}
+  		.boost-indicator {
+  			font-size: 1.2em;
+  			padding: 15px 30px;
+  			top: 100px;
+  		}
+  		.boost-indicator.combo .combo-count {
+  			font-size: 1.8em;
   		}
   	}
   	.boost-indicator {
@@ -399,10 +413,10 @@
   	/* ========== PORTRAIT MODE ========== */
   	@media (max-aspect-ratio: 1/1) and (hover: none) and (pointer: coarse) {
   		.joystick-container {
-  			width: 120px;
-  			height: 120px;
-  			bottom: 30px;
-  			left: 20px;
+  			width: 160px;
+  			height: 160px;
+  			bottom: 40px;
+  			left: 30px;
   		}
   		.joystick-knob {
   			width: 50px;
@@ -700,28 +714,6 @@
   		box-shadow: inset 0 0 120px rgba(0,0,0,0.4);
   	}
 
-  	/* ========== OFF ROAD WARNING ========== */
-  	.offroad-warning {
-  		position: absolute;
-  		top: 50%;
-  		left: 50%;
-  		transform: translate(-50%, -50%);
-  		font-size: 0.8em;
-  		color: #ff0;
-  		font-family: 'Press Start 2P', monospace;
-  		text-shadow: 2px 2px 0 #000;
-  		display: none;
-  		z-index: 100;
-  		animation: warningBlink 0.4s ease-in-out infinite;
-  	}
-  	.offroad-warning.active {
-  		display: block;
-  	}
-  	@keyframes warningBlink {
-  		0%, 100% { opacity: 1; }
-  		50% { opacity: 0.4; }
-  	}
-
   	/* ========== HIGH SPEED SHAKE ========== */
   	@keyframes highSpeedShake {
   		0%, 100% { transform: translateX(0); }
@@ -883,7 +875,6 @@
     <div id="speedLines" class="speed-lines"></div>
     <div id="roadSpeedEffect" class="road-speed-effect"></div>
     <div id="speedVignette" class="speed-vignette"></div>
-    <div id="offroadWarning" class="offroad-warning">⚠️ 偏離賽道! ⚠️</div>
     <div id="hud">
       <span id="timer" class="hud timer-display">時間: <span id="timer_value" class="value">120</span></span>
       <span id="score" class="hud score-display">得分: <span id="score_value" class="value">0</span></span>
@@ -1440,7 +1431,6 @@ function updateSpeedEffects() {
   var speedLinesEl = document.getElementById('speedLines');
   var roadEffectEl = document.getElementById('roadSpeedEffect');
   var vignetteEl = document.getElementById('speedVignette');
-  var offroadEl = document.getElementById('offroadWarning');
 
   // Generate speed lines once if not exists
   if (!speedLinesGenerated) {
@@ -1491,13 +1481,6 @@ function updateSpeedEffects() {
     speedLinesEl.classList.remove('sp-boost');
     vignetteEl.classList.remove('sp-boost');
     canvas.style.animation = '';
-  }
-
-  // Off-road warning
-  if (playerX < -1 || playerX > 1) {
-    offroadEl.classList.add('active');
-  } else {
-    offroadEl.classList.remove('active');
   }
 }
 
@@ -1614,11 +1597,9 @@ function resetToStart() {
   var speedLinesEl = document.getElementById('speedLines');
   var roadEffectEl = document.getElementById('roadSpeedEffect');
   var vignetteEl = document.getElementById('speedVignette');
-  var offroadEl = document.getElementById('offroadWarning');
   if (speedLinesEl) speedLinesEl.classList.remove('active');
   if (roadEffectEl) roadEffectEl.classList.remove('active');
   if (vignetteEl) vignetteEl.classList.remove('active');
-  if (offroadEl) offroadEl.classList.remove('active');
   canvas.style.animation = '';
 
   initStartScreen();
@@ -1693,8 +1674,8 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 	  	var ww = window.innerWidth;
 	  	var wh = window.innerHeight - 4;
 
-	  	// Always use portrait aspect ratio (9:16)
-	  	var aspectRatio = 9 / 16;
+	  	// Always use portrait aspect ratio (9:20)
+	  	var aspectRatio = 9 / 20;
 
 	  	// Calculate dimensions that fit in viewport with portrait ratio
 	  	var gameWidth, gameHeight;
@@ -1704,7 +1685,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 	  		gameHeight = wh;
 	  		gameWidth = wh * aspectRatio;
 	  	} else {
-	  		// Viewport is taller than needed - fit width, calculate height
+	  		// Viewport is narrower than needed - fit width, calculate height
 	  		gameWidth = ww;
 	  		gameHeight = ww / aspectRatio;
 	  	}
@@ -1816,7 +1797,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     var width          = 1024;                    // logical canvas width
     var height         = 512;                     // logical canvas height
     var centrifugal    = 0.3;                     // centrifugal force multiplier when going around curves
-    var offRoadDecel   = 0.99;                    // speed multiplier when off road (e.g. you lose 2% speed each update frame)
     var skySpeed       = 0.001;                   // background sky layer scroll speed when going around curve (or up hill)
     var hillSpeed      = 0.002;                   // background hill layer scroll speed when going around curve (or up hill)
     var treeSpeed      = 0.003;                   // background tree layer scroll speed when going around curve (or up hill)
@@ -1850,8 +1830,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     var accel          =  maxSpeed/5;             // acceleration rate - tuned until it 'felt' right
     var breaking       = -maxSpeed;               // deceleration rate when braking
     var decel          = -maxSpeed/5;             // 'natural' deceleration rate when neither accelerating, nor braking
-    var offRoadDecel   = -maxSpeed/2;             // off road deceleration is somewhere in between
-    var offRoadLimit   =  maxSpeed/4;             // limit when off road deceleration no longer applies (e.g. you can always go at least this speed even when off road)
     var totalCars      = 200;                     // total number of cars on the road
     var currentLapTime = 0;                       // current lap time
     var lastLapTime    = null;                    // last lap time
@@ -1984,35 +1962,29 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
       else
         speed = Util.accelerate(speed, effectiveDecel, dt);
 
-
-      if ((playerX < -1) || (playerX > 1)) {
-
-        if (speed > offRoadLimit)
-          speed = Util.accelerate(speed, offRoadDecel, dt);
-
-        for(n = 0 ; n < playerSegment.sprites.length ; n++) {
-          sprite  = playerSegment.sprites[n];
-          spriteW = sprite.source.w * SPRITES.SCALE;
-          if (Util.overlap(playerX, playerW, sprite.offset + spriteW/2 * (sprite.offset > 0 ? 1 : -1), spriteW)) {
-            // Crash penalty - but shield protects
-            if (!shieldActive) {
-              // Smooth gradual deceleration instead of immediate drop
-              crashDecel.active = true;
-              crashDecel.targetSpeed = maxSpeed/5;
-              triggerScreenShake(20, 0.3);
-              showCrashFlash();
-              comboCount = 0; // Reset combo on crash
-              updateComboDisplay();
-            } else {
-              // Shield absorbs hit but still slows down gradually
-              shieldActive = false;
-              crashDecel.active = true;
-              crashDecel.targetSpeed = speed * 0.5;
-              triggerScreenShake(10, 0.2);
-            }
-            position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of sprite (at front of segment)
-            break;
+      // Sprite collision detection
+      for(n = 0 ; n < playerSegment.sprites.length ; n++) {
+        sprite  = playerSegment.sprites[n];
+        spriteW = sprite.source.w * SPRITES.SCALE;
+        if (Util.overlap(playerX, playerW, sprite.offset + spriteW/2 * (sprite.offset > 0 ? 1 : -1), spriteW)) {
+          // Crash penalty - but shield protects
+          if (!shieldActive) {
+            // Smooth gradual deceleration instead of immediate drop
+            crashDecel.active = true;
+            crashDecel.targetSpeed = maxSpeed/5;
+            triggerScreenShake(20, 0.3);
+            showCrashFlash();
+            comboCount = 0; // Reset combo on crash
+            updateComboDisplay();
+          } else {
+            // Shield absorbs hit but still slows down gradually
+            shieldActive = false;
+            crashDecel.active = true;
+            crashDecel.targetSpeed = speed * 0.5;
+            triggerScreenShake(10, 0.2);
           }
+          position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of sprite (at front of segment)
+          break;
         }
       }
 
@@ -2043,7 +2015,8 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         }
       }
 
-      playerX = Util.limit(playerX, -3, 3);     // dont ever let it go too far out of bounds
+      // Air wall - keep player on road
+      playerX = Util.limit(playerX, -1, 1);     // air wall at road edges
 
       // Speed limit - higher during SP boost (to show 240 MPH)
       var effectiveMaxSpeed = spBoostActive ? maxSpeed * 1.5 : maxSpeed;
@@ -2591,6 +2564,9 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     }
 
     //=========================================================================
+
+    // Expose reset function globally for onresize handler
+    window.reset = reset;
 
   </script>
 
