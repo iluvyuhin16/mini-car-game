@@ -45,6 +45,9 @@ body {
 
 /* ========== MOBILE TOUCH CONTROLS ========== */
 .touch-controls {
+  /* TEMPORARY: Always show for testing */
+  display: block;
+  /*
   display: none;
   position: fixed;
   top: 0;
@@ -53,54 +56,97 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 100;
+  */
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
 }
 
-/* Show touch controls only on touch devices */
-@media (hover: none) and (pointer: coarse) {
-  .touch-controls {
-    display: block;
-  }
+/* Show touch controls on mobile devices (hide on desktop for now) */
+body:not(.mobile-device) .touch-controls {
+  display: none;
 }
 
-/* ---- Joystick (Left Side) ---- */
-.left-controls {
+/* ---- Left/Right Buttons ---- */
+.left-btn-container {
   position: absolute;
+  left: 20px;
   bottom: 80px;
-  left: 30px;
+  pointer-events: auto;
+}
+
+.right-controls {
+  position: absolute;
+  right: 20px;
+  bottom: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 15px;
 }
 
-.joystick-container {
-  width: 120px;
-  height: 120px;
+.right-btn-container {
   pointer-events: auto;
 }
 
-.joystick-base {
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%);
-  border: 3px solid rgba(255,255,255,0.4);
+.control-btn {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  font-family: 'Press Start 2P', monospace;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.1s, box-shadow 0.1s;
 }
 
-.joystick-knob {
-  width: 50px;
-  height: 50px;
-  background: radial-gradient(circle, rgba(200,29,37,0.9) 0%, rgba(139,0,0,0.9) 100%);
-  border: 3px solid #fff;
-  border-radius: 50%;
-  position: absolute;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-  transition: transform 0.05s ease-out;
+.control-btn:active {
+  transform: scale(0.95);
+}
+
+.btn-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.btn-label {
+  font-size: 8px;
+  margin-top: 4px;
+}
+
+.left-btn {
+  background: radial-gradient(circle, rgba(33,150,243,0.9) 0%, rgba(25,118,210,0.9) 100%);
+  border: 3px solid #64b5f6;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(33,150,243,0.4), inset 0 2px 10px rgba(255,255,255,0.2);
+}
+
+.left-btn:active,
+.left-btn.active {
+  background: radial-gradient(circle, rgba(66,165,245,0.9) 0%, rgba(33,150,243,0.9) 100%);
+  box-shadow: 0 2px 8px rgba(33,150,243,0.3), inset 0 2px 10px rgba(255,255,255,0.3);
+}
+
+.right-btn {
+  background: radial-gradient(circle, rgba(255,152,0,0.9) 0%, rgba(245,124,0,0.9) 100%);
+  border: 3px solid #ffb74d;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(255,152,0,0.4), inset 0 2px 10px rgba(255,255,255,0.2);
+}
+
+.right-btn:active,
+.right-btn.active {
+  background: radial-gradient(circle, rgba(255,183,77,0.9) 0%, rgba(255,152,0,0.9) 100%);
+  box-shadow: 0 2px 8px rgba(255,152,0,0.3), inset 0 2px 10px rgba(255,255,255,0.3);
 }
 
 /* ---- Push to the Max Boost Button ---- */
@@ -153,114 +199,23 @@ body {
   background: #ffeb3b;
 }
 
-/* ---- Gas/Brake Buttons (Right Side) ---- */
-.button-container {
-  position: absolute;
-  right: 20px;
-  bottom: 80px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  pointer-events: auto;
-}
-
-.control-btn {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Press Start 2P', monospace;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-
-.control-btn:active {
-  transform: scale(0.95);
-}
-
-.btn-icon {
-  font-size: 24px;
-  line-height: 1;
-}
-
-.btn-label {
-  font-size: 8px;
-  margin-top: 4px;
-}
-
-.gas-btn {
-  background: radial-gradient(circle, rgba(76,175,80,0.9) 0%, rgba(56,142,60,0.9) 100%);
-  border: 3px solid #81c784;
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(76,175,80,0.4), inset 0 2px 10px rgba(255,255,255,0.2);
-}
-
-.gas-btn:active,
-.gas-btn.active {
-  background: radial-gradient(circle, rgba(102,187,106,0.9) 0%, rgba(76,175,80,0.9) 100%);
-  box-shadow: 0 2px 8px rgba(76,175,80,0.3), inset 0 2px 10px rgba(255,255,255,0.3);
-}
-
-.brake-btn {
-  background: radial-gradient(circle, rgba(244,67,54,0.9) 0%, rgba(198,40,40,0.9) 100%);
-  border: 3px solid #e57373;
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(244,67,54,0.4), inset 0 2px 10px rgba(255,255,255,0.2);
-}
-
-.brake-btn:active,
-.brake-btn.active {
-  background: radial-gradient(circle, rgba(239,83,80,0.9) 0%, rgba(244,67,54,0.9) 100%);
-  box-shadow: 0 2px 8px rgba(244,67,54,0.3), inset 0 2px 10px rgba(255,255,255,0.3);
-}
-
 /* ---- Hide controls during non-playing states ---- */
-.touch-controls.intro-active .button-container,
-.touch-controls.intro-active .joystick-container {
+.touch-controls.intro-active .left-btn-container,
+.touch-controls.intro-active .right-controls,
+.touch-controls.intro-active .boost-btn {
   opacity: 0.3;
   pointer-events: none;
 }
 
 /* Mobile adjustments for smaller screens */
 @media (max-width: 360px) {
-  .left-controls {
-    left: 15px;
+  .left-btn-container {
+    left: 10px;
     bottom: 60px;
-    gap: 10px;
   }
 
-  .joystick-container {
-    width: 100px;
-    height: 100px;
-  }
-
-  .joystick-base {
-    width: 100px;
-    height: 100px;
-  }
-
-  .joystick-knob {
-    width: 40px;
-    height: 40px;
-  }
-
-  .boost-btn {
-    width: 110px;
-    height: 40px;
-  }
-
-  .boost-btn .btn-label {
-    font-size: 6px;
-  }
-
-  .button-container {
-    right: 15px;
+  .right-controls {
+    right: 10px;
     bottom: 60px;
     gap: 10px;
   }
@@ -277,37 +232,39 @@ body {
   .btn-label {
     font-size: 7px;
   }
+
+  .boost-btn {
+    width: 110px;
+    height: 40px;
+  }
+
+  .boost-btn .btn-label {
+    font-size: 6px;
+  }
 }
 
 /* Landscape orientation adjustments */
 @media (max-height: 500px) and (orientation: landscape) {
-  .joystick-container {
-    left: 20px;
-    bottom: 20px;
-    width: 90px;
-    height: 90px;
+  .left-btn-container {
+    left: 15px;
+    bottom: 15px;
   }
 
-  .joystick-base {
-    width: 90px;
-    height: 90px;
-  }
-
-  .joystick-knob {
-    width: 35px;
-    height: 35px;
-  }
-
-  .button-container {
-    right: 20px;
-    bottom: 20px;
+  .right-controls {
+    right: 15px;
+    bottom: 15px;
+    gap: 10px;
     flex-direction: row;
-    gap: 15px;
   }
 
   .control-btn {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
+  }
+
+  .boost-btn {
+    width: 120px;
+    height: 45px;
   }
 }
 

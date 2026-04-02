@@ -276,6 +276,42 @@
   		color: #fff;
   	}
 
+  	/* ========== TOUCH BUTTONS ========== */
+  	#touchControls {
+  		display: none;
+  	}
+  	.touch-btn {
+  		position: fixed;
+  		bottom: 60px;
+  		width: 80px;
+  		height: 80px;
+  		background: rgba(0,0,0,0.7);
+  		border: 4px solid rgba(255,255,255,0.8);
+  		border-radius: 50%;
+  		color: #fff;
+  		font-size: 2em;
+  		display: flex;
+  		align-items: center;
+  		justify-content: center;
+  		user-select: none;
+  		-webkit-user-select: none;
+  		touch-action: none;
+  	}
+  	.touch-btn.left {
+  		left: 30px;
+  	}
+  	.touch-btn.right {
+  		right: 30px;
+  	}
+  	.touch-btn:active {
+  		background: rgba(200,29,37,0.8);
+  	}
+  	@media (hover: none) and (pointer: coarse) {
+  		#touchControls {
+  			display: block;
+  		}
+  	}
+
   	/* ========== TAP TO START (MOBILE) ========== */
   	.tap-to-start {
   		position: fixed;
@@ -708,6 +744,12 @@
     <canvas id="canvas">
       Sorry, cannot run because your browser does not support &lt;canvas&gt; element
     </canvas>
+
+    <!-- ========== MOBILE TOUCH CONTROLS ========== -->
+    <div id="touchControls">
+      <div id="leftBtn" class="touch-btn left">◀</div>
+      <div id="rightBtn" class="touch-btn right">▶</div>
+    </div>
   </div>
 
   <script src="touch.js"></script>
