@@ -708,32 +708,6 @@
     <canvas id="canvas">
       Sorry, cannot run because your browser does not support &lt;canvas&gt; element
     </canvas>
-
-    <!-- ========== MOBILE TOUCH CONTROLS ========== -->
-    <div id="touchControls" class="touch-controls">
-      <!-- Left Side: Left Button -->
-      <div id="leftBtnContainer" class="button-container left-btn-container">
-        <div id="leftBtn" class="control-btn left-btn">
-          <span class="btn-icon">◀</span>
-          <span class="btn-label">左</span>
-        </div>
-      </div>
-
-      <!-- Right Side: Right Button + Push to the Max on top -->
-      <div id="rightControls" class="right-controls">
-        <div id="boostBtn" class="control-btn boost-btn">
-          <span class="btn-icon">⚡</span>
-          <span class="btn-label">Push to the Max</span>
-          <div id="boostCooldown" class="boost-cooldown"></div>
-        </div>
-        <div id="rightBtnContainer" class="button-container right-btn-container">
-          <div id="rightBtn" class="control-btn right-btn">
-            <span class="btn-icon">▶</span>
-            <span class="btn-label">右</span>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script src="touch.js"></script>
@@ -1386,6 +1360,7 @@ function generateSpeedLines() {
 
 function showBoostIndicator(type) {
   var indicator = document.getElementById(type + 'Indicator');
+  if (!indicator) return; // Safety check
   indicator.style.display = 'block';
   setTimeout(function() {
     indicator.style.display = 'none';
