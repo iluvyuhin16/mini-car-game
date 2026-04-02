@@ -2022,6 +2022,7 @@ function resetToStart() {
     // ========== COLLECTIBLE RENDERING ==========
     function renderCollectiblesInSegment(segment, segmentDrawIndex) {
       if (!segment.p1.screen.scale) return;
+      if (segment.clip < segment.p1.screen.y) return; // Don't render if clipped by foreground
 
       for (var i = 0; i < collectibles.length; i++) {
         var c = collectibles[i];
@@ -2035,6 +2036,13 @@ function resetToStart() {
 
         var size = spriteScale * roadWidth * width/4;
         if (size < 10) size = 10;
+
+        // Apply clipping - don't render if below clip line
+        var clipY = segment.clip;
+        if (spriteY + size > clipY) {
+          size = clipY - spriteY;
+          if (size < 5) continue; // Too small to render
+        }
 
         if (c.type.name === 'gold' && goldcoinImage) {
           // Draw gold coin image
