@@ -2034,47 +2034,67 @@ function resetToStart() {
         // Position collectibles on the road surface using perspective
         var spriteY = segment.p1.screen.y + (segment.p1.screen.scale * 30);
 
-        var size = spriteScale * roadWidth * width/4;
-        if (size < 10) size = 10;
+        var baseSize = spriteScale * roadWidth * width/4;
+        if (baseSize < 10) baseSize = 10;
 
-        // Apply clipping - don't render if below clip line
+        // Calculate clipping - how much is below the clip line
         var clipY = segment.clip;
-        if (spriteY + size > clipY) {
-          size = clipY - spriteY;
-          if (size < 5) continue; // Too small to render
+        var destH = baseSize * 2;
+        var destW = baseSize * 2;
+        var destY = spriteY - baseSize;
+
+        var clipH = clipY ? Math.max(0, destY + destH - clipY) : 0;
+        if (clipH >= destH) continue; // Completely clipped
+
+        // Apply fade near clip line for smoother transition
+        var fadeStart = clipY - 50; // Start fading 50px before clip
+        var alpha = 1;
+        if (spriteY > fadeStart) {
+          alpha = Math.max(0, 1 - (spriteY - fadeStart) / 50);
         }
 
         if (c.type.name === 'gold' && goldcoinImage) {
-          // Draw gold coin image
-          ctx.drawImage(goldcoinImage, spriteX - size, spriteY - size, size * 2, size * 2);
+          // Draw gold coin image with clipping
+          if (clipH > 0) {
+            var srcH = goldcoinImage.naturalHeight * (1 - clipH / destH);
+            ctx.drawImage(goldcoinImage, 0, goldcoinImage.naturalHeight - srcH, goldcoinImage.naturalWidth, srcH,
+                          spriteX - baseSize, clipY - srcH, baseSize * 2, srcH);
+          } else {
+            ctx.drawImage(goldcoinImage, spriteX - baseSize, spriteY - baseSize, baseSize * 2, baseSize * 2);
+          }
         } else {
           // Draw XP or SP as circles with symbols
-          // Draw glow effect
-          ctx.beginPath();
-          ctx.arc(spriteX, spriteY, size * 1.5, 0, Math.PI * 2);
-          ctx.fillStyle = c.type.color + '40'; // Add transparency
-          ctx.fill();
+          // Draw glow effect with fade
+          if (alpha > 0) {
+            ctx.globalAlpha = alpha * 0.4;
+            ctx.beginPath();
+            ctx.arc(spriteX, spriteY, baseSize * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = c.type.color;
+            ctx.fill();
 
-          // Draw main circle
-          ctx.beginPath();
-          ctx.arc(spriteX, spriteY, size, 0, Math.PI * 2);
-          ctx.fillStyle = c.type.color;
-          ctx.fill();
-          ctx.strokeStyle = '#fff';
-          ctx.lineWidth = 2;
-          ctx.stroke();
+            // Draw main circle
+            ctx.globalAlpha = alpha;
+            ctx.beginPath();
+            ctx.arc(spriteX, spriteY, baseSize, 0, Math.PI * 2);
+            ctx.fillStyle = c.type.color;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
 
-          // Draw text/symbol
-          ctx.fillStyle = '#fff';
-          ctx.font = 'bold ' + (size * 1.2) + 'px Arial';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
+            // Draw text/symbol
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold ' + (baseSize * 1.2) + 'px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
 
-          var symbol = '';
-          if (c.type.name === 'xp') symbol = '2X';
-          else if (c.type.name === 'sp') symbol = 'SP';
+            var symbol = '';
+            if (c.type.name === 'xp') symbol = '2X';
+            else if (c.type.name === 'sp') symbol = 'SP';
 
-          ctx.fillText(symbol, spriteX, spriteY);
+            ctx.fillText(symbol, spriteX, spriteY);
+            ctx.globalAlpha = 1;
+          }
         }
       }
     }
