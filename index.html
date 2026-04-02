@@ -402,6 +402,12 @@
   		color: #000;
   	}
 
+  	/* ========== PUSH INDICATOR ========== */
+  	.boost-indicator.push {
+  		background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+  		color: #fff;
+  	}
+
   	/* ========== SCREEN EFFECTS ========== */
   	.screen-flash {
   		position: fixed;
@@ -606,6 +612,60 @@
   	.confirm-btn:hover {
   		background: #e84a3a;
   	}
+
+  	/* ========== BOOST BUTTON STYLES ========== */
+  	.touch-btn.boost {
+  		bottom: 160px;
+  		left: 50%;
+  		transform: translateX(-50%);
+  		width: 100px;
+  		height: 100px;
+  		background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+  		border-color: #ce93d8;
+  		flex-direction: column;
+  		font-size: 1.2em;
+  	}
+  	.touch-btn.boost:active,
+  	.touch-btn.boost.active {
+  		background: linear-gradient(135deg, #7b1fa2 0%, #512da8 100%);
+  	}
+  	.boost-icon {
+  		font-size: 24px;
+  		line-height: 1;
+  	}
+  	.boost-label {
+  		font-size: 8px;
+  		margin-top: 4px;
+  	}
+  	.boost-cooldown {
+  		position: absolute;
+  		bottom: 0;
+  		left: 0;
+  		height: 4px;
+  		background: #ffeb3b;
+  		width: 100%;
+  		transition: width 0.1s linear;
+  	}
+  	.touch-btn.boost:disabled {
+  		background: linear-gradient(135deg, #424242 0%, #616161 100%);
+  		border-color: #757575;
+  		opacity: 0.7;
+  	}
+  	.touch-btn.boost:disabled .boost-cooldown {
+  		background: #ffeb3b;
+  	}
+
+  	/* Mobile adjustments for boost button */
+  	@media (max-width: 360px) {
+  		.touch-btn.boost {
+  			width: 80px;
+  			height: 80px;
+  			bottom: 140px;
+  		}
+  		.boost-icon {
+  			font-size: 20px;
+  		}
+  	}
   </style>
   
   	<meta property="og:title" content="Retro Racing" />
@@ -672,6 +732,7 @@
 <!-- ========== BOOST INDICATORS ========== -->
 <div id="xpIndicator" class="boost-indicator xp">2X 積分!</div>
 <div id="spIndicator" class="boost-indicator sp">1.5X 加速!</div>
+<div id="pushIndicator" class="boost-indicator push">⚡ BOOST!</div>
 <div id="shieldIndicator" class="boost-indicator shield">🛡️ 護盾保護!</div>
 <div id="comboIndicator" class="boost-indicator combo" style="display:none;">COMBO <span id="comboCount">x1</span></div>
 
@@ -747,6 +808,11 @@
     <div id="touchControls">
       <div id="leftBtn" class="touch-btn left">◀</div>
       <div id="rightBtn" class="touch-btn right">▶</div>
+      <div id="boostBtn" class="touch-btn boost">
+        <span class="boost-icon">⚡</span>
+        <span class="boost-label">BOOST</span>
+        <div id="boostCooldown" class="boost-cooldown"></div>
+      </div>
     </div>
   </div>
 
@@ -1752,14 +1818,17 @@ function resetToStart() {
         updateBoostButtonUI();
       }
 
-      // Update combo timer
-      if (comboCount > 0) {
+      // Update combo timer (only when moving to maintain combo)
+      if (comboCount > 0 && speed > 0) {
         comboTimer -= dt;
         if (comboTimer <= 0) {
           comboCount = 0;
           comboTimer = 0;
           updateComboDisplay();
         }
+      } else if (comboCount > 0 && speed <= 0) {
+        // Reset timer when stopped to give player a chance to maintain combo
+        comboTimer = 3;
       }
 
       // Update screen shake

@@ -5,11 +5,7 @@ var leftBtnPressed = false;
 var rightBtnPressed = false;
 var boostPressed = false;
 
-// Detect mobile device
-function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-         (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
-}
+// isMobileDevice() is defined in index.html - do not redefine here
 
 // Show touch controls on mobile
 function initTouchControlsVisibility() {
