@@ -201,35 +201,14 @@
       50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
     }
 
-    /* ========== SPEED LINES - CONVERGE TO CENTER ========== */
-    .speed-lines {
+    /* ========== SPEED LINES CANVAS OVERLAY ========== */
+    #speedLinesCanvas {
       position: absolute; top: 0; left: 0;
       width: 100%; height: 100%;
       pointer-events: none; z-index: 50;
-      opacity: 0; transition: opacity 0.5s; overflow: hidden;
+      opacity: 0; transition: opacity 0.3s;
     }
-    .speed-lines.active { opacity: 1; }
-    .speed-lines.sp-boost .speed-line {
-      background: linear-gradient(to bottom, transparent 0%, rgba(52,152,219,0.9) 40%, rgba(52,152,219,0.9) 60%, transparent 100%);
-      box-shadow: 0 0 6px rgba(52,152,219,0.8);
-    }
-    /* Each line radiates from center outward */
-    .speed-line {
-      position: absolute;
-      width: 2px;
-      background: linear-gradient(to bottom, transparent 0%, rgba(255,50,50,0.95) 30%, rgba(255,200,200,1) 50%, rgba(255,50,50,0.95) 70%, transparent 100%);
-      box-shadow: 0 0 4px rgba(255,80,80,0.7);
-      border-radius: 1px;
-      transform-origin: 50% 100%;
-      opacity: 0;
-      animation: speedLineZoom 0.45s linear infinite;
-    }
-    @keyframes speedLineZoom {
-      0%   { opacity: 0;   transform: scaleY(0.05) rotate(var(--angle)); }
-      10%  { opacity: 1; }
-      80%  { opacity: 0.9; }
-      100% { opacity: 0;   transform: scaleY(1) rotate(var(--angle)); }
-    }
+    #speedLinesCanvas.active { opacity: 1; }
 
     /* ========== ROAD SPEED EFFECT ========== */
     .road-speed-effect {
@@ -279,56 +258,51 @@
     .touch-btn.right { right: 30px; }
     .touch-btn:active { background: rgba(200,29,37,0.8); }
 
-    /* ========== BOOST BUTTON (above right btn) ========== */
+    /* ========== BOOST BUTTON (above right btn) - CIRCULAR TRANSPARENT ========== */
     .touch-btn.boost {
       bottom: 160px;
       right: 30px;
       left: auto;
-      width: 110px; height: 110px;
-      background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
-      border: 4px solid #ce93d8;
-      border-radius: 12px;
+      width: 90px; height: 90px;
+      background: transparent;
+      border: none;
+      border-radius: 50%;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
       padding: 0;
       z-index: 200;
     }
     .touch-btn.boost:active,
     .touch-btn.boost.active {
-      background: linear-gradient(135deg, #7b1fa2 0%, #512da8 100%);
+      filter: brightness(1.3);
     }
-    .touch-btn.boost:disabled {
-      background: linear-gradient(135deg, #424242 0%, #616161 100%);
-      border-color: #757575;
-      opacity: 0.7;
-    }
-    /* Energy fill: from bottom to top */
-    .boost-energy-fill {
-      position: absolute; bottom: 0; left: 0;
-      width: 100%; height: 0%;
-      background: rgba(255,235,59,0.5);
-      transition: height 0.2s linear;
-      pointer-events: none; z-index: 1;
+    /* Canvas inside boost button for arc fill */
+    .boost-canvas {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      pointer-events: none;
     }
     .boost-btn-content {
       position: relative; z-index: 2;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      width: 100%; height: 100%; gap: 4px;
+      width: 100%; height: 100%; gap: 3px;
     }
-    .boost-icon { font-size: 22px; line-height: 1; }
+    .boost-icon { font-size: 20px; line-height: 1; }
     .boost-label {
-      font-size: 7px;
+      font-size: 6px;
       font-family: 'Press Start 2P', monospace;
-      color: #fff; text-align: center; line-height: 1.3; padding: 0 4px;
+      color: #fff; text-align: center; line-height: 1.3;
+      text-shadow: 0 0 6px rgba(200,100,255,1), 1px 1px 0 #000;
     }
 
     /* Small screen adjustments */
     @media (max-width: 360px) {
-      .touch-btn { width: 65px; height: 65px; }
-      .touch-btn.boost { width: 90px; height: 90px; bottom: 140px; right: 20px; }
-      .boost-icon { font-size: 18px; }
-      .boost-label { font-size: 6px; }
+      .touch-btn { width: 60px; height: 60px; }
+      .touch-btn.boost { width: 75px; height: 75px; }
+      .boost-icon { font-size: 16px; }
+      .boost-label { font-size: 5px; }
     }
   </style>
 
@@ -433,8 +407,8 @@
 
 <!-- ========== GAME CONTAINER ========== -->
 <div id="racer">
-  <!-- Speed effects (inside racer so they scale with canvas) -->
-  <div id="speedLines" class="speed-lines"></div>
+  <!-- Speed lines canvas overlay -->
+  <canvas id="speedLinesCanvas"></canvas>
   <div id="roadSpeedEffect" class="road-speed-effect"></div>
   <div id="speedVignette" class="speed-vignette"></div>
 
@@ -482,9 +456,9 @@
       </svg>
     </div>
 
-    <!-- Boost button: above right button -->
+    <!-- Boost button: above right button - circular transparent with canvas arc fill -->
     <div id="boostBtn" class="touch-btn boost">
-      <div class="boost-energy-fill" id="boostEnergyFill"></div>
+      <canvas class="boost-canvas" id="boostCanvas"></canvas>
       <div class="boost-btn-content">
         <span class="boost-icon">⚡</span>
         <span class="boost-label">Push to<br>the max</span>
@@ -832,72 +806,152 @@ function updateSpeedEffects() {
   var speedPercent = speed / maxSpeed;
   var spBoostPercent = spBoostActive ? speed / (maxSpeed * 1.5) : 0;
   var effective = spBoostActive ? spBoostPercent : speedPercent;
-  var speedLinesEl  = document.getElementById('speedLines');
-  var roadEffectEl  = document.getElementById('roadSpeedEffect');
-  var vignetteEl    = document.getElementById('speedVignette');
+  var roadEffectEl = document.getElementById('roadSpeedEffect');
+  var vignetteEl   = document.getElementById('speedVignette');
 
   if (!speedLinesGenerated) { generateSpeedLines(); speedLinesGenerated = true; }
 
   var threshold = spBoostActive ? 0.3 : 0.5;
   if (effective > threshold) {
     var intensity = (effective - threshold) / (1 - threshold);
-    speedLinesEl.classList.add('active');
     roadEffectEl.classList.add('active');
+    vignetteEl.classList.add('active');
     if (spBoostActive) {
-      speedLinesEl.classList.add('sp-boost');
       vignetteEl.classList.add('sp-boost');
     } else {
-      speedLinesEl.classList.remove('sp-boost');
       vignetteEl.classList.remove('sp-boost');
     }
-    speedLinesEl.querySelectorAll('.speed-line').forEach(function(l) {
-      l.style.animationDuration = (0.55 - intensity * 0.35) + 's';
-    });
-    vignetteEl.classList.add('active');
     var vi = spBoostActive ? 0.5 : 0.3;
     vignetteEl.style.boxShadow = 'inset 0 0 ' + (80 + intensity * 100) + 'px rgba(0,0,0,' + (vi + intensity * 0.4) + ')';
     if (effective > 0.9 && !screenShake.active) canvas.style.animation = 'highSpeedShake 0.2s infinite';
     else if (effective <= 0.9) canvas.style.animation = '';
+    // Update canvas speed lines intensity and SP mode
+    if (!speedLinesRunning) {
+      startSpeedLinesAnimation(intensity, spBoostActive);
+    } else {
+      // Update current intensity for next frame
+      speedLinesCurrentIntensity = intensity;
+      speedLinesCurrentSP = spBoostActive;
+    }
   } else {
-    speedLinesEl.classList.remove('active');
     roadEffectEl.classList.remove('active');
     vignetteEl.classList.remove('active');
-    speedLinesEl.classList.remove('sp-boost');
     vignetteEl.classList.remove('sp-boost');
     canvas.style.animation = '';
+    stopSpeedLinesAnimation();
   }
 }
 
-// ========== GENERATE SPEED LINES - CONVERGE TO CENTER ==========
-function generateSpeedLines() {
-  var container = document.getElementById('speedLines');
-  container.innerHTML = '';
-  var numLines = 32;
-  // Vanishing point: horizontally centered, vertically at ~45% (road horizon)
-  var cx = 50; // % from left
-  var cy = 45; // % from top
+// ========== SPEED LINES - Canvas-based radial burst ==========
+var speedLinesData = [];
+var speedLinesCtx = null;
+var speedLinesAnimFrame = null;
+var speedLinesRunning = false;
+var speedLinesCurrentIntensity = 0;
+var speedLinesCurrentSP = false;
 
+function initSpeedLinesCanvas() {
+  var slCanvas = document.getElementById('speedLinesCanvas');
+  if (!slCanvas) return;
+  var racer = document.getElementById('racer');
+  slCanvas.width  = racer.offsetWidth  || width;
+  slCanvas.height = racer.offsetHeight || height;
+  speedLinesCtx = slCanvas.getContext('2d');
+  // Generate line data
+  speedLinesData = [];
+  var numLines = 48;
   for (var i = 0; i < numLines; i++) {
-    var line = document.createElement('div');
-    line.className = 'speed-line';
-
-    var angleDeg = (i / numLines) * 360;
-    // Vary length: lines toward bottom-center are longer (perspective)
-    var baseLen = 28 + Math.random() * 28; // 28-56% of container height
-
-    // Position the bottom tip (transform-origin: 50% 100%) at the vanishing point
-    line.style.left   = cx + '%';
-    line.style.top    = cy + '%';
-    line.style.height = baseLen + '%';
-    line.style.width  = (1 + Math.random() * 1.5) + 'px';
-    line.style.marginLeft = '-1px';
-    line.style.setProperty('--angle', angleDeg + 'deg');
-    line.style.transform = 'rotate(' + angleDeg + 'deg)';
-    line.style.animationDelay = (Math.random() * 0.45) + 's';
-
-    container.appendChild(line);
+    var angleDeg = (i / numLines) * 360 + (Math.random() - 0.5) * (360/numLines);
+    var angleRad = angleDeg * Math.PI / 180;
+    speedLinesData.push({
+      angle:    angleRad,
+      len:      0.25 + Math.random() * 0.45,   // fraction of canvas diagonal
+      width:    0.8 + Math.random() * 1.8,
+      phase:    Math.random(),                   // 0-1 animation phase offset
+      speed:    0.6 + Math.random() * 0.8,       // animation speed multiplier
+      bright:   0.5 + Math.random() * 0.5        // brightness
+    });
   }
 }
+
+function drawSpeedLinesFrame(intensity, isSP) {
+  var slCanvas = document.getElementById('speedLinesCanvas');
+  if (!slCanvas || !speedLinesCtx) return;
+
+  var W = slCanvas.width;
+  var H = slCanvas.height;
+  // Vanishing point: center-x, ~42% down (road horizon)
+  var vx = W * 0.5;
+  var vy = H * 0.42;
+  var diag = Math.sqrt(W*W + H*H);
+
+  var now = Date.now() / 1000;
+  speedLinesCtx.clearRect(0, 0, W, H);
+
+  var baseColor = isSP ? '52,152,219' : '255,60,60';
+  var brightColor = isSP ? '120,200,255' : '255,220,220';
+
+  for (var i = 0; i < speedLinesData.length; i++) {
+    var d = speedLinesData[i];
+    // Animate: each line grows from vanishing point outward, then resets
+    var t = ((now * d.speed + d.phase) % 1.0);
+    // Line starts near VP and extends outward
+    var startFrac = t * 0.15;           // start point (fraction of max len)
+    var endFrac   = t * d.len;
+    if (endFrac < 0.01) continue;
+
+    var maxLen = diag * 0.85;
+    var x1 = vx + Math.cos(d.angle) * maxLen * startFrac;
+    var y1 = vy + Math.sin(d.angle) * maxLen * startFrac;
+    var x2 = vx + Math.cos(d.angle) * maxLen * endFrac;
+    var y2 = vy + Math.sin(d.angle) * maxLen * endFrac;
+
+    // Fade: bright in middle, transparent at start and end
+    var alpha = Math.sin(t * Math.PI) * d.bright * intensity;
+    if (alpha < 0.02) continue;
+
+    var grad = speedLinesCtx.createLinearGradient(x1, y1, x2, y2);
+    grad.addColorStop(0,   'rgba(' + baseColor + ',0)');
+    grad.addColorStop(0.3, 'rgba(' + brightColor + ',' + (alpha * 0.9).toFixed(2) + ')');
+    grad.addColorStop(0.7, 'rgba(' + brightColor + ',' + (alpha).toFixed(2) + ')');
+    grad.addColorStop(1,   'rgba(' + baseColor + ',' + (alpha * 0.3).toFixed(2) + ')');
+
+    speedLinesCtx.beginPath();
+    speedLinesCtx.moveTo(x1, y1);
+    speedLinesCtx.lineTo(x2, y2);
+    speedLinesCtx.strokeStyle = grad;
+    speedLinesCtx.lineWidth = d.width;
+    speedLinesCtx.stroke();
+  }
+}
+
+function startSpeedLinesAnimation(intensity, isSP) {
+  speedLinesCurrentIntensity = intensity;
+  speedLinesCurrentSP = isSP;
+  if (speedLinesRunning) return;
+  speedLinesRunning = true;
+  var slCanvas = document.getElementById('speedLinesCanvas');
+  if (slCanvas) slCanvas.classList.add('active');
+  function frame() {
+    if (!speedLinesRunning) return;
+    drawSpeedLinesFrame(speedLinesCurrentIntensity, speedLinesCurrentSP);
+    speedLinesAnimFrame = requestAnimationFrame(frame);
+  }
+  speedLinesAnimFrame = requestAnimationFrame(frame);
+}
+
+function stopSpeedLinesAnimation() {
+  speedLinesRunning = false;
+  if (speedLinesAnimFrame) { cancelAnimationFrame(speedLinesAnimFrame); speedLinesAnimFrame = null; }
+  var slCanvas = document.getElementById('speedLinesCanvas');
+  if (slCanvas) {
+    slCanvas.classList.remove('active');
+    if (speedLinesCtx) speedLinesCtx.clearRect(0, 0, slCanvas.width, slCanvas.height);
+  }
+}
+
+// Dummy for compatibility
+function generateSpeedLines() { initSpeedLinesCanvas(); }
 
 // ========== BOOST INDICATOR ==========
 function showBoostIndicator(type) {
@@ -907,22 +961,81 @@ function showBoostIndicator(type) {
   setTimeout(function() { el.style.display = 'none'; }, 4500);
 }
 
-// ========== PUSH TO THE MAX ==========
-function updateBoostButtonUI() {
-  var btn  = document.getElementById('boostBtn');
-  var fill = document.getElementById('boostEnergyFill');
-  if (!btn || !fill) return;
+// ========== PUSH TO THE MAX - Canvas arc fill ==========
+function drawBoostArc(pct, available) {
+  var bc = document.getElementById('boostCanvas');
+  if (!bc) return;
+  var size = bc.offsetWidth || 90;
+  bc.width  = size;
+  bc.height = size;
+  var bctx = bc.getContext('2d');
+  bctx.clearRect(0, 0, size, size);
+  var cx = size / 2, cy = size / 2, r = size / 2 - 4;
 
-  var pct = (pushToMaxCharges / maxPushToMaxCharges) * 100;
+  // Background circle (dark semi-transparent)
+  bctx.beginPath();
+  bctx.arc(cx, cy, r, 0, Math.PI * 2);
+  bctx.fillStyle = 'rgba(0,0,0,0.55)';
+  bctx.fill();
+
+  // Track ring
+  bctx.beginPath();
+  bctx.arc(cx, cy, r, 0, Math.PI * 2);
+  bctx.strokeStyle = available ? 'rgba(200,100,255,0.5)' : 'rgba(100,100,100,0.4)';
+  bctx.lineWidth = 4;
+  bctx.stroke();
+
+  // Energy arc (from top, clockwise)
+  if (pct > 0) {
+    var startAngle = -Math.PI / 2;
+    var endAngle   = startAngle + (Math.PI * 2 * pct);
+    bctx.beginPath();
+    bctx.arc(cx, cy, r, startAngle, endAngle);
+    var grad = bctx.createLinearGradient(cx - r, cy, cx + r, cy);
+    if (available) {
+      grad.addColorStop(0,   '#ff00ff');
+      grad.addColorStop(0.5, '#cc44ff');
+      grad.addColorStop(1,   '#8800ff');
+    } else {
+      grad.addColorStop(0, '#888');
+      grad.addColorStop(1, '#555');
+    }
+    bctx.strokeStyle = grad;
+    bctx.lineWidth = 5;
+    bctx.lineCap = 'round';
+    bctx.stroke();
+
+    // Glow tip
+    if (available && pct > 0.05) {
+      var tipX = cx + Math.cos(endAngle) * r;
+      var tipY = cy + Math.sin(endAngle) * r;
+      bctx.beginPath();
+      bctx.arc(tipX, tipY, 4, 0, Math.PI * 2);
+      bctx.fillStyle = '#ff88ff';
+      bctx.fill();
+    }
+  }
+}
+
+function updateBoostButtonUI() {
+  var btn = document.getElementById('boostBtn');
+  if (!btn) return;
+
+  var pct, available;
   if (pushToMaxCooldown > 0) {
-    pct = (1 - pushToMaxCooldown / pushToMaxCooldownTime) * 100;
+    pct = 1 - pushToMaxCooldown / pushToMaxCooldownTime;
+    available = false;
     btn.disabled = true;
   } else if (pushToMaxCharges > 0) {
+    pct = pushToMaxCharges / maxPushToMaxCharges;
+    available = true;
     btn.disabled = false;
   } else {
+    pct = 0;
+    available = false;
     btn.disabled = true;
   }
-  fill.style.height = pct + '%';
+  drawBoostArc(pct, available);
 }
 
 window.activateBoost = function() {
@@ -1022,10 +1135,11 @@ function resetToStart() {
     var canvasLeft   = Math.floor((window.innerWidth  - gw) / 2);
     var canvasBottom = Math.floor((window.innerHeight - gh) / 2);
 
-    var btnSize   = Math.min(75, Math.floor(gw * 0.17));
-    var boostSize = Math.min(100, Math.floor(gw * 0.22));
-    var margin    = Math.floor(gw * 0.05);
-    var bottomOff = Math.floor(gh * 0.06) + canvasBottom;
+    // On a real phone (full screen), canvasLeft/canvasBottom ≈ 0
+    var btnSize   = Math.min(70, Math.floor(gw * 0.16));
+    var boostSize = Math.min(88, Math.floor(gw * 0.20));
+    var margin    = Math.max(8, Math.floor(gw * 0.04));
+    var bottomOff = Math.max(10, Math.floor(gh * 0.04)) + canvasBottom;
 
     var leftBtn  = document.getElementById('leftBtn');
     var rightBtn = document.getElementById('rightBtn');
@@ -1039,9 +1153,9 @@ function resetToStart() {
       leftBtn.style.width  = btnSize + 'px';
       leftBtn.style.height = btnSize + 'px';
     }
-    // Right button: from right edge of canvas
-    // 'right' in fixed positioning = distance from right edge of viewport
+    // Right button: distance from right edge of viewport
     var rightEdgeDist = window.innerWidth - canvasLeft - gw + margin;
+    if (rightEdgeDist < 0) rightEdgeDist = margin;
     if (rightBtn) {
       rightBtn.style.right  = rightEdgeDist + 'px';
       rightBtn.style.left   = 'auto';
@@ -1052,10 +1166,13 @@ function resetToStart() {
     if (boostBtn) {
       boostBtn.style.right  = rightEdgeDist + 'px';
       boostBtn.style.left   = 'auto';
-      boostBtn.style.bottom = (bottomOff + btnSize + Math.floor(gw * 0.025)) + 'px';
+      boostBtn.style.bottom = (bottomOff + btnSize + Math.floor(gw * 0.02)) + 'px';
       boostBtn.style.width  = boostSize + 'px';
       boostBtn.style.height = boostSize + 'px';
     }
+
+    // Re-draw boost arc after resize
+    setTimeout(function() { updateBoostButtonUI(); }, 50);
   }
 
   // ========== TOUCH INPUT MAPPING ==========
@@ -1305,26 +1422,37 @@ function resetToStart() {
   }
 
   // ========== RENDER COLLECTIBLES ==========
-  function renderCollectiblesInSegment(segment) {
-    if (!segment.p1.screen.scale || segment.p1.screen.scale <= 0) return;
+  function renderCollectiblesInSegment(segment, dynRoadWidth) {
+    dynRoadWidth = dynRoadWidth || roadWidth;
+    // Only render segments that have valid screen projection
+    if (!segment.p1.screen || !segment.p1.screen.scale || segment.p1.screen.scale <= 0) return;
+    // Skip segments behind camera (p2 should be higher on screen = smaller Y than p1)
     if (segment.p2.screen.y >= segment.p1.screen.y) return;
+    // Skip segments entirely below the screen
+    if (segment.p1.screen.y > height) return;
 
     for (var i = 0; i < collectibles.length; i++) {
       var c = collectibles[i];
       if (c.collected) continue;
       if (c.segmentIndex !== segment.index) continue;
 
-      var spriteScale = segment.p1.screen.scale * 0.5;
-      if (spriteScale < 0.0005) continue;
+      // Use same scale formula as Render.sprite for consistency
+      // screen.scale = cameraDepth / camera.z (perspective scale)
+      // roadWidth * width/2 = half road width in pixels at this scale
+      var scale = segment.p1.screen.scale;
+      var roadHalfPx = scale * dynRoadWidth * width / 2;
 
-      var spriteX = segment.p1.screen.x + (spriteScale * c.offset * roadWidth * width/2);
-      var spriteY = segment.p1.screen.y + (segment.p1.screen.scale * 30);
-      var baseSize = spriteScale * roadWidth * width/4;
-      if (baseSize < 2) baseSize = 2;
+      // Size: collectible should be ~0.18 road-half-widths in diameter
+      var baseSize = roadHalfPx * 0.22;
+      if (baseSize < 3) continue;   // too small to see
+      if (baseSize > 60) baseSize = 60; // cap size
+
+      // Screen position: same formula as sprite offset calculation
+      var spriteX = segment.p1.screen.x + (scale * c.offset * dynRoadWidth * width / 2);
+      var spriteY = segment.p1.screen.y;
 
       var clipY = segment.clip;
       var destH = baseSize * 2;
-      var destW = baseSize * 2;
       var destY = spriteY - baseSize;
 
       // Skip if entirely below clip line
@@ -1333,8 +1461,8 @@ function resetToStart() {
 
       // Fade near clip
       var alpha = 1;
-      if (clipY && spriteY > clipY - 80) {
-        alpha = Math.max(0, 1 - (spriteY - (clipY - 80)) / 80);
+      if (clipY && spriteY > clipY - 60) {
+        alpha = Math.max(0, 1 - (spriteY - (clipY - 60)) / 60);
       }
 
       if (c.type.name === 'gold' && goldcoinImage) {
@@ -1442,7 +1570,7 @@ function resetToStart() {
       }
 
       if (currentState === GameState.PLAYING) {
-        renderCollectiblesInSegment(segment);
+        renderCollectiblesInSegment(segment, dynamicRoadWidth);
       }
 
       if (segment == playerSegment) {
@@ -1597,6 +1725,10 @@ function resetToStart() {
       Render.loadPlayerImages('images/');
       initStartScreen();
       document.getElementById('playAgainBtn').onclick = resetToStart;
+      // Init speed lines canvas and boost arc
+      initSpeedLinesCanvas();
+      speedLinesGenerated = true;
+      updateBoostButtonUI();
     }
   });
 
