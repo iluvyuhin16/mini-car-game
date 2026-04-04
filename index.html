@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 
 <html>
 <head>
@@ -8,699 +7,339 @@
   <link href="common.css" rel="stylesheet" type="text/css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-  	/* ========== 8-BIT RETRO STYLE ========== */
-  	* {
-  		image-rendering: pixelated;
-  		-webkit-font-smoothing: none;
-  		-moz-osx-font-smoothing: none;
-  	}
+    /* ========== BASE ========== */
+    * {
+      image-rendering: pixelated;
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: none;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%; height: 100%;
+      margin: 0; padding: 0;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-  	.top-div { display: block; margin: 4px; padding: 2px; margin-left: 20px }
-  	.top-div input { font-size: normal; width: 40px; text-align: center; border: 2px solid #fff; background: #000; color: #fff; }
-  	.top-div span { font-size: x-small; font-weight: bold; padding: 2px; margin: 2px; color: #fff; }
+    /* ========== START SCREEN ========== */
+    .start-screen {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 1000; color: #fff;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .start-screen h1 {
+      font-size: 1.6em; color: #c81d25;
+      margin-bottom: 40px; text-align: center;
+      text-shadow: 4px 4px 0 #8b0000; line-height: 1.5;
+    }
+    .loading-container {
+      width: 280px; height: 24px;
+      background: #222; border: 4px solid #fff;
+    }
+    .loading-bar {
+      height: 100%; width: 0%;
+      background: #c81d25;
+    }
+    .loading-text {
+      margin-top: 15px; font-size: 0.6em; color: #fff;
+    }
 
-  	/* ========== START SCREEN STYLES - MOBILE FIRST ========== */
-  	.start-screen {
-  		position: fixed;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		background: #000;
-  		display: flex;
-  		flex-direction: column;
-  		justify-content: center;
-  		align-items: center;
-  		z-index: 1000;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  	}
-  	.start-screen h1 {
-  		font-size: 2em;
-  		color: #c81d25;
-  		margin-bottom: 40px;
-  		text-align: center;
-  		text-shadow: 4px 4px 0 #8b0000;
-  		line-height: 1.5;
-  	}
-  	.loading-container {
-  		width: 280px;
-  		height: 24px;
-  		background: #222;
-  		border: 4px solid #fff;
-  		display: flex;
-  		flex-direction: column;
-  	}
-  	.loading-bar {
-  		height: 12px;
-  		width: 0%;
-  		background: #c81d25;
-  		margin: 4px;
-  	}
-  	.loading-text {
-  		margin-top: 15px;
-  		font-size: 0.6em;
-  		color: #fff;
-  	}
+    /* ========== POPUP ========== */
+    .popup-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1001;
+    }
+    .popup-content {
+      background: #000; border: 4px solid #fff;
+      padding: 20px; max-width: 400px; width: 90%;
+      color: #fff; font-family: 'Press Start 2P', monospace; font-size: 0.6em;
+    }
+    .popup-content h2 {
+      color: #c81d25; text-align: center;
+      margin-bottom: 20px; font-size: 1.2em;
+      text-shadow: 3px 3px 0 #8b0000;
+    }
+    .popup-content .rules {
+      background: #111; border: 2px solid #444;
+      padding: 15px; margin-bottom: 20px; line-height: 2;
+    }
+    .popup-content .rules p { margin: 10px 0; }
+    .popup-content .consent {
+      display: flex; align-items: center; margin: 20px 0;
+    }
+    .popup-content .consent input {
+      margin-right: 10px; width: 20px; height: 20px; accent-color: #c81d25;
+    }
+    .popup-content button {
+      width: 100%; padding: 15px; font-size: 1em;
+      background: #c81d25; border: 4px solid #fff;
+      cursor: pointer; font-weight: bold; color: #fff;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .popup-content button:hover { background: #e84a3a; }
+    .popup-content button:disabled { background: #444; border-color: #666; cursor: not-allowed; }
 
-  	/* Mobile start screen adjustments */
-  	@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
-  		.start-screen h1 {
-  			font-size: 1.5em;
-  			margin-bottom: 30px;
-  		}
-  		.loading-container {
-  			width: 240px;
-  		}
-  	}
+    /* ========== REGISTRATION FORM ========== */
+    .reg-form { text-align: center; }
+    .reg-form input {
+      width: 100%; padding: 12px; margin: 10px 0; font-size: 1em;
+      border: 4px solid #fff; background: #000; color: #fff;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .reg-form input::placeholder { color: #666; }
+    .reg-form button { margin-top: 20px; }
 
-  	/* ========== POPUP STYLES ========== */
-  	.popup-overlay {
-  		position: fixed;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		background: rgba(0,0,0,0.9);
-  		display: none;
-  		justify-content: center;
-  		align-items: center;
-  		z-index: 1001;
-  	}
-  	.popup-content {
-  		background: #000;
-  		border: 4px solid #fff;
-  		padding: 20px;
-  		max-width: 400px;
-  		width: 90%;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  		font-size: 0.6em;
-  	}
-  	.popup-content h2 {
-  		color: #c81d25;
-  		text-align: center;
-  		margin-bottom: 20px;
-  		font-size: 1.2em;
-  		text-shadow: 3px 3px 0 #8b0000;
-  	}
-  	.popup-content .rules {
-  		background: #111;
-  		border: 2px solid #444;
-  		padding: 15px;
-  		margin-bottom: 20px;
-  		line-height: 2;
-  	}
-  	.popup-content .rules p {
-  		margin: 10px 0;
-  	}
-  	.popup-content .rules .icon {
-  		margin-right: 10px;
-  	}
-  	.popup-content .consent {
-  		display: flex;
-  		align-items: center;
-  		margin: 20px 0;
-  	}
-  	.popup-content .consent input {
-  		margin-right: 10px;
-  		width: 20px;
-  		height: 20px;
-  		accent-color: #c81d25;
-  	}
-  	.popup-content button {
-  		width: 100%;
-  		padding: 15px;
-  		font-size: 1em;
-  		background: #c81d25;
-  		border: 4px solid #fff;
-  		cursor: pointer;
-  		font-weight: bold;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  	}
-  	.popup-content button:hover {
-  		background: #e84a3a;
-  	}
-  	.popup-content button:disabled {
-  		background: #444;
-  		border-color: #666;
-  		cursor: not-allowed;
-  	}
+    /* ========== COUNTDOWN ========== */
+    .countdown-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      display: none; justify-content: center; align-items: center;
+      z-index: 1002;
+    }
+    .countdown-number {
+      font-size: 8em; color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      text-shadow: 8px 8px 0 #c81d25;
+    }
 
-  	/* ========== REGISTRATION FORM ========== */
-  	.reg-form {
-  		text-align: center;
-  	}
-  	.reg-form input {
-  		width: 100%;
-  		padding: 12px;
-  		margin: 10px 0;
-  		font-size: 1em;
-  		border: 4px solid #fff;
-  		background: #000;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  		box-sizing: border-box;
-  	}
-  	.reg-form input::placeholder {
-  		color: #666;
-  	}
-  	.reg-form button {
-  		margin-top: 20px;
-  	}
+    /* ========== HUD ========== */
+    #hud {
+      background-color: #000; border-bottom: 4px solid #fff;
+      font-family: 'Press Start 2P', monospace; font-size: 0.65em;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 10px; flex-wrap: wrap; gap: 5px;
+    }
+    #hud .hud {
+      background-color: #222; border: 2px solid #fff; color: #fff; padding: 5px 8px;
+    }
+    #hud .score-display { background: #c81d25; border: 3px solid #fff; color: #fff; font-weight: bold; }
+    #hud .timer-display { background: #c81d25; border: 3px solid #fff; color: #fff; font-weight: bold; }
+    #hud #speed { font-size: 0.8em; }
+    #hud #current_lap_time, #hud #fast_lap_time { display: none; }
+    #hud .timer-warning { background: #ff0000 !important; animation: timerBlink 0.5s ease-in-out infinite; }
+    @keyframes timerBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-  	/* ========== COUNTDOWN STYLES ========== */
-  	.countdown-overlay {
-  		position: fixed;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		background: #000;
-  		display: none;
-  		justify-content: center;
-  		align-items: center;
-  		z-index: 1002;
-  	}
-  	.countdown-number {
-  		font-size: 8em;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  		text-shadow: 8px 8px 0 #c81d25;
-  	}
-  	@keyframes pulse {
-  		0% { transform: scale(1); }
-  		100% { transform: scale(1); }
-  	}
+    /* ========== BOOST INDICATORS ========== */
+    .boost-indicator {
+      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+      padding: 10px 20px; font-size: 0.8em; font-weight: bold;
+      display: none; z-index: 100;
+      font-family: 'Press Start 2P', monospace; border: 3px solid #fff;
+    }
+    .boost-indicator.xp { background: #9b59b6; color: #fff; }
+    .boost-indicator.sp { background: #3498db; color: #fff; }
+    .boost-indicator.shield { background: #00ff00; color: #000; }
+    .boost-indicator.push { background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%); color: #fff; }
+    .boost-indicator.combo { background: #c81d25; color: #fff; }
 
-  	/* Mobile countdown adjustments */
-  	@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
-  		.countdown-number {
-  			font-size: 6em;
-  		}
-  	}
+    /* ========== SCREEN EFFECTS ========== */
+    .screen-flash {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 999; opacity: 0;
+    }
+    .screen-flash.xp { background: #9b59b6; animation: flash 0.3s ease-out; }
+    .screen-flash.sp { background: #3498db; animation: flash 0.3s ease-out; }
+    .screen-flash.shield { background: #00ff00; animation: flash 0.3s ease-out; }
+    .screen-flash.gold { background: #c81d25; animation: flash 0.2s ease-out; }
+    @keyframes flash { 0% { opacity: 0.6; } 100% { opacity: 0; } }
 
-  	/* ========== HUD UPDATES - MOBILE OPTIMIZED ========== */
-  	#hud {
-  		background-color: #000;
-  		border-bottom: 4px solid #fff;
-  		font-family: 'Press Start 2P', monospace;
-  		font-size: 0.65em;
-  		display: flex;
-  		justify-content: space-between;
-  		align-items: center;
-  		padding: 8px 10px;
-  		flex-wrap: wrap;
-  		gap: 5px;
-  	}
-  	#hud .hud {
-  		background-color: #222;
-  		border: 2px solid #fff;
-  		color: #fff;
-  		padding: 5px 8px;
-  	}
-  	#hud .score-display {
-  		background: #c81d25;
-  		border: 3px solid #fff;
-  		color: #fff;
-  		font-weight: bold;
-  	}
-  	#hud .timer-display {
-  		background: #c81d25;
-  		border: 3px solid #fff;
-  		color: #fff;
-  		font-weight: bold;
-  	}
-  	#hud #speed {
-  		font-size: 0.8em;
-  	}
-  	#hud #current_lap_time,
-  	#hud #fast_lap_time {
-  		display: none; /* Hide on mobile to save space */
-  	}
+    .crash-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 998; opacity: 0; background: #ff0000;
+    }
+    .crash-overlay.active { animation: crashFlash 0.5s ease-out; }
+    @keyframes crashFlash { 0% { opacity: 0.5; } 100% { opacity: 0; } }
 
-  	/* Mobile specific HUD sizing */
-  	@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
-  		#hud {
-  			font-size: 0.7em;
-  			padding: 6px 10px;
-  		}
-  		#hud .hud {
-  			padding: 5px 8px;
-  		}
-  		#hud .score-display,
-  		#hud .timer-display {
-  			padding: 5px 10px;
-  		}
-  	}
-  	.boost-indicator {
-  		position: fixed;
-  		top: 80px;
-  		left: 50%;
-  		transform: translateX(-50%);
-  		padding: 10px 20px;
-  		font-size: 0.8em;
-  		font-weight: bold;
-  		display: none;
-  		z-index: 100;
-  		font-family: 'Press Start 2P', monospace;
-  		border: 3px solid #fff;
-  	}
-  	.boost-indicator.xp {
-  		background: #9b59b6;
-  		color: #fff;
-  	}
-  	.boost-indicator.sp {
-  		background: #3498db;
-  		color: #fff;
-  	}
+    /* ========== END SCREEN ========== */
+    .end-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; display: none; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 1003; color: #fff; font-family: 'Press Start 2P', monospace;
+    }
+    .end-screen h1 { font-size: 2em; color: #c81d25; margin-bottom: 30px; text-shadow: 4px 4px 0 #8b0000; }
+    .end-screen .player-name { font-size: 1em; margin-bottom: 20px; }
+    .end-screen button {
+      padding: 15px 30px; font-size: 1em; background: #c81d25;
+      border: 4px solid #fff; cursor: pointer; font-weight: bold; color: #fff;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .stats-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; width: 280px; }
+    .stat-item {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #111; border: 2px solid #444; padding: 10px 15px;
+    }
+    .stat-label { font-size: 0.6em; color: #888; }
+    .stat-value { font-size: 0.8em; color: #fff; }
+    .stat-value.final-score { color: #c81d25; font-size: 1em; }
+    .stat-item.highscore { background: #c81d25; border-color: #fff; justify-content: center; }
+    .stat-item.highscore .stat-label { color: #fff; }
 
-  	/* ========== TOUCH BUTTONS ========== */
-  	#touchControls {
-  		display: none;
-  	}
-  	.touch-btn {
-  		position: fixed;
-  		bottom: 60px;
-  		width: 80px;
-  		height: 80px;
-  		background: rgba(0,0,0,0.7);
-  		border: 4px solid rgba(255,255,255,0.8);
-  		border-radius: 50%;
-  		color: #fff;
-  		font-size: 2em;
-  		display: flex;
-  		align-items: center;
-  		justify-content: center;
-  		user-select: none;
-  		-webkit-user-select: none;
-  		touch-action: none;
-  	}
-  	.touch-btn.left {
-  		left: 30px;
-  	}
-  	.touch-btn.right {
-  		right: 30px;
-  	}
-  	.touch-btn:active {
-  		background: rgba(200,29,37,0.8);
-  	}
-  	@media (hover: none) and (pointer: coarse) {
-  		#touchControls {
-  			display: block;
-  		}
-  	}
+    /* ========== TAP TO START ========== */
+    .tap-to-start {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2em; color: #fff; text-align: center;
+      z-index: 1001; display: none;
+      animation: tapPulse 1.5s ease-in-out infinite;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .tap-to-start span { display: block; font-size: 0.6em; margin-top: 10px; color: #888; }
+    @keyframes tapPulse {
+      0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
+    }
 
-  	/* ========== TAP TO START (MOBILE) ========== */
-  	.tap-to-start {
-  		position: fixed;
-  		top: 50%;
-  		left: 50%;
-  		transform: translate(-50%, -50%);
-  		font-size: 1.2em;
-  		color: #fff;
-  		text-align: center;
-  		z-index: 1001;
-  		display: none;
-  		animation: tapPulse 1.5s ease-in-out infinite;
-  	}
-  	.tap-to-start span {
-  		display: block;
-  		font-size: 0.6em;
-  		margin-top: 10px;
-  		color: #888;
-  	}
-  	@keyframes tapPulse {
-  		0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  		50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
-  	}
-  	@media (hover: none) and (pointer: coarse) {
-  		.tap-to-start {
-  			display: block;
-  		}
-  	}
+    /* ========== SPEED LINES - CONVERGE TO CENTER ========== */
+    .speed-lines {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 50;
+      opacity: 0; transition: opacity 0.5s; overflow: hidden;
+    }
+    .speed-lines.active { opacity: 1; }
+    .speed-lines.sp-boost .speed-line {
+      background: linear-gradient(to bottom, transparent 0%, rgba(52,152,219,0.9) 40%, rgba(52,152,219,0.9) 60%, transparent 100%);
+      box-shadow: 0 0 6px rgba(52,152,219,0.8);
+    }
+    /* Each line radiates from center outward */
+    .speed-line {
+      position: absolute;
+      width: 2px;
+      background: linear-gradient(to bottom, transparent 0%, rgba(255,50,50,0.95) 30%, rgba(255,200,200,1) 50%, rgba(255,50,50,0.95) 70%, transparent 100%);
+      box-shadow: 0 0 4px rgba(255,80,80,0.7);
+      border-radius: 1px;
+      transform-origin: 50% 100%;
+      opacity: 0;
+      animation: speedLineZoom 0.45s linear infinite;
+    }
+    @keyframes speedLineZoom {
+      0%   { opacity: 0;   transform: scaleY(0.05) rotate(var(--angle)); }
+      10%  { opacity: 1; }
+      80%  { opacity: 0.9; }
+      100% { opacity: 0;   transform: scaleY(1) rotate(var(--angle)); }
+    }
 
-  	/* ========== END GAME SCREEN ========== */
-  	.end-screen {
-  		position: fixed;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		background: #000;
-  		display: none;
-  		flex-direction: column;
-  		justify-content: center;
-  		align-items: center;
-  		z-index: 1003;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  	}
-  	.end-screen h1 {
-  		font-size: 2em;
-  		color: #c81d25;
-  		margin-bottom: 30px;
-  		text-shadow: 4px 4px 0 #8b0000;
-  	}
-  	.end-screen .player-name {
-  		font-size: 1em;
-  		margin-bottom: 20px;
-  	}
-  	.end-screen .final-score {
-  		font-size: 3em;
-  		color: #c81d25;
-  		text-shadow: 6px 6px 0 #8b0000;
-  		margin-bottom: 40px;
-  	}
-  	.end-screen button {
-  		padding: 15px 30px;
-  		font-size: 1em;
-  		background: #c81d25;
-  		border: 4px solid #fff;
-  		cursor: pointer;
-  		font-weight: bold;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  	}
-  	.end-screen button:hover {
-  		background: #e84a3a;
-  	}
+    /* ========== ROAD SPEED EFFECT ========== */
+    .road-speed-effect {
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 25%;
+      background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+      pointer-events: none; z-index: 40; opacity: 0; transition: opacity 0.5s;
+    }
+    .road-speed-effect.active { opacity: 1; }
 
-  	/* ========== COMBO INDICATOR ========== */
-  	.boost-indicator.combo {
-  		background: #c81d25;
-  		color: #fff;
-  	}
-  	.boost-indicator.combo .combo-count {
-  		font-size: 1.2em;
-  	}
+    /* ========== SPEED VIGNETTE ========== */
+    .speed-vignette {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 45;
+      box-shadow: inset 0 0 80px rgba(0,0,0,0); transition: box-shadow 0.5s;
+    }
+    .speed-vignette.active { box-shadow: inset 0 0 120px rgba(0,0,0,0.4); }
+    .speed-vignette.sp-boost { box-shadow: inset 0 0 150px rgba(52,152,219,0.3), inset 0 0 100px rgba(0,0,0,0.4); }
 
-  	/* ========== SHIELD INDICATOR ========== */
-  	.boost-indicator.shield {
-  		background: #00ff00;
-  		color: #000;
-  	}
+    /* ========== HIGH SPEED SHAKE ========== */
+    @keyframes highSpeedShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-1px); }
+      75% { transform: translateX(1px); }
+    }
 
-  	/* ========== PUSH INDICATOR ========== */
-  	.boost-indicator.push {
-  		background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
-  		color: #fff;
-  	}
+    /* ========== TOUCH CONTROLS (always visible) ========== */
+    #touchControls { display: block; }
 
-  	/* ========== SCREEN EFFECTS ========== */
-  	.screen-flash {
-  		position: fixed;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		pointer-events: none;
-  		z-index: 999;
-  		opacity: 0;
-  	}
-  	.screen-flash.xp {
-  		background: #9b59b6;
-  		animation: flash 0.3s ease-out;
-  	}
-  	.screen-flash.sp {
-  		background: #3498db;
-  		animation: flash 0.3s ease-out;
-  	}
-  	.screen-flash.shield {
-  		background: #00ff00;
-  		animation: flash 0.3s ease-out;
-  	}
-  	.screen-flash.gold {
-  		background: #c81d25;
-  		animation: flash 0.2s ease-out;
-  	}
-  	@keyframes flash {
-  		0% { opacity: 0.6; }
-  		100% { opacity: 0; }
-  	}
+    /* Touch buttons are positioned relative to viewport,
+       but we use JS to anchor them relative to the game canvas */
+    .touch-btn {
+      position: fixed;
+      bottom: 60px;
+      width: 80px; height: 80px;
+      background: rgba(0,0,0,0.7);
+      border: 4px solid rgba(255,255,255,0.8);
+      border-radius: 50%;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none; -webkit-user-select: none;
+      touch-action: none;
+      z-index: 200;
+    }
+    .touch-btn.left  { left: 30px; }
+    .touch-btn.right { right: 30px; }
+    .touch-btn:active { background: rgba(200,29,37,0.8); }
 
-  	.crash-overlay {
-  		position: fixed;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		pointer-events: none;
-  		z-index: 998;
-  		opacity: 0;
-  		background: #ff0000;
-  	}
-  	.crash-overlay.active {
-  		animation: crashFlash 0.5s ease-out;
-  	}
-  	@keyframes crashFlash {
-  		0% { opacity: 0.5; }
-  		100% { opacity: 0; }
-  	}
+    /* ========== BOOST BUTTON (above right btn) ========== */
+    .touch-btn.boost {
+      bottom: 160px;
+      right: 30px;
+      left: auto;
+      width: 110px; height: 110px;
+      background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+      border: 4px solid #ce93d8;
+      border-radius: 12px;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+      z-index: 200;
+    }
+    .touch-btn.boost:active,
+    .touch-btn.boost.active {
+      background: linear-gradient(135deg, #7b1fa2 0%, #512da8 100%);
+    }
+    .touch-btn.boost:disabled {
+      background: linear-gradient(135deg, #424242 0%, #616161 100%);
+      border-color: #757575;
+      opacity: 0.7;
+    }
+    /* Energy fill: from bottom to top */
+    .boost-energy-fill {
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 0%;
+      background: rgba(255,235,59,0.5);
+      transition: height 0.2s linear;
+      pointer-events: none; z-index: 1;
+    }
+    .boost-btn-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      width: 100%; height: 100%; gap: 4px;
+    }
+    .boost-icon { font-size: 22px; line-height: 1; }
+    .boost-label {
+      font-size: 7px;
+      font-family: 'Press Start 2P', monospace;
+      color: #fff; text-align: center; line-height: 1.3; padding: 0 4px;
+    }
 
-  	/* ========== END SCREEN STATS ========== */
-  	.stats-container {
-  		display: flex;
-  		flex-direction: column;
-  		gap: 15px;
-  		margin-bottom: 30px;
-  		width: 280px;
-  	}
-  	.stat-item {
-  		display: flex;
-  		justify-content: space-between;
-  		align-items: center;
-  		background: #111;
-  		border: 2px solid #444;
-  		padding: 10px 15px;
-  	}
-  	.stat-label {
-  		font-size: 0.6em;
-  		color: #888;
-  	}
-  	.stat-value {
-  		font-size: 0.8em;
-  		color: #fff;
-  	}
-  	.stat-value.final-score {
-  		color: #c81d25;
-  		font-size: 1em;
-  	}
-  	.stat-item.highscore {
-  		background: #c81d25;
-  		border-color: #fff;
-  		justify-content: center;
-  	}
-  	.stat-item.highscore .stat-label {
-  		color: #fff;
-  	}
-
-  	/* ========== TIMER WARNING ========== */
-  	#hud .timer-warning {
-  		background: #ff0000 !important;
-  		animation: timerBlink 0.5s ease-in-out infinite;
-  	}
-  	@keyframes timerBlink {
-  		0%, 100% { opacity: 1; }
-  		50% { opacity: 0.5; }
-  	}
-
-  	/* ========== SPEED LINES - CONVERGE TO CENTER ========== */
-  	.speed-lines {
-  		position: absolute;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		pointer-events: none;
-  		z-index: 50;
-  		opacity: 0;
-  		transition: opacity 0.5s;
-  		overflow: hidden;
-  	}
-  	.speed-lines.active {
-  		opacity: 1;
-  	}
-  	/* SP boost tints lines blue */
-  	.speed-lines.sp-boost .speed-line {
-  		background: linear-gradient(to center, transparent 0%, rgba(52, 152, 219, 0.9) 50%, transparent 100%);
-  		box-shadow: 0 0 6px rgba(52, 152, 219, 0.8);
-  	}
-  	.speed-vignette.sp-boost {
-  		box-shadow: inset 0 0 150px rgba(52, 152, 219, 0.3), inset 0 0 100px rgba(0,0,0,0.4);
-  	}
-  	/* Individual speed line: thin bar that will be rotated to point at center */
-  	.speed-line {
-  		position: absolute;
-  		width: 2px;
-  		background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.9) 40%, rgba(255,255,255,0.9) 60%, transparent 100%);
-  		border-radius: 1px;
-  		transform-origin: 50% 100%; /* rotate from the bottom tip (center of screen) */
-  		opacity: 0;
-  	}
-  	@keyframes speedLineZoom {
-  		0%   { opacity: 0;   transform: scaleY(0.1) rotate(var(--angle)); }
-  		15%  { opacity: 1; }
-  		85%  { opacity: 1; }
-  		100% { opacity: 0;   transform: scaleY(1)   rotate(var(--angle)); }
-  	}
-  	.speed-line {
-  		animation: speedLineZoom 0.45s linear infinite;
-  	}
-
-  	/* ========== ROAD SPEED EFFECT ========== */
-  	.road-speed-effect {
-  		position: absolute;
-  		bottom: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 25%;
-  		background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
-  		pointer-events: none;
-  		z-index: 40;
-  		opacity: 0;
-  		transition: opacity 0.5s;
-  	}
-  	.road-speed-effect.active {
-  		opacity: 1;
-  	}
-
-  	/* ========== SPEED VIGNETTE ========== */
-  	.speed-vignette {
-  		position: absolute;
-  		top: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 100%;
-  		pointer-events: none;
-  		z-index: 45;
-  		box-shadow: inset 0 0 80px rgba(0,0,0,0);
-  		transition: box-shadow 0.5s;
-  	}
-  	.speed-vignette.active {
-  		box-shadow: inset 0 0 120px rgba(0,0,0,0.4);
-  	}
-
-  	/* ========== HIGH SPEED SHAKE ========== */
-  	@keyframes highSpeedShake {
-  		0%, 100% { transform: translateX(0); }
-  		25% { transform: translateX(-1px); }
-  		75% { transform: translateX(1px); }
-  	}
-
-  	/* ========== CONFIRM BUTTON ========== */
-  	.confirm-btn {
-  		width: 100%;
-  		padding: 15px;
-  		font-size: 1em;
-  		background: #c81d25;
-  		border: 4px solid #fff;
-  		cursor: pointer;
-  		font-weight: bold;
-  		color: #fff;
-  		font-family: 'Press Start 2P', monospace;
-  		margin-top: 15px;
-  	}
-  	.confirm-btn:hover {
-  		background: #e84a3a;
-  	}
-
-  	/* ========== BOOST BUTTON STYLES ========== */
-  	/* Boost button sits ABOVE the right arrow button */
-  	.touch-btn.boost {
-  		/* Positioned above rightBtn (bottom:60px + 80px height + 20px gap = 160px) */
-  		bottom: 160px;
-  		right: 30px;
-  		left: auto;
-  		transform: none;
-  		width: 110px;
-  		height: 110px;
-  		background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
-  		border-color: #ce93d8;
-  		border-radius: 12px;
-  		flex-direction: column;
-  		font-size: 1em;
-  		overflow: hidden;
-  		padding: 0;
-  	}
-  	.touch-btn.boost:active,
-  	.touch-btn.boost.active {
-  		background: linear-gradient(135deg, #7b1fa2 0%, #512da8 100%);
-  	}
-  	/* Energy fill overlay — fills from bottom to top */
-  	.boost-energy-fill {
-  		position: absolute;
-  		bottom: 0;
-  		left: 0;
-  		width: 100%;
-  		height: 0%;
-  		background: rgba(255, 235, 59, 0.45);
-  		transition: height 0.2s linear;
-  		pointer-events: none;
-  		z-index: 1;
-  	}
-  	.boost-btn-content {
-  		position: relative;
-  		z-index: 2;
-  		display: flex;
-  		flex-direction: column;
-  		align-items: center;
-  		justify-content: center;
-  		width: 100%;
-  		height: 100%;
-  		gap: 4px;
-  	}
-  	.boost-icon {
-  		font-size: 22px;
-  		line-height: 1;
-  	}
-  	.boost-label {
-  		font-size: 7px;
-  		font-family: 'Press Start 2P', monospace;
-  		color: #fff;
-  		text-align: center;
-  		line-height: 1.3;
-  		padding: 0 4px;
-  	}
-  	.touch-btn.boost:disabled {
-  		background: linear-gradient(135deg, #424242 0%, #616161 100%);
-  		border-color: #757575;
-  		opacity: 0.7;
-  	}
-
-  	/* Mobile adjustments for boost button */
-  	@media (max-width: 360px) {
-  		.touch-btn.boost {
-  			width: 90px;
-  			height: 90px;
-  			bottom: 150px;
-  			right: 20px;
-  		}
-  		.boost-icon {
-  			font-size: 18px;
-  		}
-  		.boost-label {
-  			font-size: 6px;
-  		}
-  	}
+    /* Small screen adjustments */
+    @media (max-width: 360px) {
+      .touch-btn { width: 65px; height: 65px; }
+      .touch-btn.boost { width: 90px; height: 90px; bottom: 140px; right: 20px; }
+      .boost-icon { font-size: 18px; }
+      .boost-label { font-size: 6px; }
+    }
   </style>
-  
-  	<meta property="og:title" content="Retro Racing" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://angrybud.com/games/f430/" />
-	<meta property="og:description" content="Webgame, webapp, classic 2D racing" />
-	<meta property="og:image" content="https://angrybud.com/games/pixelracing/javascript_f430_racer_Scr2.jpg" />
 
-    <meta name="twitter:title" content="Retro Racer 2D" />
-    <meta name="twitter:description" content="Webgame, webapp, classic racing" />
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://angrybud.com/games/pixelracing/javascript_f430_racer_Scr2.jpg">
-
-
+  <meta property="og:title" content="Retro Racing" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://angrybud.com/games/f430/" />
+  <meta property="og:description" content="Webgame, webapp, classic 2D racing" />
+  <meta property="og:image" content="https://angrybud.com/games/pixelracing/javascript_f430_racer_Scr2.jpg" />
 </head>
 
-<body onresize="reset(detect_screen ())">
+<body onresize="reset(detect_screen())">
 
 <!-- ========== START SCREEN ========== -->
 <div id="startScreen" class="start-screen">
@@ -716,13 +355,13 @@
   <div class="popup-content">
     <h2>遊戲玩法</h2>
     <div class="rules">
-      <p><span class="icon">🚗</span> 行車時會有基本積分</p>
-      <p><span class="icon">🪙</span> 食到黃金 +1000 分</p>
-      <p><span class="icon">⭐</span> 食到 XP 獲得 2 倍積分狀態 5 秒</p>
-      <p><span class="icon">⚡</span> 食到 SP 獲得 1.5 倍加速 5 秒</p>
-      <p><span class="icon">🛡️</span> 食到護盾可抵擋一次碰撞</p>
-      <p><span class="icon">🔥</span> 連續食金幣有 Combo 加成！</p>
-      <p><span class="icon">⏱️</span> 遊戲限時 120 秒</p>
+      <p>🚗 行車時會有基本積分</p>
+      <p>🪙 食到黃金 +1000 分</p>
+      <p>⭐ 食到 XP 充能 Boost 槽</p>
+      <p>⚡ 食到 SP 獲得 1.5 倍加速 5 秒</p>
+      <p>🛡️ 食到護盾可抵擋一次碰撞</p>
+      <p>🔥 連續食金幣有 Combo 加成！</p>
+      <p>⏱️ 遊戲限時 120 秒</p>
     </div>
     <div class="consent">
       <input type="checkbox" id="consentCheckbox">
@@ -742,15 +381,15 @@
   </div>
 </div>
 
-<!-- ========== COUNTDOWN OVERLAY ========== -->
+<!-- ========== COUNTDOWN ========== -->
 <div id="countdownOverlay" class="countdown-overlay">
   <div id="countdownNumber" class="countdown-number">3</div>
 </div>
 
 <!-- ========== BOOST INDICATORS ========== -->
-<div id="xpIndicator" class="boost-indicator xp">2X 積分!</div>
-<div id="spIndicator" class="boost-indicator sp">1.5X 加速!</div>
-<div id="pushIndicator" class="boost-indicator push">⚡ BOOST!</div>
+<div id="xpIndicator"    class="boost-indicator xp">⭐ Boost 充能!</div>
+<div id="spIndicator"    class="boost-indicator sp">⚡ 1.5X 加速!</div>
+<div id="pushIndicator"  class="boost-indicator push">⚡ PUSH TO THE MAX!</div>
 <div id="shieldIndicator" class="boost-indicator shield">🛡️ 護盾保護!</div>
 <div id="comboIndicator" class="boost-indicator combo" style="display:none;">COMBO <span id="comboCount">x1</span></div>
 
@@ -758,15 +397,11 @@
 <div id="screenFlash" class="screen-flash"></div>
 <div id="crashOverlay" class="crash-overlay"></div>
 
-
-
-<!-- ========== TAP TO START (MOBILE ONLY) ========== -->
+<!-- ========== TAP TO START ========== -->
 <div id="tapToStart" class="tap-to-start">
   點擊開始遊戲
   <span>輕觸螢幕即可</span>
 </div>
-
-<!-- ========== TIME SELECTION (removed - fixed 90s) ========== -->
 
 <!-- ========== END GAME SCREEN ========== -->
 <div id="endScreen" class="end-screen">
@@ -796,281 +431,202 @@
   <button id="playAgainBtn">再玩一次</button>
 </div>
 
-<!-- <div class="top-div">
- <input disabled id="resolution" value="high" /> 
- <input disabled id="lanes" value="4">
- <span id="currentRoadWidth"></span><input disabled id="roadWidth" value="2000" />
- <span id="currentCameraHeight"></span><input disabled id="cameraHeight" value="1000" />
- <span id="currentDrawDistance"></span><input disabled id="drawDistance" value="300" />
- <span id="currentFieldOfView"></span><input disabled id="fieldOfView" value="100" />
- <span id="currentFogDensity"></span><input disabled id="fogDensity" value="5" />
-</div> -->
+<!-- ========== GAME CONTAINER ========== -->
+<div id="racer">
+  <!-- Speed effects (inside racer so they scale with canvas) -->
+  <div id="speedLines" class="speed-lines"></div>
+  <div id="roadSpeedEffect" class="road-speed-effect"></div>
+  <div id="speedVignette" class="speed-vignette"></div>
 
-  <div id="racer">
-    <!-- ========== SPEED EFFECTS ========== -->
-    <div id="speedLines" class="speed-lines"></div>
-    <div id="roadSpeedEffect" class="road-speed-effect"></div>
-    <div id="speedVignette" class="speed-vignette"></div>
-    <div id="hud">
-      <span id="timer" class="hud timer-display">時間: <span id="timer_value" class="value">120</span></span>
-      <span id="score" class="hud score-display">得分: <span id="score_value" class="value">0</span></span>
-      <span id="speed"            class="hud"><span id="speed_value" class="value">0</span> km/h</span>
-      <span id="current_lap_time" class="hud">Time: <span id="current_lap_time_value" class="value">0.0</span></span>
-      <span id="fast_lap_time"    class="hud">Fastest Lap: <span id="fast_lap_time_value" class="value">0.0</span></span>
+  <div id="hud">
+    <span id="timer" class="hud timer-display">時間: <span id="timer_value" class="value">120</span></span>
+    <span id="score" class="hud score-display">得分: <span id="score_value" class="value">0</span></span>
+    <span id="speed" class="hud"><span id="speed_value" class="value">0</span> km/h</span>
+    <span id="current_lap_time" class="hud">Time: <span id="current_lap_time_value" class="value">0.0</span></span>
+    <span id="fast_lap_time"    class="hud">Fastest Lap: <span id="fast_lap_time_value" class="value">0.0</span></span>
+  </div>
+
+  <canvas id="canvas">
+    Sorry, cannot run because your browser does not support &lt;canvas&gt; element
+  </canvas>
+
+  <!-- ========== TOUCH CONTROLS (always shown) ========== -->
+  <div id="touchControls">
+    <!-- Left: steering wheel turning left -->
+    <div id="leftBtn" class="touch-btn left">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="19" stroke="white" stroke-width="3" fill="none"/>
+        <circle cx="24" cy="24" r="10" stroke="white" stroke-width="2.5" fill="none"/>
+        <!-- Spokes -->
+        <line x1="24" y1="14" x2="24" y2="5"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="14" y1="31" x2="7"  y2="39" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="34" y1="31" x2="41" y2="39" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Left arrow -->
+        <polyline points="11,24 5,18 11,12" stroke="#ff3333" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="5" y1="18" x2="20" y2="18" stroke="#ff3333" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
     </div>
-    <canvas id="canvas">
-      Sorry, cannot run because your browser does not support &lt;canvas&gt; element
-    </canvas>
 
-    <!-- ========== MOBILE TOUCH CONTROLS ========== -->
-    <div id="touchControls">
-      <!-- Left button: SVG steering wheel turning left -->
-      <div id="leftBtn" class="touch-btn left">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Steering wheel ring -->
-          <circle cx="22" cy="22" r="18" stroke="white" stroke-width="3" fill="none"/>
-          <circle cx="22" cy="22" r="10" stroke="white" stroke-width="2.5" fill="none"/>
-          <!-- Spokes -->
-          <line x1="22" y1="12" x2="22" y2="4" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="13" y1="28" x2="7" y2="35" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="31" y1="28" x2="37" y2="35" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Left arrow indicator -->
-          <polyline points="10,22 5,17 10,12" stroke="#c81d25" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <!-- Right button: SVG steering wheel turning right -->
-      <div id="rightBtn" class="touch-btn right">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Steering wheel ring -->
-          <circle cx="22" cy="22" r="18" stroke="white" stroke-width="3" fill="none"/>
-          <circle cx="22" cy="22" r="10" stroke="white" stroke-width="2.5" fill="none"/>
-          <!-- Spokes -->
-          <line x1="22" y1="12" x2="22" y2="4" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="13" y1="28" x2="7" y2="35" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <line x1="31" y1="28" x2="37" y2="35" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- Right arrow indicator -->
-          <polyline points="34,22 39,17 34,12" stroke="#c81d25" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <!-- Boost button: above right button -->
-      <div id="boostBtn" class="touch-btn boost">
-        <div class="boost-energy-fill" id="boostEnergyFill"></div>
-        <div class="boost-btn-content">
-          <span class="boost-icon">⚡</span>
-          <span class="boost-label">Push to<br>the max</span>
-        </div>
+    <!-- Right: steering wheel turning right -->
+    <div id="rightBtn" class="touch-btn right">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="19" stroke="white" stroke-width="3" fill="none"/>
+        <circle cx="24" cy="24" r="10" stroke="white" stroke-width="2.5" fill="none"/>
+        <!-- Spokes -->
+        <line x1="24" y1="14" x2="24" y2="5"  stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="14" y1="31" x2="7"  y2="39" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="34" y1="31" x2="41" y2="39" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Right arrow -->
+        <polyline points="37,24 43,18 37,12" stroke="#ff3333" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="43" y1="18" x2="28" y2="18" stroke="#ff3333" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- Boost button: above right button -->
+    <div id="boostBtn" class="touch-btn boost">
+      <div class="boost-energy-fill" id="boostEnergyFill"></div>
+      <div class="boost-btn-content">
+        <span class="boost-icon">⚡</span>
+        <span class="boost-label">Push to<br>the max</span>
       </div>
     </div>
   </div>
+</div>
 
-  <script src="touch.js"></script>
-  <script src="common.js"></script>
+<script src="touch.js"></script>
+<script src="common.js"></script>
 
-  <script>
-// ========== GAME STATE MANAGEMENT ==========
+<script>
+// ========== GAME STATE ==========
 var GameState = {
-  LOADING: 'loading',
-  INTRO: 'intro',
-  REGISTRATION: 'registration',
-  COUNTDOWN: 'countdown',
-  PLAYING: 'playing',
-  ENDED: 'ended'
+  LOADING: 'loading', INTRO: 'intro', REGISTRATION: 'registration',
+  COUNTDOWN: 'countdown', PLAYING: 'playing', ENDED: 'ended'
 };
-
-// Device detection helper
-function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-         (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
-}
-
 var currentState = GameState.LOADING;
 var playerName = '';
 var playerPhone = '';
 var gameScore = 0;
-var gameTimer = 120; // Fixed 120 seconds
-var xpBoostActive = false;
-var xpBoostTimer = 0;
-var spBoostActive = false;
-var spBoostTimer = 0;
+var gameTimer = 120;
+var xpBoostActive = false;  var xpBoostTimer = 0;
+var spBoostActive = false;  var spBoostTimer = 0;
 var shieldActive = false;
-var comboCount = 0;
-var maxCombo = 0;
+var comboCount = 0;  var maxCombo = 0;  var comboTimer = 0;
+var totalDistance = 0;  var coinsCollected = 0;
+var baseScorePerUnitDistance = 0.01;
 
-// Push to the Max Boost System
+// Push to the Max
 var pushToMaxCharges = 0;
 var maxPushToMaxCharges = 3;
 var pushToMaxCooldown = 0;
-var pushToMaxCooldownTime = 20; // 20 seconds cooldown
+var pushToMaxCooldownTime = 20;
 var pushToMaxBoostActive = false;
 var pushToMaxBoostTimer = 0;
-var comboTimer = 0;
-var totalDistance = 0;
-var coinsCollected = 0;
-var baseScorePerUnitDistance = 0.01;
 
-// ========== SCREEN EFFECTS ==========
+// Screen effects
 var screenShake = { active: false, intensity: 0, duration: 0 };
-
-// ========== CRASH DECELERATION ==========
 var crashDecel = { active: false, targetSpeed: 0 };
 
-// ========== CAR VISUAL SCALE ==========
-var CAR_SCALE = 2.2; // Scale multiplier for other cars (2.2 = 120% larger)
+// Car scale
+var CAR_SCALE = 2.2;
 
-// ========== HIGH SCORE ==========
+// High score
 var HIGH_SCORE_KEY = 'pixelRacer_highScore';
-function getHighScore() {
-  return parseInt(localStorage.getItem(HIGH_SCORE_KEY) || '0');
-}
-function setHighScore(score) {
-  localStorage.setItem(HIGH_SCORE_KEY, score.toString());
-}
+function getHighScore() { return parseInt(localStorage.getItem(HIGH_SCORE_KEY) || '0'); }
+function setHighScore(s) { localStorage.setItem(HIGH_SCORE_KEY, s.toString()); }
 
 // ========== COLLECTIBLES ==========
 var collectibles = [];
 var COLLECTIBLE_TYPES = {
-  GOLD: { name: 'gold', points: 1000, color: '#c81d25', spawn: 0.60 },
-  XP: { name: 'xp', points: 0, color: '#9B59B6', effect: 'xpboost', spawn: 0.23 },
-  SP: { name: 'sp', points: 0, color: '#3498DB', effect: 'spboost', spawn: 0.12 },
-  SHIELD: { name: 'shield', points: 0, color: '#00FF00', effect: 'shield', spawn: 0.05 }
+  GOLD:   { name: 'gold',   points: 1000, color: '#c81d25', spawn: 0.60 },
+  XP:     { name: 'xp',     points: 0,    color: '#9B59B6', effect: 'xpboost', spawn: 0.23 },
+  SP:     { name: 'sp',     points: 0,    color: '#3498DB', effect: 'spboost', spawn: 0.12 },
+  SHIELD: { name: 'shield', points: 0,    color: '#00FF00', effect: 'shield',  spawn: 0.05 }
 };
 
-// ========== START SCREEN LOGIC ==========
+// ========== START SCREEN ==========
 function initStartScreen() {
-  console.log('initStartScreen called');
-  var loadingBar = document.getElementById('loadingBar');
+  var loadingBar  = document.getElementById('loadingBar');
   var loadingText = document.getElementById('loadingText');
   var progress = 0;
-
-  var loadingInterval = setInterval(function() {
+  var interval = setInterval(function() {
     progress += Math.random() * 15 + 5;
-    console.log('Loading progress:', progress);
     if (progress >= 100) {
       progress = 100;
-      clearInterval(loadingInterval);
+      clearInterval(interval);
       loadingText.textContent = '載入完成!';
-      console.log('Loading complete, showing intro');
       setTimeout(function() {
         document.getElementById('startScreen').style.display = 'none';
-        // For mobile: show tap to start, for desktop: show intro popup
-        if (isTouchDevice()) {
-          showTapToStart();
-        } else {
-          showIntroPopup();
-        }
+        showTapToStart();
       }, 500);
     }
     loadingBar.style.width = progress + '%';
   }, 200);
 }
 
-// ========== TAP TO START (MOBILE) ==========
+// ========== TAP TO START (mobile-only flow) ==========
 function showTapToStart() {
   currentState = GameState.INTRO;
   var tapEl = document.getElementById('tapToStart');
-
-  // For mobile, we skip registration and go straight to game
-  document.getElementById('startScreen').style.display = 'none';
   tapEl.style.display = 'block';
-
-  var startHandler = function(e) {
+  var handler = function(e) {
     e.preventDefault();
     tapEl.style.display = 'none';
-    document.removeEventListener('touchstart', startHandler);
-    document.removeEventListener('click', startHandler);
-    startGameDirect();
+    document.removeEventListener('touchstart', handler);
+    document.removeEventListener('click', handler);
+    showIntroPopup();
   };
-
-  document.addEventListener('touchstart', startHandler, { passive: false });
-  document.addEventListener('click', startHandler);
+  document.addEventListener('touchstart', handler, { passive: false });
+  document.addEventListener('click', handler);
 }
 
-// ========== START GAME DIRECTLY (MOBILE) ==========
-function startGameDirect() {
-  playerName = 'MobilePlayer';
-  playerPhone = '';
-  startCountdown();
-}
-
-// ========== CHECK IF TOUCH DEVICE ==========
-function isTouchDevice() {
-  return ('ontouchstart' in window) ||
-         (navigator.maxTouchPoints > 0) ||
-         (navigator.msMaxTouchPoints > 0);
-}
-
-// ========== INTRO POPUP LOGIC ==========
+// ========== INTRO POPUP ==========
 function showIntroPopup() {
   currentState = GameState.INTRO;
-  var popup = document.getElementById('introPopup');
+  var popup    = document.getElementById('introPopup');
   var checkbox = document.getElementById('consentCheckbox');
-  var submitBtn = document.getElementById('consentSubmit');
-
+  var submitBtn= document.getElementById('consentSubmit');
   popup.style.display = 'flex';
   checkbox.checked = false;
   submitBtn.disabled = true;
-
-  checkbox.onchange = function() {
-    submitBtn.disabled = !checkbox.checked;
-  };
-
-  submitBtn.onclick = function() {
-    popup.style.display = 'none';
-    showRegPopup();
-  };
+  checkbox.onchange = function() { submitBtn.disabled = !checkbox.checked; };
+  submitBtn.onclick = function() { popup.style.display = 'none'; showRegPopup(); };
 }
 
-// ========== REGISTRATION POPUP LOGIC ==========
+// ========== REGISTRATION POPUP ==========
 function showRegPopup() {
   currentState = GameState.REGISTRATION;
-  var popup = document.getElementById('regPopup');
+  var popup     = document.getElementById('regPopup');
   var nameInput = document.getElementById('playerName');
-  var phoneInput = document.getElementById('playerPhone');
-  var startBtn = document.getElementById('startGameBtn');
-
+  var phoneInput= document.getElementById('playerPhone');
+  var startBtn  = document.getElementById('startGameBtn');
   popup.style.display = 'flex';
   nameInput.value = '';
   phoneInput.value = '';
-
   startBtn.onclick = function() {
-    if (nameInput.value.trim() === '') {
-      alert('請輸入姓名');
-      return;
-    }
-    if (phoneInput.value.trim() === '') {
-      alert('請輸入電話');
-      return;
-    }
-    playerName = nameInput.value.trim();
+    if (!nameInput.value.trim()) { alert('請輸入姓名'); return; }
+    if (!phoneInput.value.trim()) { alert('請輸入電話'); return; }
+    playerName  = nameInput.value.trim();
     playerPhone = phoneInput.value.trim();
     popup.style.display = 'none';
     startCountdown();
   };
 }
 
-// ========== COUNTDOWN LOGIC ==========
+// ========== COUNTDOWN ==========
 function startCountdown() {
   currentState = GameState.COUNTDOWN;
-  var overlay = document.getElementById('countdownOverlay');
+  var overlay  = document.getElementById('countdownOverlay');
   var numberEl = document.getElementById('countdownNumber');
   overlay.style.display = 'flex';
-
   var count = 3;
   numberEl.textContent = count;
-
-  var countdownInterval = setInterval(function() {
+  var interval = setInterval(function() {
     count--;
     if (count > 0) {
       numberEl.textContent = count;
-      numberEl.style.animation = 'none';
-      numberEl.offsetHeight; // Trigger reflow
-      numberEl.style.animation = 'pulse 1s ease-in-out';
     } else {
-      clearInterval(countdownInterval);
+      clearInterval(interval);
       numberEl.textContent = 'GO!';
-      numberEl.style.animation = 'none';
-      numberEl.offsetHeight;
-      numberEl.style.animation = 'pulse 1s ease-in-out';
       setTimeout(function() {
         overlay.style.display = 'none';
         startGame();
@@ -1082,37 +638,19 @@ function startCountdown() {
 // ========== GAME START ==========
 function startGame() {
   currentState = GameState.PLAYING;
-  gameScore = 0;
-  gameTimer = 120; // Always fixed 120 seconds
-  xpBoostActive = false;
-  xpBoostTimer = 0;
-  spBoostActive = false;
-  spBoostTimer = 0;
+  gameScore = 0; gameTimer = 120;
+  xpBoostActive = false; xpBoostTimer = 0;
+  spBoostActive = false; spBoostTimer = 0;
   shieldActive = false;
-  comboCount = 0;
-  maxCombo = 0;
-  comboTimer = 0;
-  // Push to the Max boost reset
-  pushToMaxCharges = 0;
-  pushToMaxCooldown = 0;
-  pushToMaxBoostActive = false;
-  pushToMaxBoostTimer = 0;
+  comboCount = 0; maxCombo = 0; comboTimer = 0;
+  pushToMaxCharges = 0; pushToMaxCooldown = 0;
+  pushToMaxBoostActive = false; pushToMaxBoostTimer = 0;
   updateBoostButtonUI();
-  totalDistance = 0;
-  coinsCollected = 0;
+  totalDistance = 0; coinsCollected = 0;
   screenShake = { active: false, intensity: 0, duration: 0 };
-
-  // Reset player position
-  playerX = 0;
-  speed = 0;
-  position = 0;
-  crashDecel.active = false;
-  crashDecel.targetSpeed = 0;
-
-  // Generate collectibles
+  playerX = 0; speed = 0; position = 0;
+  crashDecel.active = false; crashDecel.targetSpeed = 0;
   generateCollectibles();
-
-  // Start timer
   startGameTimer();
 }
 
@@ -1122,51 +660,29 @@ function startGameTimer() {
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(function() {
     if (currentState !== GameState.PLAYING) return;
-
     gameTimer--;
     updateHud('timer', gameTimer);
-
-    // Timer warning when less than 10 seconds
     var timerEl = document.getElementById('timer');
-    if (gameTimer <= 10) {
-      timerEl.classList.add('timer-warning');
-    } else {
-      timerEl.classList.remove('timer-warning');
-    }
-
-    if (gameTimer <= 0) {
-      endGame();
-    }
+    if (gameTimer <= 10) timerEl.classList.add('timer-warning');
+    else timerEl.classList.remove('timer-warning');
+    if (gameTimer <= 0) endGame();
   }, 1000);
 }
 
 // ========== GENERATE COLLECTIBLES ==========
 function generateCollectibles() {
   collectibles = [];
-  var numCollectibles = 100; // Number of collectibles on the track
-
-  for (var i = 0; i < numCollectibles; i++) {
-    var rand = Math.random();
-    var type;
-
-    if (rand < COLLECTIBLE_TYPES.GOLD.spawn) {
-      type = COLLECTIBLE_TYPES.GOLD;
-    } else if (rand < COLLECTIBLE_TYPES.GOLD.spawn + COLLECTIBLE_TYPES.XP.spawn) {
-      type = COLLECTIBLE_TYPES.XP;
-    } else if (rand < COLLECTIBLE_TYPES.GOLD.spawn + COLLECTIBLE_TYPES.XP.spawn + COLLECTIBLE_TYPES.SP.spawn) {
-      type = COLLECTIBLE_TYPES.SP;
-    } else {
-      type = COLLECTIBLE_TYPES.SHIELD;
-    }
-
-    // Place collectible at random position on track
-    var segmentIndex = Math.floor(Math.random() * segments.length);
-    var lane = (Math.random() - 0.5) * 1.2; // Random lane position within wider road
-
+  var num = 100;
+  for (var i = 0; i < num; i++) {
+    var rand = Math.random(), type;
+    if      (rand < COLLECTIBLE_TYPES.GOLD.spawn)  type = COLLECTIBLE_TYPES.GOLD;
+    else if (rand < COLLECTIBLE_TYPES.GOLD.spawn + COLLECTIBLE_TYPES.XP.spawn) type = COLLECTIBLE_TYPES.XP;
+    else if (rand < COLLECTIBLE_TYPES.GOLD.spawn + COLLECTIBLE_TYPES.XP.spawn + COLLECTIBLE_TYPES.SP.spawn) type = COLLECTIBLE_TYPES.SP;
+    else type = COLLECTIBLE_TYPES.SHIELD;
     collectibles.push({
       type: type,
-      segmentIndex: segmentIndex,
-      offset: lane,
+      segmentIndex: Math.floor(Math.random() * segments.length),
+      offset: (Math.random() - 0.5) * 1.2,
       collected: false
     });
   }
@@ -1175,18 +691,12 @@ function generateCollectibles() {
 // ========== CHECK COLLECTIBLE COLLISION ==========
 function checkCollectibleCollision() {
   var playerSegment = findSegment(position + playerZ);
-
-  // Normalize playerX from -3 to 3 range to -1 to 1 range for comparison
   var normalizedPlayerX = playerX / 3;
-
   for (var i = 0; i < collectibles.length; i++) {
     var c = collectibles[i];
     if (c.collected) continue;
     if (c.segmentIndex !== playerSegment.index) continue;
-
-    // Check if player is near this collectible (wider collision range for easier pickup)
-    var dx = Math.abs(normalizedPlayerX - c.offset);
-    if (dx < 0.4) {
+    if (Math.abs(normalizedPlayerX - c.offset) < 0.4) {
       c.collected = true;
       collectItem(c.type);
     }
@@ -1195,29 +705,18 @@ function checkCollectibleCollision() {
 
 // ========== REGENERATE COLLECTIBLES ==========
 function regenerateCollectibles() {
-  // Regenerate collected collectibles
-  var collectedCount = 0;
-  for (var i = 0; i < collectibles.length; i++) {
-    if (collectibles[i].collected) {
-      collectedCount++;
-    }
-  }
-
-  // If more than 50% collected, regenerate all
-  if (collectedCount > collectibles.length * 0.5) {
-    generateCollectibles();
-  }
+  var collected = 0;
+  for (var i = 0; i < collectibles.length; i++) { if (collectibles[i].collected) collected++; }
+  if (collected > collectibles.length * 0.5) generateCollectibles();
 }
 
+// ========== COLLECT ITEM ==========
 function collectItem(type) {
-  var pointsEarned = 0;
-
   if (type.name === 'shield') {
     shieldActive = true;
     showBoostIndicator('shield');
     showScreenFlash('shield');
   } else if (type.effect === 'xpboost') {
-    // XP now charges the Push to the Max boost meter
     gameScore += 500;
     if (pushToMaxCharges < maxPushToMaxCharges) {
       pushToMaxCharges++;
@@ -1226,155 +725,80 @@ function collectItem(type) {
       updateBoostButtonUI();
     }
   } else if (type.effect === 'spboost') {
-    spBoostActive = true;
-    spBoostTimer = 5;
-    comboCount = 0; // Reset combo on SP boost
-    // Instant boost to max speed (120 KM/H)
+    spBoostActive = true; spBoostTimer = 5;
+    comboCount = 0;
     speed = maxSpeed * 1.5;
     showBoostIndicator('sp');
     showScreenFlash('sp');
   } else {
-    // Gold - apply combo multiplier
+    // Gold
     coinsCollected++;
     comboCount++;
     if (comboCount > maxCombo) maxCombo = comboCount;
-    comboTimer = 3; // 3 seconds to maintain combo
-
-    var comboMultiplier = 1;
-    if (comboCount >= 10) comboMultiplier = 5;
-    else if (comboCount >= 5) comboMultiplier = 3;
-    else if (comboCount >= 3) comboMultiplier = 2;
-
-    pointsEarned = type.points * comboMultiplier;
-    if (xpBoostActive) pointsEarned *= 2;
-    gameScore += Math.floor(pointsEarned);
-
+    comboTimer = 3;
+    var mult = comboCount >= 10 ? 5 : comboCount >= 5 ? 3 : comboCount >= 3 ? 2 : 1;
+    var pts = type.points * mult;
+    if (xpBoostActive) pts *= 2;
+    gameScore += Math.floor(pts);
     showScreenFlash('gold');
     updateComboDisplay();
-    showGoldCollectEffect(pointsEarned);
+    showGoldCollectEffect(pts);
   }
   updateHud('score', gameScore);
 }
 
-// ========== GOLD COLLECTION EFFECT ==========
+// ========== GOLD EFFECT ==========
 function showGoldCollectEffect(points) {
   var racer = document.getElementById('racer');
-
-  // Create bouncing coin container
   var coinContainer = document.createElement('div');
-  coinContainer.style.cssText =
-    'position:absolute;' +
-    'left:50%;' +
-    'top:40%;' +
-    'transform:translateX(-50%);' +
-    'z-index:200;' +
-    'pointer-events:none;' +
-    'animation:coinBounceContainer 0.8s ease-out forwards;';
-
-  // Create coin element with CSS styling
+  coinContainer.style.cssText = 'position:absolute;left:50%;top:40%;transform:translateX(-50%);z-index:200;pointer-events:none;animation:coinBounceContainer 0.8s ease-out forwards;';
   var coin = document.createElement('div');
-  coin.style.cssText =
-    'width:40px;' +
-    'height:40px;' +
-    'background:radial-gradient(circle at 30% 30%, #ffd700, #b8860b);' +
-    'border-radius:50%;' +
-    'border:3px solid #daa520;' +
-    'box-shadow:inset -2px -2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,215,0,0.6);' +
-    'display:flex;' +
-    'align-items:center;' +
-    'justify-content:center;' +
-    'font-size:20px;' +
-    'color:#8b6914;' +
-    'font-weight:bold;' +
-    'animation:coinFlip 0.4s ease-in-out 2, coinBounce 0.3s ease-out 3;';
-
-  // Add $ symbol to coin
+  coin.style.cssText = 'width:40px;height:40px;background:radial-gradient(circle at 30% 30%, #ffd700, #b8860b);border-radius:50%;border:3px solid #daa520;box-shadow:inset -2px -2px 4px rgba(0,0,0,0.3),0 0 10px rgba(255,215,0,0.6);display:flex;align-items:center;justify-content:center;font-size:20px;color:#8b6914;font-weight:bold;animation:coinFlip 0.4s ease-in-out 2,coinBounce 0.3s ease-out 3;';
   coin.textContent = '$';
-
-  // Create floating text
   var floatText = document.createElement('div');
   floatText.textContent = '+' + Math.floor(points);
-  floatText.style.cssText =
-    'position:absolute;' +
-    'left:50%;' +
-    'transform:translateX(-50%);' +
-    'top:70px;' +
-    'font-size:1em;' +
-    'font-family:\'Press Start 2P\',monospace;' +
-    'color:#ffd700;' +
-    'text-shadow:2px 2px 0 #000, -1px -1px 0 #000;' +
-    'white-space:nowrap;';
-
+  floatText.style.cssText = 'position:absolute;left:50%;transform:translateX(-50%);top:70px;font-size:1em;font-family:\'Press Start 2P\',monospace;color:#ffd700;text-shadow:2px 2px 0 #000,-1px -1px 0 #000;white-space:nowrap;';
   coinContainer.appendChild(coin);
   coinContainer.appendChild(floatText);
-
-  // Add bounce animations
   var style = document.createElement('style');
   style.id = 'goldFloatStyle';
-  var existingStyle = document.getElementById('goldFloatStyle');
-  if (existingStyle) existingStyle.remove();
-
-  style.textContent = '@keyframes coinBounceContainer {' +
-    '0% { opacity:1; transform:translateX(-50%) translateY(0); }' +
-    '100% { opacity:0; transform:translateX(-50%) translateY(-60px); }' +
-    '}' +
-    '@keyframes coinFlip {' +
-    '0% { transform:scaleX(1); }' +
-    '50% { transform:scaleX(0.1); }' +
-    '100% { transform:scaleX(1); }' +
-    '}' +
-    '@keyframes coinBounce {' +
-    '0%,100% { transform:translateY(0) rotate(0deg); }' +
-    '50% { transform:translateY(-20px) rotate(15deg); }' +
-    '}';
+  var existing = document.getElementById('goldFloatStyle');
+  if (existing) existing.remove();
+  style.textContent = '@keyframes coinBounceContainer{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-60px)}}@keyframes coinFlip{0%{transform:scaleX(1)}50%{transform:scaleX(0.1)}100%{transform:scaleX(1)}}@keyframes coinBounce{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(15deg)}}';
   document.head.appendChild(style);
-
   racer.appendChild(coinContainer);
-
-  // Remove after animation
-  setTimeout(function() {
-    if (coinContainer.parentNode) {
-      coinContainer.remove();
-    }
-  }, 1200);
+  setTimeout(function() { if (coinContainer.parentNode) coinContainer.remove(); }, 1200);
 }
 
-// ========== COMBO SYSTEM ==========
+// ========== COMBO DISPLAY ==========
 function updateComboDisplay() {
-  var comboIndicator = document.getElementById('comboIndicator');
-  var comboCountEl = document.getElementById('comboCount');
-
+  var indicator = document.getElementById('comboIndicator');
+  var countEl   = document.getElementById('comboCount');
   if (comboCount >= 2) {
-    var multiplier = comboCount >= 10 ? 5 : comboCount >= 5 ? 3 : comboCount >= 3 ? 2 : 1;
-    comboCountEl.textContent = 'x' + multiplier + ' (' + comboCount + ')';
-    comboIndicator.style.display = 'block';
+    var mult = comboCount >= 10 ? 5 : comboCount >= 5 ? 3 : comboCount >= 3 ? 2 : 1;
+    countEl.textContent = 'x' + mult + ' (' + comboCount + ')';
+    indicator.style.display = 'block';
   } else {
-    comboIndicator.style.display = 'none';
+    indicator.style.display = 'none';
   }
 }
 
-// ========== SCREEN FLASH EFFECT ==========
+// ========== SCREEN FLASH ==========
 function showScreenFlash(type) {
   var flash = document.getElementById('screenFlash');
   flash.className = 'screen-flash ' + type;
-  setTimeout(function() {
-    flash.className = 'screen-flash';
-  }, 300);
+  setTimeout(function() { flash.className = 'screen-flash'; }, 300);
 }
 
-// ========== SCREEN SHAKE EFFECT ==========
+// ========== SCREEN SHAKE ==========
 function triggerScreenShake(intensity, duration) {
   screenShake = { active: true, intensity: intensity, duration: duration };
 }
-
 function showCrashFlash() {
   var crash = document.getElementById('crashOverlay');
   crash.classList.add('active');
-  setTimeout(function() {
-    crash.classList.remove('active');
-  }, 500);
+  setTimeout(function() { crash.classList.remove('active'); }, 500);
 }
-
 function updateScreenShake(dt) {
   if (screenShake.active) {
     screenShake.duration -= dt;
@@ -1382,9 +806,7 @@ function updateScreenShake(dt) {
       screenShake.active = false;
       canvas.style.transform = '';
     } else {
-      var shakeX = (Math.random() - 0.5) * screenShake.intensity;
-      var shakeY = (Math.random() - 0.5) * screenShake.intensity;
-      canvas.style.transform = 'translate(' + shakeX + 'px, ' + shakeY + 'px)';
+      canvas.style.transform = 'translate(' + ((Math.random()-0.5)*screenShake.intensity) + 'px,' + ((Math.random()-0.5)*screenShake.intensity) + 'px)';
     }
   }
 }
@@ -1392,60 +814,35 @@ function updateScreenShake(dt) {
 // ========== SPEED EFFECTS ==========
 var speedLinesGenerated = false;
 
-// Speed parallax factor - enhances background movement at high speeds
 function getSpeedParallaxFactor() {
-  var speedPercent = speed / maxSpeed;
-  // At low speed (0-30%): normal parallax (1.0)
-  // At high speed (30-100%): enhanced parallax (1.0 to 3.0)
-  if (speedPercent < 0.3) return 1.0;
-  return 1.0 + (speedPercent - 0.3) * 3.0;
+  var sp = speed / maxSpeed;
+  return sp < 0.3 ? 1.0 : 1.0 + (sp - 0.3) * 3.0;
 }
-
-// Dynamic FOV - widens at high speeds for acceleration feel
 function getDynamicFov() {
-  var baseFov = 100; // Original FOV
-  var speedPercent = speed / maxSpeed;
-  // At high speed, FOV increases to 130 (more peripheral vision = faster feel)
-  return baseFov + speedPercent * 30;
+  return 100 + (speed / maxSpeed) * 30;
 }
-
-// Dynamic camera depth based on speed
 function getDynamicCameraDepth() {
-  var dynamicFov = getDynamicFov();
-  return 1 / Math.tan((dynamicFov/2) * Math.PI/180);
+  return 1 / Math.tan((getDynamicFov()/2) * Math.PI/180);
 }
-
-// Also increase road width feel at high speeds
 function getSpeedRoadWidth() {
-  var speedPercent = speed / maxSpeed;
-  // Slight road width increase at high speed for wider view feel
-  return roadWidth * (1 + speedPercent * 0.1);
+  return roadWidth * (1 + (speed / maxSpeed) * 0.1);
 }
 
 function updateSpeedEffects() {
   var speedPercent = speed / maxSpeed;
   var spBoostPercent = spBoostActive ? speed / (maxSpeed * 1.5) : 0;
-  var effectiveSpeedPercent = spBoostActive ? spBoostPercent : speedPercent;
-  var speedLinesEl = document.getElementById('speedLines');
-  var roadEffectEl = document.getElementById('roadSpeedEffect');
-  var vignetteEl = document.getElementById('speedVignette');
+  var effective = spBoostActive ? spBoostPercent : speedPercent;
+  var speedLinesEl  = document.getElementById('speedLines');
+  var roadEffectEl  = document.getElementById('roadSpeedEffect');
+  var vignetteEl    = document.getElementById('speedVignette');
 
-  // Generate speed lines once if not exists
-  if (!speedLinesGenerated) {
-    generateSpeedLines();
-    speedLinesGenerated = true;
-  }
+  if (!speedLinesGenerated) { generateSpeedLines(); speedLinesGenerated = true; }
 
-  // Speed-based effects (activate at 50% speed, or lower during SP boost)
-  var effectThreshold = spBoostActive ? 0.3 : 0.5;
-  if (effectiveSpeedPercent > effectThreshold) {
-    var effectIntensity = (effectiveSpeedPercent - effectThreshold) / (1 - effectThreshold); // 0 to 1
-
-    // Show converging speed lines
+  var threshold = spBoostActive ? 0.3 : 0.5;
+  if (effective > threshold) {
+    var intensity = (effective - threshold) / (1 - threshold);
     speedLinesEl.classList.add('active');
     roadEffectEl.classList.add('active');
-
-    // SP boost extra effects
     if (spBoostActive) {
       speedLinesEl.classList.add('sp-boost');
       vignetteEl.classList.add('sp-boost');
@@ -1453,25 +850,14 @@ function updateSpeedEffects() {
       speedLinesEl.classList.remove('sp-boost');
       vignetteEl.classList.remove('sp-boost');
     }
-
-    // Adjust speed line animation speed based on speed
-    var lines = speedLinesEl.querySelectorAll('.speed-line');
-    lines.forEach(function(line) {
-      var duration = 0.55 - (effectIntensity * 0.35); // Faster at higher speeds
-      line.style.animationDuration = duration + 's';
+    speedLinesEl.querySelectorAll('.speed-line').forEach(function(l) {
+      l.style.animationDuration = (0.55 - intensity * 0.35) + 's';
     });
-
-    // Vignette effect
     vignetteEl.classList.add('active');
-    var vignetteIntensity = spBoostActive ? 0.5 : 0.3;
-    vignetteEl.style.boxShadow = 'inset 0 0 ' + (80 + effectIntensity * 100) + 'px rgba(0,0,0,' + (vignetteIntensity + effectIntensity * 0.4) + ')';
-
-    // Camera shake at very high speeds only
-    if (effectiveSpeedPercent > 0.9 && !screenShake.active) {
-      canvas.style.animation = 'highSpeedShake 0.2s infinite';
-    } else if (effectiveSpeedPercent <= 0.9) {
-      canvas.style.animation = '';
-    }
+    var vi = spBoostActive ? 0.5 : 0.3;
+    vignetteEl.style.boxShadow = 'inset 0 0 ' + (80 + intensity * 100) + 'px rgba(0,0,0,' + (vi + intensity * 0.4) + ')';
+    if (effective > 0.9 && !screenShake.active) canvas.style.animation = 'highSpeedShake 0.2s infinite';
+    else if (effective <= 0.9) canvas.style.animation = '';
   } else {
     speedLinesEl.classList.remove('active');
     roadEffectEl.classList.remove('active');
@@ -1486,33 +872,25 @@ function updateSpeedEffects() {
 function generateSpeedLines() {
   var container = document.getElementById('speedLines');
   container.innerHTML = '';
-
-  var numLines = 28;
-  // Center point of the canvas (vanishing point)
-  var cx = 50; // percent
-  var cy = 50; // percent
+  var numLines = 32;
+  // Vanishing point: horizontally centered, vertically at ~45% (road horizon)
+  var cx = 50; // % from left
+  var cy = 45; // % from top
 
   for (var i = 0; i < numLines; i++) {
     var line = document.createElement('div');
     line.className = 'speed-line';
 
-    // Distribute lines evenly around the full 360° circle
     var angleDeg = (i / numLines) * 360;
-    var angleRad = angleDeg * Math.PI / 180;
+    // Vary length: lines toward bottom-center are longer (perspective)
+    var baseLen = 28 + Math.random() * 28; // 28-56% of container height
 
-    // Each line starts at the center and extends outward.
-    // We position the bottom of the line at the center, then rotate.
-    // Length varies slightly for visual variety.
-    var lineLength = 30 + Math.random() * 30; // 30-60% of container height
-
-    // Position: center the line's bottom at the vanishing point
-    line.style.left = cx + '%';
-    line.style.top = cy + '%';
-    line.style.height = lineLength + '%';
-    line.style.width = (1 + Math.random() * 1.5) + 'px';
-    line.style.marginLeft = '-1px'; // center the thin line on the x position
-    // transform-origin is bottom center (50% 100%) — set in CSS
-    // We rotate so the line points outward from center
+    // Position the bottom tip (transform-origin: 50% 100%) at the vanishing point
+    line.style.left   = cx + '%';
+    line.style.top    = cy + '%';
+    line.style.height = baseLen + '%';
+    line.style.width  = (1 + Math.random() * 1.5) + 'px';
+    line.style.marginLeft = '-1px';
     line.style.setProperty('--angle', angleDeg + 'deg');
     line.style.transform = 'rotate(' + angleDeg + 'deg)';
     line.style.animationDelay = (Math.random() * 0.45) + 's';
@@ -1521,61 +899,40 @@ function generateSpeedLines() {
   }
 }
 
+// ========== BOOST INDICATOR ==========
 function showBoostIndicator(type) {
-  var indicator = document.getElementById(type + 'Indicator');
-  if (!indicator) return; // Safety check
-  indicator.style.display = 'block';
-  setTimeout(function() {
-    indicator.style.display = 'none';
-  }, 4500);
+  var el = document.getElementById(type + 'Indicator');
+  if (!el) return;
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 4500);
 }
 
-// ========== PUSH TO THE MAX BOOST SYSTEM ==========
+// ========== PUSH TO THE MAX ==========
 function updateBoostButtonUI() {
-  var boostBtn = document.getElementById('boostBtn');
-  var energyFill = document.getElementById('boostEnergyFill');
+  var btn  = document.getElementById('boostBtn');
+  var fill = document.getElementById('boostEnergyFill');
+  if (!btn || !fill) return;
 
-  if (!boostBtn || !energyFill) return;
-
-  // Energy fill: based on charges (0-3) → 0%-100%
-  var chargePercent = (pushToMaxCharges / maxPushToMaxCharges) * 100;
-
-  // During cooldown, show cooldown recovery as partial fill
+  var pct = (pushToMaxCharges / maxPushToMaxCharges) * 100;
   if (pushToMaxCooldown > 0) {
-    var cooldownRecovery = (1 - (pushToMaxCooldown / pushToMaxCooldownTime));
-    chargePercent = cooldownRecovery * 100;
-    boostBtn.disabled = true;
-    boostBtn.classList.add('cooldown');
+    pct = (1 - pushToMaxCooldown / pushToMaxCooldownTime) * 100;
+    btn.disabled = true;
   } else if (pushToMaxCharges > 0) {
-    boostBtn.disabled = false;
-    boostBtn.classList.remove('cooldown');
+    btn.disabled = false;
   } else {
-    boostBtn.disabled = true;
-    boostBtn.classList.add('cooldown');
+    btn.disabled = true;
   }
-
-  energyFill.style.height = chargePercent + '%';
+  fill.style.height = pct + '%';
 }
 
-// Activate Push to the Max boost (called from touch.js)
 window.activateBoost = function() {
   if (currentState !== GameState.PLAYING) return;
-  if (pushToMaxCharges <= 0) return;
-  if (pushToMaxCooldown > 0) return;
-
-  // Consume one charge
+  if (pushToMaxCharges <= 0 || pushToMaxCooldown > 0) return;
   pushToMaxCharges--;
-
-  // Activate boost - 120 KM/H speed
   pushToMaxBoostActive = true;
-  pushToMaxBoostTimer = 3; // 3 seconds boost duration
-
-  // Instant speed boost to 120 KM/H
+  pushToMaxBoostTimer  = 3;
   speed = maxSpeed * 1.5;
-
-  // Start cooldown
   pushToMaxCooldown = pushToMaxCooldownTime;
-
   showBoostIndicator('push');
   showScreenFlash('xp');
   updateBoostButtonUI();
@@ -1585,1026 +942,684 @@ window.activateBoost = function() {
 function endGame() {
   currentState = GameState.ENDED;
   if (timerInterval) clearInterval(timerInterval);
-
-  // Calculate total distance
-  totalDistance = Math.floor(position / 100); // Convert to approximate meters
-
-  // Check high score
-  var currentHighScore = getHighScore();
-  var isNewHighScore = gameScore > currentHighScore;
-  if (isNewHighScore) {
-    setHighScore(gameScore);
-  }
-
-  // Update end screen
-  document.getElementById('endPlayerName').textContent = playerName;
-  document.getElementById('endFinalScore').textContent = gameScore;
-  document.getElementById('endMaxCombo').textContent = 'x' + maxCombo + (maxCombo >= 3 ? ' ⚡' : '');
-  document.getElementById('endCoinsCollected').textContent = coinsCollected;
-  document.getElementById('endDistance').textContent = totalDistance + ' m';
-
-  // Show high score badge if new record
-  var highScoreItem = document.getElementById('highScoreItem');
-  if (isNewHighScore) {
-    highScoreItem.style.display = 'flex';
-  } else {
-    highScoreItem.style.display = 'none';
-  }
-
-  document.getElementById('endScreen').style.display = 'flex';
-  document.getElementById('hud').style.display = 'none';
-
-  // Hide combo indicator
+  totalDistance = Math.floor(position / 100);
+  var hs = getHighScore();
+  var newHs = gameScore > hs;
+  if (newHs) setHighScore(gameScore);
+  document.getElementById('endPlayerName').textContent    = playerName;
+  document.getElementById('endFinalScore').textContent    = gameScore;
+  document.getElementById('endMaxCombo').textContent      = 'x' + maxCombo + (maxCombo >= 3 ? ' ⚡' : '');
+  document.getElementById('endCoinsCollected').textContent= coinsCollected;
+  document.getElementById('endDistance').textContent      = totalDistance + ' m';
+  document.getElementById('highScoreItem').style.display  = newHs ? 'flex' : 'none';
+  document.getElementById('endScreen').style.display      = 'flex';
+  document.getElementById('hud').style.display            = 'none';
   document.getElementById('comboIndicator').style.display = 'none';
 }
 
 function resetToStart() {
-  document.getElementById('endScreen').style.display = 'none';
-  document.getElementById('hud').style.display = 'block';
-  document.getElementById('startScreen').style.display = 'flex';
-
-  // Reset all game state
-  gameScore = 0;
-  gameTimer = 120;
-  xpBoostActive = false;
-  xpBoostTimer = 0;
-  spBoostActive = false;
-  spBoostTimer = 0;
+  document.getElementById('endScreen').style.display  = 'none';
+  document.getElementById('hud').style.display        = 'block';
+  document.getElementById('startScreen').style.display= 'flex';
+  gameScore = 0; gameTimer = 120;
+  xpBoostActive = false; xpBoostTimer = 0;
+  spBoostActive = false; spBoostTimer = 0;
   shieldActive = false;
-  comboCount = 0;
-  maxCombo = 0;
-  comboTimer = 0;
-  // Push to the Max boost reset
-  pushToMaxCharges = 0;
-  pushToMaxCooldown = 0;
-  pushToMaxBoostActive = false;
-  pushToMaxBoostTimer = 0;
+  comboCount = 0; maxCombo = 0; comboTimer = 0;
+  pushToMaxCharges = 0; pushToMaxCooldown = 0;
+  pushToMaxBoostActive = false; pushToMaxBoostTimer = 0;
   updateBoostButtonUI();
-  totalDistance = 0;
-  coinsCollected = 0;
-  playerName = '';
-  playerPhone = '';
-  playerX = 0;
-  speed = 0;
-  position = 0;
-  crashDecel.active = false;
-  crashDecel.targetSpeed = 0;
-
-  // Reset UI elements
-  updateHud('score', 0);
-  updateHud('timer', 120);
+  totalDistance = 0; coinsCollected = 0;
+  playerName = ''; playerPhone = '';
+  playerX = 0; speed = 0; position = 0;
+  crashDecel.active = false; crashDecel.targetSpeed = 0;
+  updateHud('score', 0); updateHud('timer', 120);
   document.getElementById('timer').classList.remove('timer-warning');
-
-  // Clear collectibles
   collectibles = [];
-
-  // Reset speed effects
   speedLinesGenerated = false;
-  var speedLinesEl = document.getElementById('speedLines');
-  var roadEffectEl = document.getElementById('roadSpeedEffect');
-  var vignetteEl = document.getElementById('speedVignette');
-  if (speedLinesEl) speedLinesEl.classList.remove('active');
-  if (roadEffectEl) roadEffectEl.classList.remove('active');
-  if (vignetteEl) vignetteEl.classList.remove('active');
+  var sl = document.getElementById('speedLines');
+  var re = document.getElementById('roadSpeedEffect');
+  var sv = document.getElementById('speedVignette');
+  if (sl) sl.classList.remove('active');
+  if (re) re.classList.remove('active');
+  if (sv) sv.classList.remove('active');
   canvas.style.animation = '';
-
   initStartScreen();
 }
-
-// Initialize touch controls when game loads (handled by TouchControl class in touch.js)
-
 </script>
+
 <script>
-
-	  // detects the screen and ajusts the game
-	  // Fixed to always use mobile portrait layout (9:16 aspect ratio)
-	  //
-	  function detect_screen ()
-	  {
-	  	var ww = window.innerWidth;
-	  	var wh = window.innerHeight - 4;
-
-	  	// Always use portrait aspect ratio (9:16)
-	  	var aspectRatio = 9 / 16;
-
-	  	// Calculate dimensions that fit in viewport with portrait ratio
-	  	var gameWidth, gameHeight;
-
-	  	if (ww / wh > aspectRatio) {
-	  		// Viewport is wider than needed - fit height, calculate width
-	  		gameHeight = wh;
-	  		gameWidth = wh * aspectRatio;
-	  	} else {
-	  		// Viewport is narrower than needed - fit width, calculate height
-	  		gameWidth = ww;
-	  		gameHeight = ww / aspectRatio;
-	  	}
-
-	  	// Ensure html and body are properly set up for centering
-	  	document.documentElement.style.width = '100%';
-	  	document.documentElement.style.height = '100%';
-	  	document.documentElement.style.margin = '0';
-	  	document.documentElement.style.padding = '0';
-	  	document.documentElement.style.overflow = 'hidden';
-
-	  	document.body.style.width = '100%';
-	  	document.body.style.height = '100%';
-	  	document.body.style.margin = '0';
-	  	document.body.style.padding = '0';
-	  	document.body.style.backgroundColor = '#000';
-	  	document.body.style.overflow = 'hidden';
-	  	document.body.style.display = 'flex';
-	  	document.body.style.justifyContent = 'center';
-	  	document.body.style.alignItems = 'center';
-
-	  	var domCanvas = Dom.get('canvas');
-	  	var domRacer = Dom.get('racer');
-	  	var domHud = Dom.get('hud');
-
-	  	// Apply fixed dimensions to canvas and racer
-	  	gameWidth = Math.floor(gameWidth);
-	  	gameHeight = Math.floor(gameHeight);
-
-	  	domCanvas.style.width = gameWidth + 'px';
-	  	domCanvas.style.height = gameHeight + 'px';
-	  	domCanvas.style.position = 'relative';
-	  	domCanvas.style.margin = '0';
-
-	  	domRacer.style.width = gameWidth + 'px';
-	  	domRacer.style.height = gameHeight + 'px';
-	  	domRacer.style.position = 'relative';
-	  	domRacer.style.margin = '0';
-
-	  	domHud.style.width = gameWidth + 'px';
-
-	  	return { 'width' : gameWidth, 'height' : gameHeight };
-	  }
-	  
-	  var activate_flag = false;
-
-	  // New touch input system using left/right buttons
-	  // leftBtnPressed: boolean (left turn)
-	  // rightBtnPressed: boolean (right turn)
-	  function touch_update() {
-	  	// Map button presses to keyLeft/keyRight for steering
-	  	keyLeft = leftBtnPressed;
-	  	keyRight = rightBtnPressed;
-
-	  	// Auto-accelerate is handled separately in update()
-	  	// No gas/brake needed with auto-forward
-	  }
-
-	  // TouchControl is initialized in touch.js on DOMContentLoaded
-	  	  
-
-//////////
-///
-///      END OF CUSTOM CODE (one more block ahead)
-///
-/////////
-
-
-    var fps            = 60;                      // how many 'update' frames per second
-    var step           = 1/fps;                   // how long is each frame (in seconds)
-    var width          = 1024;                    // logical canvas width
-    var height         = 512;                     // logical canvas height
-    var centrifugal    = 0.3;                     // centrifugal force multiplier when going around curves
-    var skySpeed       = 0.001;                   // background sky layer scroll speed when going around curve (or up hill)
-    var hillSpeed      = 0.002;                   // background hill layer scroll speed when going around curve (or up hill)
-    var treeSpeed      = 0.003;                   // background tree layer scroll speed when going around curve (or up hill)
-    var skyOffset      = 0;                       // current sky scroll offset
-    var hillOffset     = 0;                       // current hill scroll offset
-    var treeOffset     = 0;                       // current tree scroll offset
-    var segments       = [];                      // array of road segments
-    var cars           = [];                      // array of cars on the road
-//    var stats          = Game.stats('fps');       // mr.doobs FPS counter
-    var canvas         = Dom.get('canvas');       // our canvas...
-    var ctx            = canvas.getContext('2d'); // ...and its drawing context
-    var background     = null;                    // our background image (loaded below)
-    var sprites        = null;                    // our spritesheet (loaded below)
-    var goldcoinImage  = null;                    // gold coin image (loaded below)
-    var resolution     = null;                    // scaling factor to provide resolution independence (computed)
-    var roadWidth      = 3000;                    // actually half the roads width, easier math if the road spans from -roadWidth to +roadWidth (widened)
-    var segmentLength  = 200;                     // length of a single segment
-    var rumbleLength   = 3;                       // number of segments per red/white rumble strip
-    var trackLength    = null;                    // z length of entire track (computed)
-    var lanes          = 3;                       // number of lanes
-    var fieldOfView    = 100;                     // angle (degrees) for field of view
-    var cameraHeight   = 1100;                    // z height of camera
-    var cameraDepth    = null;                    // z distance camera is from screen (computed)
-    var drawDistance   = 300;                     // number of segments to draw
-    var playerX        = 0;                       // player x offset from center of road (-1 to 1 to stay independent of roadWidth)
-    var playerZ        = null;                    // player relative z distance from camera (computed)
-    var fogDensity     = 5;                       // exponential fog density
-    var position       = 0;                       // current camera Z position (add playerZ to get player's absolute Z position)
-    var speed          = 0;                       // current speed
-    var maxSpeed       = segmentLength/step;      // top speed (ensure we can't move more than 1 segment in a single frame to make collision detection easier)
-    var accel          =  maxSpeed/8;             // acceleration rate - slower for better control
-    var breaking       = -maxSpeed/2;            // deceleration rate when braking
-    var decel          = -maxSpeed/10;           // 'natural' deceleration rate when neither accelerating, nor braking
-    var totalCars      = 200;                     // total number of cars on the road
-    var currentLapTime = 0;                       // current lap time
-    var lastLapTime    = null;                    // last lap time
-
-    var keyLeft        = false;
-    var keyRight       = false;
-    var keyFaster      = false;
-    var keySlower      = false;
-
-    var hud = {
-      speed:            { value: null, dom: Dom.get('speed_value')            },
-      current_lap_time: { value: null, dom: Dom.get('current_lap_time_value') },
-      fast_lap_time:    { value: null, dom: Dom.get('fast_lap_time_value')    },
-      timer:            { value: null, dom: Dom.get('timer_value')            },
-      score:            { value: null, dom: Dom.get('score_value')            }
+  // ========== SCREEN DETECTION (portrait, mobile) ==========
+  function detect_screen() {
+    var ww = window.innerWidth;
+    var wh = window.innerHeight - 4;
+    var aspectRatio = 9 / 16;
+    var gameWidth, gameHeight;
+    if (ww / wh > aspectRatio) {
+      gameHeight = wh; gameWidth = wh * aspectRatio;
+    } else {
+      gameWidth = ww; gameHeight = ww / aspectRatio;
     }
+    document.documentElement.style.cssText = 'width:100%;height:100%;margin:0;padding:0;overflow:hidden;';
+    document.body.style.cssText = 'width:100%;height:100%;margin:0;padding:0;background:#000;overflow:hidden;display:flex;justify-content:center;align-items:center;';
+    gameWidth  = Math.floor(gameWidth);
+    gameHeight = Math.floor(gameHeight);
+    var domCanvas = Dom.get('canvas');
+    var domRacer  = Dom.get('racer');
+    var domHud    = Dom.get('hud');
+    domCanvas.style.cssText = 'width:' + gameWidth + 'px;height:' + gameHeight + 'px;position:relative;margin:0;';
+    domRacer.style.cssText  = 'width:' + gameWidth + 'px;height:' + gameHeight + 'px;position:relative;margin:0;';
+    domHud.style.width = gameWidth + 'px';
 
-    //=========================================================================
-    // UPDATE THE GAME WORLD
-    //=========================================================================
+    // Position touch buttons relative to the game canvas
+    positionTouchButtons(gameWidth, gameHeight);
 
+    return { width: gameWidth, height: gameHeight };
+  }
 
-///
-/// CUSTOM BLOCK 2
-///
+  // Anchor touch buttons inside the game canvas area
+  function positionTouchButtons(gw, gh) {
+    var canvasLeft   = Math.floor((window.innerWidth  - gw) / 2);
+    var canvasBottom = Math.floor((window.innerHeight - gh) / 2);
 
-	var find_dimensions = detect_screen();
-	width = find_dimensions.width;
-	height = find_dimensions.height;
-	
-	//window.addEventListener("orientationchange", function(e) { window.location.reload(); } )
-///
-///
-///  END OF CUSTOM CODE (2)
-///
-/////
+    var btnSize   = Math.min(75, Math.floor(gw * 0.17));
+    var boostSize = Math.min(100, Math.floor(gw * 0.22));
+    var margin    = Math.floor(gw * 0.05);
+    var bottomOff = Math.floor(gh * 0.06) + canvasBottom;
 
-    function update(dt) {
+    var leftBtn  = document.getElementById('leftBtn');
+    var rightBtn = document.getElementById('rightBtn');
+    var boostBtn = document.getElementById('boostBtn');
 
+    // Left button: from left edge of canvas
+    if (leftBtn) {
+      leftBtn.style.left   = (canvasLeft + margin) + 'px';
+      leftBtn.style.right  = 'auto';
+      leftBtn.style.bottom = bottomOff + 'px';
+      leftBtn.style.width  = btnSize + 'px';
+      leftBtn.style.height = btnSize + 'px';
+    }
+    // Right button: from right edge of canvas
+    // 'right' in fixed positioning = distance from right edge of viewport
+    var rightEdgeDist = window.innerWidth - canvasLeft - gw + margin;
+    if (rightBtn) {
+      rightBtn.style.right  = rightEdgeDist + 'px';
+      rightBtn.style.left   = 'auto';
+      rightBtn.style.bottom = bottomOff + 'px';
+      rightBtn.style.width  = btnSize + 'px';
+      rightBtn.style.height = btnSize + 'px';
+    }
+    if (boostBtn) {
+      boostBtn.style.right  = rightEdgeDist + 'px';
+      boostBtn.style.left   = 'auto';
+      boostBtn.style.bottom = (bottomOff + btnSize + Math.floor(gw * 0.025)) + 'px';
+      boostBtn.style.width  = boostSize + 'px';
+      boostBtn.style.height = boostSize + 'px';
+    }
+  }
+
+  // ========== TOUCH INPUT MAPPING ==========
+  function touch_update() {
+    keyLeft  = leftBtnPressed;
+    keyRight = rightBtnPressed;
+  }
+
+  // ========== GAME VARIABLES ==========
+  var fps          = 60;
+  var step         = 1/fps;
+  var width        = 1024;
+  var height       = 512;
+  var centrifugal  = 0.3;
+  var skySpeed     = 0.001;
+  var hillSpeed    = 0.002;
+  var treeSpeed    = 0.003;
+  var skyOffset    = 0;
+  var hillOffset   = 0;
+  var treeOffset   = 0;
+  var segments     = [];
+  var cars         = [];
+  var canvas       = Dom.get('canvas');
+  var ctx          = canvas.getContext('2d');
+  var background   = null;
+  var sprites      = null;
+  var goldcoinImage= null;
+  var resolution   = null;
+  var roadWidth    = 3000;
+  var segmentLength= 200;
+  var rumbleLength = 3;
+  var trackLength  = null;
+  var lanes        = 3;
+  var fieldOfView  = 100;
+  var cameraHeight = 1100;
+  var cameraDepth  = null;
+  var drawDistance = 300;
+  var playerX      = 0;
+  var playerZ      = null;
+  var fogDensity   = 5;
+  var position     = 0;
+  var speed        = 0;
+  var maxSpeed     = segmentLength/step;
+  var accel        = maxSpeed/8;
+  var breaking     = -maxSpeed/2;
+  var decel        = -maxSpeed/10;
+  var totalCars    = 200;
+  var currentLapTime = 0;
+  var lastLapTime    = null;
+  var keyLeft      = false;
+  var keyRight     = false;
+  var keyFaster    = false;
+  var keySlower    = false;
+
+  var hud = {
+    speed:            { value: null, dom: Dom.get('speed_value')            },
+    current_lap_time: { value: null, dom: Dom.get('current_lap_time_value') },
+    fast_lap_time:    { value: null, dom: Dom.get('fast_lap_time_value')    },
+    timer:            { value: null, dom: Dom.get('timer_value')            },
+    score:            { value: null, dom: Dom.get('score_value')            }
+  };
+
+  // Apply screen dimensions
+  var find_dimensions = detect_screen();
+  width  = find_dimensions.width;
+  height = find_dimensions.height;
+
+  // ========== UPDATE ==========
+  function update(dt) {
     touch_update();
 
-    // Only run game logic when in playing state
-    var effectiveAccel = accel;
-    var effectiveDecel = decel;
-
     if (currentState === GameState.PLAYING) {
-      // Update boost timers
-      if (xpBoostActive) {
-        xpBoostTimer -= dt;
-        if (xpBoostTimer <= 0) {
-          xpBoostActive = false;
-          xpBoostTimer = 0;
-        }
-      }
-      if (spBoostActive) {
-        spBoostTimer -= dt;
-        if (spBoostTimer <= 0) {
-          spBoostActive = false;
-          spBoostTimer = 0;
-        }
-      }
-      // Push to the Max boost timer
-      if (pushToMaxBoostActive) {
-        pushToMaxBoostTimer -= dt;
-        if (pushToMaxBoostTimer <= 0) {
-          pushToMaxBoostActive = false;
-          pushToMaxBoostTimer = 0;
-        }
-      }
-      // Push to the Max cooldown (always ticks down)
-      if (pushToMaxCooldown > 0) {
-        pushToMaxCooldown -= dt;
-        if (pushToMaxCooldown < 0) pushToMaxCooldown = 0;
-        updateBoostButtonUI();
-      }
+      // Boost timers
+      if (xpBoostActive) { xpBoostTimer -= dt; if (xpBoostTimer <= 0) { xpBoostActive = false; xpBoostTimer = 0; } }
+      if (spBoostActive) { spBoostTimer -= dt; if (spBoostTimer <= 0) { spBoostActive = false; spBoostTimer = 0; } }
+      if (pushToMaxBoostActive) { pushToMaxBoostTimer -= dt; if (pushToMaxBoostTimer <= 0) { pushToMaxBoostActive = false; pushToMaxBoostTimer = 0; } }
+      if (pushToMaxCooldown > 0) { pushToMaxCooldown -= dt; if (pushToMaxCooldown < 0) pushToMaxCooldown = 0; updateBoostButtonUI(); }
 
-      // Update combo timer (only when moving to maintain combo)
+      // Combo timer
       if (comboCount > 0 && speed > 0) {
         comboTimer -= dt;
-        if (comboTimer <= 0) {
-          comboCount = 0;
-          comboTimer = 0;
-          updateComboDisplay();
-        }
+        if (comboTimer <= 0) { comboCount = 0; comboTimer = 0; updateComboDisplay(); }
       } else if (comboCount > 0 && speed <= 0) {
-        // Reset timer when stopped to give player a chance to maintain combo
         comboTimer = 3;
       }
 
-      // Update screen shake
       updateScreenShake(dt);
-
-      // Update speed effects (visual feedback)
       updateSpeedEffects();
 
-      // Apply SP speed boost
-      if (spBoostActive) {
-        effectiveAccel = accel * 1.5;
-      }
-
-      // Score accumulation based on distance traveled
+      // Score from distance
       if (speed > 0) {
-        var distanceTraveled = speed * dt;
-        totalDistance += distanceTraveled;
-        var scoreGain = distanceTraveled * 0.5; // 0.5 points per unit distance
-        if (xpBoostActive) scoreGain *= 2;
-        gameScore += Math.floor(scoreGain);
+        var dist = speed * dt;
+        totalDistance += dist;
+        var sg = dist * 0.5;
+        if (xpBoostActive) sg *= 2;
+        gameScore += Math.floor(sg);
         updateHud('score', gameScore);
       }
 
-      // Check collectible collisions
       checkCollectibleCollision();
-
-      // Regenerate collectibles if needed
       regenerateCollectibles();
     } else if (currentState !== GameState.COUNTDOWN) {
-      // Reset keys if not playing
-      keyLeft = false;
-      keyRight = false;
-      keyFaster = false;
-      keySlower = false;
-      return; // Skip game update if not playing
+      keyLeft = false; keyRight = false; keyFaster = false; keySlower = false;
+      return;
     }
 
-      var n, car, carW, sprite, spriteW;
-      var playerSegment = findSegment(position+playerZ);
-      // ---- FIX: playerW uses the same scale as rendering (SPRITES.SCALE * roadWidth factor)
-      // The rendered player width in world-units ≈ SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE
-      // We shrink the hitbox to ~60% of the visual width for fairer collisions
-      var playerW       = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE * 0.6;
-      var speedPercent  = speed/maxSpeed;
-      var dx            = dt * 2 * speedPercent; // at top speed, should be able to cross from left to right (-1 to 1) in 1 second
-      var startPosition = position;
+    var n, car, carW, sprite, spriteW;
+    var playerSegment = findSegment(position + playerZ);
+    // Hitbox: 60% of visual width for fairer collisions
+    var playerW = SPRITES.PLAYER_STRAIGHT.w * SPRITES.SCALE * 0.6;
+    var speedPercent = speed / maxSpeed;
+    var dx = dt * 2 * speedPercent;
+    var startPosition = position;
 
-      updateCars(dt, playerSegment, playerW);
+    updateCars(dt, playerSegment, playerW);
+    position = Util.increase(position, dt * speed, trackLength);
 
-      position = Util.increase(position, dt * speed, trackLength);
+    if (keyLeft)       playerX = playerX - dx;
+    else if (keyRight) playerX = playerX + dx;
+    playerX = playerX - (dx * speedPercent * playerSegment.curve * centrifugal);
 
-      // Steering using left/right buttons or keyboard
-      if (keyLeft)
-        playerX = playerX - dx;
-      else if (keyRight)
-        playerX = playerX + dx;
+    // Mobile: always auto-accelerate
+    var effectiveAccel = spBoostActive ? accel * 1.5 : accel;
+    speed = Util.accelerate(speed, effectiveAccel, dt);
 
-      playerX = playerX - (dx * speedPercent * playerSegment.curve * centrifugal);
-
-      // Speed control: keyboard has manual acceleration, touch uses auto-accelerate
-      if (keyFaster) {
-        // Keyboard acceleration
-        speed = Util.accelerate(speed, effectiveAccel, dt);
-      } else if (keySlower) {
-        // Keyboard braking
-        speed = Util.accelerate(speed, breaking, dt);
-      } else if (!isMobileDevice()) {
-        // Desktop: gradual deceleration when no key pressed
-        speed = Util.accelerate(speed, effectiveDecel, dt);
+    // Sprite collision
+    for (n = 0; n < playerSegment.sprites.length; n++) {
+      sprite  = playerSegment.sprites[n];
+      spriteW = sprite.source.w * SPRITES.SCALE * 0.5;
+      if (Util.overlap(playerX, playerW, sprite.offset + spriteW/2 * (sprite.offset > 0 ? 1 : -1), spriteW)) {
+        if (!shieldActive) {
+          crashDecel.active = true; crashDecel.targetSpeed = maxSpeed/5;
+          triggerScreenShake(20, 0.3); showCrashFlash();
+          comboCount = 0; updateComboDisplay();
+        } else {
+          shieldActive = false;
+          crashDecel.active = true; crashDecel.targetSpeed = speed * 0.5;
+          triggerScreenShake(10, 0.2);
+        }
+        position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength);
+        break;
       }
-      // Mobile: auto-accelerate is handled in update()
+    }
 
-      // Sprite collision detection
-      // ---- FIX: use a proportional hitbox width relative to road width
-      for(n = 0 ; n < playerSegment.sprites.length ; n++) {
-        sprite  = playerSegment.sprites[n];
-        // spriteW in world-space: sprite.source.w * SPRITES.SCALE gives a fraction of roadWidth
-        // We use 50% of the visual sprite width as the hitbox
-        spriteW = sprite.source.w * SPRITES.SCALE * 0.5;
-        if (Util.overlap(playerX, playerW, sprite.offset + spriteW/2 * (sprite.offset > 0 ? 1 : -1), spriteW)) {
-          // Crash penalty - but shield protects
-          if (!shieldActive) {
-            // Smooth gradual deceleration instead of immediate drop
-            crashDecel.active = true;
-            crashDecel.targetSpeed = maxSpeed/5;
-            triggerScreenShake(20, 0.3);
-            showCrashFlash();
-            comboCount = 0; // Reset combo on crash
-            updateComboDisplay();
-          } else {
-            // Shield absorbs hit but still slows down gradually
-            shieldActive = false;
-            crashDecel.active = true;
-            crashDecel.targetSpeed = speed * 0.5;
-            triggerScreenShake(10, 0.2);
-          }
-          position = Util.increase(playerSegment.p1.world.z, -playerZ, trackLength); // stop in front of sprite (at front of segment)
+    // Car collision (SP boost ignores)
+    if (!spBoostActive) {
+      for (n = 0; n < playerSegment.cars.length; n++) {
+        car  = playerSegment.cars[n];
+        carW = car.sprite.w * SPRITES.SCALE;
+        var laneW = 0.4;
+        if (speed > car.speed && Util.overlap(playerX, laneW, car.offset, laneW, 0.8)) {
+          speed = car.speed * (car.speed/speed);
+          crashDecel.active = true; crashDecel.targetSpeed = Math.max(car.speed, maxSpeed * 0.3);
+          position = Util.increase(car.z, -playerZ, trackLength);
           break;
         }
       }
-
-      // SP boost ignores car collisions
-      if (!spBoostActive) {
-        for(n = 0 ; n < playerSegment.cars.length ; n++) {
-          car  = playerSegment.cars[n];
-          carW = car.sprite.w * SPRITES.SCALE;
-          // Use lane-based collision width (fixed width relative to road)
-          // Player and cars occupy roughly 1/lanes to 2/lanes of the road
-          var laneCollisionWidth = 0.4; // About 40% of road width per vehicle
-          if (speed > car.speed) {
-            if (Util.overlap(playerX, laneCollisionWidth, car.offset, laneCollisionWidth, 0.8)) {
-              speed    = car.speed * (car.speed/speed);
-              // Also apply crash deceleration like sprite collisions
-              crashDecel.active = true;
-              crashDecel.targetSpeed = Math.max(car.speed, maxSpeed * 0.3);
-              position = Util.increase(car.z, -playerZ, trackLength);
-              break;
-            }
-          }
-        }
-      }
-
-      // Handle smooth crash deceleration
-      if (crashDecel.active) {
-        // Use a strong deceleration rate to gradually slow down
-        var crashDecelRate = -maxSpeed * 3; // 3x normal deceleration
-        speed = Util.accelerate(speed, crashDecelRate, dt);
-        // Check if we've reached or passed the target speed
-        if (speed <= crashDecel.targetSpeed) {
-          speed = crashDecel.targetSpeed;
-          crashDecel.active = false;
-        }
-      }
-
-      // Mobile auto-acceleration (when not using keyboard)
-      if (isMobileDevice() && !keyFaster && !keySlower) {
-        speed = Util.accelerate(speed, effectiveAccel, dt);
-      }
-
-      // Air wall - keep player on road
-      playerX = Util.limit(playerX, -1, 1);     // air wall at road edges
-
-      // Speed limit - 80 km/h normal, 96 km/h internal during boost (displays 120)
-      var effectiveMaxSpeed = spBoostActive ? maxSpeed * 1.2 : maxSpeed;
-      speed   = Util.limit(speed, 0, effectiveMaxSpeed);
-
-      skyOffset  = Util.increase(skyOffset,  skySpeed  * playerSegment.curve * (position-startPosition)/segmentLength * getSpeedParallaxFactor(), 1);
-      hillOffset = Util.increase(hillOffset, hillSpeed * playerSegment.curve * (position-startPosition)/segmentLength * getSpeedParallaxFactor(), 1);
-      treeOffset = Util.increase(treeOffset, treeSpeed * playerSegment.curve * (position-startPosition)/segmentLength * getSpeedParallaxFactor(), 1);
-
-      if (position > playerZ) {
-        if (currentLapTime && (startPosition < playerZ)) {
-          lastLapTime    = currentLapTime;
-          currentLapTime = 0;
-          if (lastLapTime <= Util.toFloat(Dom.storage.fast_lap_time)) {
-            Dom.storage.fast_lap_time = lastLapTime;
-            updateHud('fast_lap_time', formatTime(lastLapTime));
-            Dom.addClassName('fast_lap_time', 'fastest');
-          }
-          else {
-            Dom.removeClassName('fast_lap_time', 'fastest');
-          }
-        }
-        else {
-          currentLapTime += dt;
-        }
-      }
-
-      // Calculate KM/H
-      // Normal: 80 km/h, Boost (1.2x): displays 80 at normal speed, 120 at full boost
-      var kmh = Math.round((speed / maxSpeed) * 80);
-      if (spBoostActive) {
-        kmh = Math.round((speed / (maxSpeed * 1.2)) * 120);
-      }
-      updateHud('speed', kmh);
-      updateHud('current_lap_time', formatTime(currentLapTime));
     }
 
-    //-------------------------------------------------------------------------
-
-    function updateCars(dt, playerSegment, playerW) {
-      var n, car, oldSegment, newSegment;
-      for(n = 0 ; n < cars.length ; n++) {
-        car         = cars[n];
-        oldSegment  = findSegment(car.z);
-        car.offset  = car.offset + updateCarOffset(car, oldSegment, playerSegment, playerW);
-        car.z       = Util.increase(car.z, dt * car.speed, trackLength);
-        car.percent = Util.percentRemaining(car.z, segmentLength); // useful for interpolation during rendering phase
-        newSegment  = findSegment(car.z);
-        if (oldSegment != newSegment) {
-          index = oldSegment.cars.indexOf(car);
-          oldSegment.cars.splice(index, 1);
-          newSegment.cars.push(car);
-        }
-      }
+    // Crash deceleration
+    if (crashDecel.active) {
+      speed = Util.accelerate(speed, -maxSpeed * 3, dt);
+      if (speed <= crashDecel.targetSpeed) { speed = crashDecel.targetSpeed; crashDecel.active = false; }
     }
 
-    function updateCarOffset(car, carSegment, playerSegment, playerW) {
+    playerX = Util.limit(playerX, -1, 1);
+    var effectiveMaxSpeed = spBoostActive ? maxSpeed * 1.2 : maxSpeed;
+    speed = Util.limit(speed, 0, effectiveMaxSpeed);
 
-      var i, j, dir, segment, otherCar, otherCarW, lookahead = 20, carW = car.sprite.w * SPRITES.SCALE;
+    var pf = getSpeedParallaxFactor();
+    skyOffset  = Util.increase(skyOffset,  skySpeed  * playerSegment.curve * (position-startPosition)/segmentLength * pf, 1);
+    hillOffset = Util.increase(hillOffset, hillSpeed * playerSegment.curve * (position-startPosition)/segmentLength * pf, 1);
+    treeOffset = Util.increase(treeOffset, treeSpeed * playerSegment.curve * (position-startPosition)/segmentLength * pf, 1);
 
-      // optimization, dont bother steering around other cars when 'out of sight' of the player
-      if ((carSegment.index - playerSegment.index) > drawDistance)
-        return 0;
-
-      for(i = 1 ; i < lookahead ; i++) {
-        segment = segments[(carSegment.index+i)%segments.length];
-
-        if ((segment === playerSegment) && (car.speed > speed) && (Util.overlap(playerX, playerW, car.offset, carW, 1.2))) {
-          if (playerX > 0.5)
-            dir = -1;
-          else if (playerX < -0.5)
-            dir = 1;
-          else
-            dir = (car.offset > playerX) ? 1 : -1;
-          return dir * 1/i * (car.speed-speed)/maxSpeed; // the closer the cars (smaller i) and the greated the speed ratio, the larger the offset
-        }
-
-        for(j = 0 ; j < segment.cars.length ; j++) {
-          otherCar  = segment.cars[j];
-          otherCarW = otherCar.sprite.w * SPRITES.SCALE;
-          if ((car.speed > otherCar.speed) && Util.overlap(car.offset, carW, otherCar.offset, otherCarW, 1.2)) {
-            if (otherCar.offset > 0.5)
-              dir = -1;
-            else if (otherCar.offset < -0.5)
-              dir = 1;
-            else
-              dir = (car.offset > otherCar.offset) ? 1 : -1;
-            return dir * 1/i * (car.speed-otherCar.speed)/maxSpeed;
-          }
-        }
-      }
-
-      // if no cars ahead, but I have somehow ended up off road, then steer back on
-      if (car.offset < -0.9)
-        return 0.1;
-      else if (car.offset > 0.9)
-        return -0.1;
-      else
-        return 0;
-    }
-
-    //-------------------------------------------------------------------------
-
-    function updateHud(key, value) { // accessing DOM can be slow, so only do it if value has changed
-      if (hud[key].value !== value) {
-        hud[key].value = value;
-        Dom.set(hud[key].dom, value);
-      }
-    }
-
-    function formatTime(dt) {
-      var minutes = Math.floor(dt/60);
-      var seconds = Math.floor(dt - (minutes * 60));
-      var tenths  = Math.floor(10 * (dt - Math.floor(dt)));
-      if (minutes > 0)
-        return minutes + "." + (seconds < 10 ? "0" : "") + seconds + "." + tenths;
-      else
-        return seconds + "." + tenths;
-    }
-
-    //=========================================================================
-    // RENDER THE GAME WORLD
-    //=========================================================================
-
-    // ========== COLLECTIBLE RENDERING ==========
-    function renderCollectiblesInSegment(segment) {
-      // Only render if segment has valid screen projection
-      if (!segment.p1.screen.scale || segment.p1.screen.scale <= 0) return;
-      // Skip segments that are fully behind the horizon (y2 >= y1 means back-face)
-      if (segment.p2.screen.y >= segment.p1.screen.y) return;
-
-      for (var i = 0; i < collectibles.length; i++) {
-        var c = collectibles[i];
-        if (c.collected) continue;
-        if (c.segmentIndex !== segment.index) continue;
-
-        var spriteScale = segment.p1.screen.scale * 0.5;
-
-        // Skip if too far (scale too small)
-        if (spriteScale < 0.0005) continue;
-
-        var spriteX = segment.p1.screen.x + (spriteScale * c.offset * roadWidth * width/2);
-        // Position collectibles on the road surface using perspective
-        var spriteY = segment.p1.screen.y + (segment.p1.screen.scale * 30);
-
-        var baseSize = spriteScale * roadWidth * width/4;
-        // Allow smaller sizes for distant collectibles
-        if (baseSize < 2) baseSize = 2;
-
-        // Calculate clipping against the already-drawn foreground (segment.clip)
-        var clipY = segment.clip;
-        var destH = baseSize * 2;
-        var destW = baseSize * 2;
-        var destY = spriteY - baseSize;
-
-        // Skip if the collectible is entirely below the clip line
-        var clipH = clipY ? Math.max(0, destY + destH - clipY) : 0;
-        if (clipH >= destH) continue; // Completely clipped
-
-        // Apply smooth fade near clip line
-        var fadeStart = clipY - 80;
-        var alpha = 1;
-        if (clipY && spriteY > fadeStart) {
-          alpha = Math.max(0, 1 - (spriteY - fadeStart) / 80);
-        }
-
-        if (c.type.name === 'gold' && goldcoinImage) {
-          // Draw gold coin image with clipping
-          ctx.globalAlpha = alpha;
-          if (clipH > 0) {
-            var srcH = goldcoinImage.naturalHeight * (1 - clipH / destH);
-            ctx.drawImage(goldcoinImage, 0, 0, goldcoinImage.naturalWidth, srcH,
-                          spriteX - baseSize, destY, baseSize * 2, destH - clipH);
-          } else {
-            ctx.drawImage(goldcoinImage, spriteX - baseSize, destY, baseSize * 2, baseSize * 2);
-          }
-          ctx.globalAlpha = 1;
+    if (position > playerZ) {
+      if (currentLapTime && (startPosition < playerZ)) {
+        lastLapTime = currentLapTime; currentLapTime = 0;
+        if (lastLapTime <= Util.toFloat(Dom.storage.fast_lap_time)) {
+          Dom.storage.fast_lap_time = lastLapTime;
+          updateHud('fast_lap_time', formatTime(lastLapTime));
+          Dom.addClassName('fast_lap_time', 'fastest');
         } else {
-          // Draw XP / SP / SHIELD as circles with symbols
-          if (alpha > 0 && baseSize > 4) {
-            // Glow effect
-            ctx.globalAlpha = alpha * 0.5;
-            ctx.beginPath();
-            ctx.arc(spriteX, spriteY, baseSize * 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = c.type.color;
-            ctx.fill();
+          Dom.removeClassName('fast_lap_time', 'fastest');
+        }
+      } else {
+        currentLapTime += dt;
+      }
+    }
 
-            // Main circle
-            ctx.globalAlpha = alpha;
-            ctx.beginPath();
-            ctx.arc(spriteX, spriteY, baseSize, 0, Math.PI * 2);
-            ctx.fillStyle = c.type.color;
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = Math.max(1, baseSize * 0.2);
-            ctx.stroke();
+    var kmh = Math.round((speed / maxSpeed) * 80);
+    if (spBoostActive) kmh = Math.round((speed / (maxSpeed * 1.2)) * 120);
+    updateHud('speed', kmh);
+    updateHud('current_lap_time', formatTime(currentLapTime));
+  }
 
-            // Text symbol (only when large enough to be readable)
-            if (baseSize > 12) {
-              ctx.fillStyle = '#fff';
-              ctx.font = 'bold ' + Math.max(10, baseSize) + 'px Arial';
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
+  // ========== UPDATE CARS ==========
+  function updateCars(dt, playerSegment, playerW) {
+    for (var n = 0; n < cars.length; n++) {
+      var car = cars[n];
+      var oldSeg = findSegment(car.z);
+      car.offset  = car.offset + updateCarOffset(car, oldSeg, playerSegment, playerW);
+      car.z       = Util.increase(car.z, dt * car.speed, trackLength);
+      car.percent = Util.percentRemaining(car.z, segmentLength);
+      var newSeg  = findSegment(car.z);
+      if (oldSeg != newSeg) {
+        oldSeg.cars.splice(oldSeg.cars.indexOf(car), 1);
+        newSeg.cars.push(car);
+      }
+    }
+  }
 
-              var symbol = '';
-              if (c.type.name === 'xp') symbol = '2X';
-              else if (c.type.name === 'sp') symbol = 'SP';
-              else if (c.type.name === 'shield') symbol = '🛡';
-
-              ctx.fillText(symbol, spriteX, spriteY);
-            }
-            ctx.globalAlpha = 1;
-          }
+  function updateCarOffset(car, carSegment, playerSegment, playerW) {
+    var i, j, dir, segment, otherCar, otherCarW, lookahead = 20;
+    var carW = car.sprite.w * SPRITES.SCALE;
+    if ((carSegment.index - playerSegment.index) > drawDistance) return 0;
+    for (i = 1; i < lookahead; i++) {
+      segment = segments[(carSegment.index+i) % segments.length];
+      if (segment === playerSegment && car.speed > speed && Util.overlap(playerX, playerW, car.offset, carW, 1.2)) {
+        dir = playerX > 0.5 ? -1 : playerX < -0.5 ? 1 : (car.offset > playerX ? 1 : -1);
+        return dir * 1/i * (car.speed-speed)/maxSpeed;
+      }
+      for (j = 0; j < segment.cars.length; j++) {
+        otherCar  = segment.cars[j];
+        otherCarW = otherCar.sprite.w * SPRITES.SCALE;
+        if (car.speed > otherCar.speed && Util.overlap(car.offset, carW, otherCar.offset, otherCarW, 1.2)) {
+          dir = otherCar.offset > 0.5 ? -1 : otherCar.offset < -0.5 ? 1 : (car.offset > otherCar.offset ? 1 : -1);
+          return dir * 1/i * (car.speed-otherCar.speed)/maxSpeed;
         }
       }
     }
+    if (car.offset < -0.9) return 0.1;
+    else if (car.offset > 0.9) return -0.1;
+    return 0;
+  }
 
-    function render() {
-      var baseSegment   = findSegment(position);
-      var basePercent   = Util.percentRemaining(position, segmentLength);
-      var playerSegment = findSegment(position+playerZ);
-      var playerPercent = Util.percentRemaining(position+playerZ, segmentLength);
-      var playerY       = Util.interpolate(playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent);
-      var maxy          = height;
+  // ========== HUD ==========
+  function updateHud(key, value) {
+    if (hud[key].value !== value) { hud[key].value = value; Dom.set(hud[key].dom, value); }
+  }
 
-      var x  = 0;
-      var dx = - (baseSegment.curve * basePercent);
+  function formatTime(dt) {
+    var minutes = Math.floor(dt/60);
+    var seconds = Math.floor(dt - (minutes * 60));
+    var tenths  = Math.floor(10 * (dt - Math.floor(dt)));
+    if (minutes > 0) return minutes + "." + (seconds < 10 ? "0" : "") + seconds + "." + tenths;
+    else return seconds + "." + tenths;
+  }
 
-      // Dynamic camera based on speed for acceleration feel
-      var dynamicCameraDepth = getDynamicCameraDepth();
-      var dynamicRoadWidth = getSpeedRoadWidth();
+  // ========== RENDER COLLECTIBLES ==========
+  function renderCollectiblesInSegment(segment) {
+    if (!segment.p1.screen.scale || segment.p1.screen.scale <= 0) return;
+    if (segment.p2.screen.y >= segment.p1.screen.y) return;
 
-      ctx.clearRect(0, 0, width, height);
+    for (var i = 0; i < collectibles.length; i++) {
+      var c = collectibles[i];
+      if (c.collected) continue;
+      if (c.segmentIndex !== segment.index) continue;
 
-      Render.background(ctx, background, width, height, BACKGROUND.SKY,   skyOffset,  resolution * skySpeed  * playerY);
-      Render.background(ctx, background, width, height, BACKGROUND.HILLS, hillOffset, resolution * hillSpeed * playerY);
-      Render.background(ctx, background, width, height, BACKGROUND.TREES, treeOffset, resolution * treeSpeed * playerY);
+      var spriteScale = segment.p1.screen.scale * 0.5;
+      if (spriteScale < 0.0005) continue;
 
-      var n, i, segment, car, sprite, spriteScale, spriteX, spriteY;
+      var spriteX = segment.p1.screen.x + (spriteScale * c.offset * roadWidth * width/2);
+      var spriteY = segment.p1.screen.y + (segment.p1.screen.scale * 30);
+      var baseSize = spriteScale * roadWidth * width/4;
+      if (baseSize < 2) baseSize = 2;
 
-      for(n = 0 ; n < drawDistance ; n++) {
+      var clipY = segment.clip;
+      var destH = baseSize * 2;
+      var destW = baseSize * 2;
+      var destY = spriteY - baseSize;
 
-        segment        = segments[(baseSegment.index + n) % segments.length];
-        segment.looped = segment.index < baseSegment.index;
-        segment.fog    = Util.exponentialFog(n/drawDistance, fogDensity);
-        segment.clip   = maxy;
+      // Skip if entirely below clip line
+      var clipH = clipY ? Math.max(0, destY + destH - clipY) : 0;
+      if (clipH >= destH) continue;
 
-        Util.project(segment.p1, (playerX * dynamicRoadWidth) - x,      playerY + cameraHeight, position - (segment.looped ? trackLength : 0), dynamicCameraDepth, width, height, dynamicRoadWidth);
-        Util.project(segment.p2, (playerX * dynamicRoadWidth) - x - dx, playerY + cameraHeight, position - (segment.looped ? trackLength : 0), dynamicCameraDepth, width, height, dynamicRoadWidth);
-
-        x  = x + dx;
-        dx = dx + segment.curve;
-
-        if ((segment.p1.camera.z <= dynamicCameraDepth)         || // behind us
-            (segment.p2.screen.y >= segment.p1.screen.y) || // back face cull
-            (segment.p2.screen.y >= maxy))                  // clip by (already rendered) hill
-          continue;
-
-        Render.segment(ctx, width, lanes,
-                       segment.p1.screen.x,
-                       segment.p1.screen.y,
-                       segment.p1.screen.w,
-                       segment.p2.screen.x,
-                       segment.p2.screen.y,
-                       segment.p2.screen.w,
-                       segment.fog,
-                       segment.color);
-
-        maxy = segment.p1.screen.y;
+      // Fade near clip
+      var alpha = 1;
+      if (clipY && spriteY > clipY - 80) {
+        alpha = Math.max(0, 1 - (spriteY - (clipY - 80)) / 80);
       }
 
-      for(n = (drawDistance-1) ; n > 0 ; n--) {
-        segment = segments[(baseSegment.index + n) % segments.length];
-
-        for(i = 0 ; i < segment.cars.length ; i++) {
-          car         = segment.cars[i];
-          sprite      = car.sprite;
-          spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent) * CAR_SCALE;
-          spriteX     = Util.interpolate(segment.p1.screen.x,     segment.p2.screen.x,     car.percent) + (spriteScale * car.offset * dynamicRoadWidth * width/2);
-          spriteY     = Util.interpolate(segment.p1.screen.y,     segment.p2.screen.y,     car.percent);
-          Render.sprite(ctx, width, height, resolution, dynamicRoadWidth, sprites, car.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
+      if (c.type.name === 'gold' && goldcoinImage) {
+        ctx.globalAlpha = alpha;
+        if (clipH > 0) {
+          var srcH = goldcoinImage.naturalHeight * (1 - clipH / destH);
+          ctx.drawImage(goldcoinImage, 0, 0, goldcoinImage.naturalWidth, srcH,
+                        spriteX - baseSize, destY, destW, destH - clipH);
+        } else {
+          ctx.drawImage(goldcoinImage, spriteX - baseSize, destY, destW, destH);
         }
-
-        for(i = 0 ; i < segment.sprites.length ; i++) {
-          sprite      = segment.sprites[i];
-          spriteScale = segment.p1.screen.scale;
-          spriteX     = segment.p1.screen.x + (spriteScale * sprite.offset * dynamicRoadWidth * width/2);
-          spriteY     = segment.p1.screen.y;
-          Render.sprite(ctx, width, height, resolution, dynamicRoadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
+        ctx.globalAlpha = 1;
+      } else if (alpha > 0 && baseSize > 4) {
+        // Glow
+        ctx.globalAlpha = alpha * 0.5;
+        ctx.beginPath();
+        ctx.arc(spriteX, spriteY, baseSize * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = c.type.color;
+        ctx.fill();
+        // Circle
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(spriteX, spriteY, baseSize, 0, Math.PI * 2);
+        ctx.fillStyle = c.type.color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = Math.max(1, baseSize * 0.2);
+        ctx.stroke();
+        // Symbol
+        if (baseSize > 12) {
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold ' + Math.max(10, baseSize) + 'px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          var sym = c.type.name === 'xp' ? '2X' : c.type.name === 'sp' ? 'SP' : c.type.name === 'shield' ? '🛡' : '';
+          ctx.fillText(sym, spriteX, spriteY);
         }
-
-        // Render collectibles
-        if (currentState === GameState.PLAYING) {
-          renderCollectiblesInSegment(segment);
-        }
-
-        if (segment == playerSegment) {
-          // Calculate steer for sprite display
-          var displaySteer = speed * (keyLeft ? -1 : (keyRight ? 1 : 0));
-          Render.player(ctx, width, height, resolution, dynamicRoadWidth, sprites, speed/maxSpeed,
-                        dynamicCameraDepth/playerZ,
-                        width/2,
-                        (height * 0.85) - (dynamicCameraDepth/playerZ * Util.interpolate(playerSegment.p1.screen.y, playerSegment.p2.screen.y, playerPercent) * height/2 * (playerY - playerSegment.p1.world.y) / cameraHeight),
-                        displaySteer,
-                        playerSegment.p2.world.y - playerSegment.p1.world.y);
-        }
+        ctx.globalAlpha = 1;
       }
     }
+  }
 
-    function findSegment(z) {
-      return segments[Math.floor(z/segmentLength) % segments.length]; 
+  // ========== RENDER ==========
+  function render() {
+    var baseSegment   = findSegment(position);
+    var basePercent   = Util.percentRemaining(position, segmentLength);
+    var playerSegment = findSegment(position + playerZ);
+    var playerPercent = Util.percentRemaining(position + playerZ, segmentLength);
+    var playerY       = Util.interpolate(playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent);
+    var maxy          = height;
+    var x  = 0;
+    var dx = -(baseSegment.curve * basePercent);
+    var dynamicCameraDepth = getDynamicCameraDepth();
+    var dynamicRoadWidth   = getSpeedRoadWidth();
+
+    ctx.clearRect(0, 0, width, height);
+    Render.background(ctx, background, width, height, BACKGROUND.SKY,   skyOffset,  resolution * skySpeed  * playerY);
+    Render.background(ctx, background, width, height, BACKGROUND.HILLS, hillOffset, resolution * hillSpeed * playerY);
+    Render.background(ctx, background, width, height, BACKGROUND.TREES, treeOffset, resolution * treeSpeed * playerY);
+
+    var n, i, segment, car, sprite, spriteScale, spriteX, spriteY;
+
+    for (n = 0; n < drawDistance; n++) {
+      segment        = segments[(baseSegment.index + n) % segments.length];
+      segment.looped = segment.index < baseSegment.index;
+      segment.fog    = Util.exponentialFog(n/drawDistance, fogDensity);
+      segment.clip   = maxy;
+
+      Util.project(segment.p1, (playerX * dynamicRoadWidth) - x,      playerY + cameraHeight, position - (segment.looped ? trackLength : 0), dynamicCameraDepth, width, height, dynamicRoadWidth);
+      Util.project(segment.p2, (playerX * dynamicRoadWidth) - x - dx, playerY + cameraHeight, position - (segment.looped ? trackLength : 0), dynamicCameraDepth, width, height, dynamicRoadWidth);
+
+      x  = x + dx;
+      dx = dx + segment.curve;
+
+      if ((segment.p1.camera.z <= dynamicCameraDepth) ||
+          (segment.p2.screen.y >= segment.p1.screen.y) ||
+          (segment.p2.screen.y >= maxy)) continue;
+
+      Render.segment(ctx, width, lanes,
+        segment.p1.screen.x, segment.p1.screen.y, segment.p1.screen.w,
+        segment.p2.screen.x, segment.p2.screen.y, segment.p2.screen.w,
+        segment.fog, segment.color);
+
+      maxy = segment.p1.screen.y;
     }
 
-    //=========================================================================
-    // BUILD ROAD GEOMETRY
-    //=========================================================================
+    for (n = (drawDistance-1); n > 0; n--) {
+      segment = segments[(baseSegment.index + n) % segments.length];
 
-    function lastY() { return (segments.length == 0) ? 0 : segments[segments.length-1].p2.world.y; }
-
-    function addSegment(curve, y) {
-      var n = segments.length;
-      segments.push({
-          index: n,
-             p1: { world: { y: lastY(), z:  n   *segmentLength }, camera: {}, screen: {} },
-             p2: { world: { y: y,       z: (n+1)*segmentLength }, camera: {}, screen: {} },
-          curve: curve,
-        sprites: [],
-           cars: [],
-          color: Math.floor(n/rumbleLength)%2 ? COLORS.DARK : COLORS.LIGHT
-      });
-    }
-
-    function addSprite(n, sprite, offset) {
-      segments[n].sprites.push({ source: sprite, offset: offset });
-    }
-
-    function addRoad(enter, hold, leave, curve, y) {
-      var startY   = lastY();
-      var endY     = startY + (Util.toInt(y, 0) * segmentLength);
-      var n, total = enter + hold + leave;
-      for(n = 0 ; n < enter ; n++)
-        addSegment(Util.easeIn(0, curve, n/enter), Util.easeInOut(startY, endY, n/total));
-      for(n = 0 ; n < hold  ; n++)
-        addSegment(curve, Util.easeInOut(startY, endY, (enter+n)/total));
-      for(n = 0 ; n < leave ; n++)
-        addSegment(Util.easeInOut(curve, 0, n/leave), Util.easeInOut(startY, endY, (enter+hold+n)/total));
-    }
-
-    var ROAD = {
-      LENGTH: { NONE: 0, SHORT:  25, MEDIUM:   50, LONG:  100 },
-      HILL:   { NONE: 0, LOW:    20, MEDIUM:   40, HIGH:   60 },
-      CURVE:  { NONE: 0, EASY:    2, MEDIUM:    4, HARD:    6 }
-    };
-
-    function addStraight(num) {
-      num = num || ROAD.LENGTH.MEDIUM;
-      addRoad(num, num, num, 0, 0);
-    }
-
-    function addHill(num, height) {
-      num    = num    || ROAD.LENGTH.MEDIUM;
-      height = height || ROAD.HILL.MEDIUM;
-      addRoad(num, num, num, 0, height);
-    }
-
-    function addCurve(num, curve, height) {
-      num    = num    || ROAD.LENGTH.MEDIUM;
-      curve  = curve  || ROAD.CURVE.MEDIUM;
-      height = height || ROAD.HILL.NONE;
-      addRoad(num, num, num, curve, height);
-    }
-        
-    function addLowRollingHills(num, height) {
-      num    = num    || ROAD.LENGTH.SHORT;
-      height = height || ROAD.HILL.LOW;
-      addRoad(num, num, num,  0,                height/2);
-      addRoad(num, num, num,  0,               -height);
-      addRoad(num, num, num,  ROAD.CURVE.EASY,  height);
-      addRoad(num, num, num,  0,                0);
-      addRoad(num, num, num, -ROAD.CURVE.EASY,  height/2);
-      addRoad(num, num, num,  0,                0);
-    }
-
-    function addSCurves() {
-      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  -ROAD.CURVE.EASY,    ROAD.HILL.NONE);
-      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,   ROAD.CURVE.MEDIUM,  ROAD.HILL.MEDIUM);
-      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,   ROAD.CURVE.EASY,   -ROAD.HILL.LOW);
-      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  -ROAD.CURVE.EASY,    ROAD.HILL.MEDIUM);
-      addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  -ROAD.CURVE.MEDIUM, -ROAD.HILL.MEDIUM);
-    }
-
-    function addBumps() {
-      addRoad(10, 10, 10, 0,  5);
-      addRoad(10, 10, 10, 0, -2);
-      addRoad(10, 10, 10, 0, -5);
-      addRoad(10, 10, 10, 0,  8);
-      addRoad(10, 10, 10, 0,  5);
-      addRoad(10, 10, 10, 0, -7);
-      addRoad(10, 10, 10, 0,  5);
-      addRoad(10, 10, 10, 0, -2);
-    }
-
-    function addDownhillToEnd(num) {
-      num = num || 200;
-      addRoad(num, num, num, -ROAD.CURVE.EASY, -lastY()/segmentLength);
-    }
-
-    function resetRoad() {
-      segments = [];
-
-      addStraight(ROAD.LENGTH.SHORT);
-      addLowRollingHills();
-      addSCurves();
-      addCurve(ROAD.LENGTH.MEDIUM, ROAD.CURVE.MEDIUM, ROAD.HILL.LOW);
-      addBumps();
-      addLowRollingHills();
-      addCurve(ROAD.LENGTH.LONG*2, ROAD.CURVE.MEDIUM, ROAD.HILL.MEDIUM);
-      addStraight();
-      addHill(ROAD.LENGTH.MEDIUM, ROAD.HILL.HIGH);
-      addSCurves();
-      addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.MEDIUM, ROAD.HILL.NONE);
-      addHill(ROAD.LENGTH.LONG, ROAD.HILL.HIGH);
-      addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM, -ROAD.HILL.LOW);
-      addBumps();
-      addHill(ROAD.LENGTH.LONG, -ROAD.HILL.MEDIUM);
-      addStraight();
-      addSCurves();
-      addDownhillToEnd();
-
-      resetSprites();
-      resetCars();
-
-      segments[findSegment(playerZ).index + 2].color = COLORS.START;
-      segments[findSegment(playerZ).index + 3].color = COLORS.START;
-      for(var n = 0 ; n < rumbleLength ; n++)
-        segments[segments.length-1-n].color = COLORS.FINISH;
-
-      trackLength = segments.length * segmentLength;
-    }
-
-    function resetSprites() {
-      var n, i;
-
-      addSprite(20,  SPRITES.BILLBOARD07, -1);
-      addSprite(40,  SPRITES.BILLBOARD06, -1);
-      addSprite(60,  SPRITES.BILLBOARD08, -1);
-      addSprite(80,  SPRITES.BILLBOARD09, -1);
-      addSprite(100, SPRITES.BILLBOARD01, -1);
-      addSprite(120, SPRITES.BILLBOARD02, -1);
-      addSprite(140, SPRITES.BILLBOARD03, -1);
-      addSprite(160, SPRITES.BILLBOARD04, -1);
-      addSprite(180, SPRITES.BILLBOARD05, -1);
-
-      addSprite(240,                  SPRITES.BILLBOARD07, -1.2);
-      addSprite(240,                  SPRITES.BILLBOARD06,  1.2);
-      addSprite(segments.length - 25, SPRITES.BILLBOARD07, -1.2);
-      addSprite(segments.length - 25, SPRITES.BILLBOARD06,  1.2);
-
-      for(n = 10 ; n < 200 ; n += 4 + Math.floor(n/100)) {
-        addSprite(n, SPRITES.PALM_TREE, 0.5 + Math.random()*0.5);
-        addSprite(n, SPRITES.PALM_TREE,   1 + Math.random()*2);
+      for (i = 0; i < segment.cars.length; i++) {
+        car         = segment.cars[i];
+        sprite      = car.sprite;
+        spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent) * CAR_SCALE;
+        spriteX     = Util.interpolate(segment.p1.screen.x,     segment.p2.screen.x,     car.percent) + (spriteScale * car.offset * dynamicRoadWidth * width/2);
+        spriteY     = Util.interpolate(segment.p1.screen.y,     segment.p2.screen.y,     car.percent);
+        Render.sprite(ctx, width, height, resolution, dynamicRoadWidth, sprites, car.sprite, spriteScale, spriteX, spriteY, -0.5, -1, segment.clip);
       }
 
-      for(n = 250 ; n < 1000 ; n += 5) {
-        addSprite(n,     SPRITES.COLUMN, 1.1);
-        addSprite(n + Util.randomInt(0,5), SPRITES.TREE1, -1 - (Math.random() * 2));
-        addSprite(n + Util.randomInt(0,5), SPRITES.TREE2, -1 - (Math.random() * 2));
+      for (i = 0; i < segment.sprites.length; i++) {
+        sprite      = segment.sprites[i];
+        spriteScale = segment.p1.screen.scale;
+        spriteX     = segment.p1.screen.x + (spriteScale * sprite.offset * dynamicRoadWidth * width/2);
+        spriteY     = segment.p1.screen.y;
+        Render.sprite(ctx, width, height, resolution, dynamicRoadWidth, sprites, sprite.source, spriteScale, spriteX, spriteY, (sprite.offset < 0 ? -1 : 0), -1, segment.clip);
       }
 
-      for(n = 200 ; n < segments.length ; n += 3) {
-        addSprite(n, Util.randomChoice(SPRITES.PLANTS), Util.randomChoice([1,-1]) * (2 + Math.random() * 5));
+      if (currentState === GameState.PLAYING) {
+        renderCollectiblesInSegment(segment);
       }
 
-      var side, sprite, offset;
-      for(n = 1000 ; n < (segments.length-50) ; n += 100) {
-        side      = Util.randomChoice([1, -1]);
-        addSprite(n + Util.randomInt(0, 50), Util.randomChoice(SPRITES.BILLBOARDS), -side);
-        for(i = 0 ; i < 20 ; i++) {
-          sprite = Util.randomChoice(SPRITES.PLANTS);
-          offset = side * (1.5 + Math.random());
-          addSprite(n + Util.randomInt(0, 50), sprite, offset);
-        }
-          
-      }
-
-    }
-
-    function resetCars() {
-      cars = [];
-      var n, car, segment, offset, z, sprite, speed;
-      for (var n = 0 ; n < totalCars ; n++) {
-        offset = Math.random() * Util.randomChoice([-0.6, 0.6]); // Keep cars within road
-        z      = Math.floor(Math.random() * segments.length) * segmentLength;
-        sprite = Util.randomChoice(SPRITES.CARS);
-        speed  = maxSpeed/4 + Math.random() * maxSpeed/(sprite == SPRITES.SEMI ? 4 : 2);
-        car = { offset: offset, z: z, sprite: sprite, speed: speed };
-        segment = findSegment(car.z);
-        segment.cars.push(car);
-        cars.push(car);
+      if (segment == playerSegment) {
+        var displaySteer = speed * (keyLeft ? -1 : (keyRight ? 1 : 0));
+        Render.player(ctx, width, height, resolution, dynamicRoadWidth, sprites, speed/maxSpeed,
+          dynamicCameraDepth/playerZ,
+          width/2,
+          (height * 0.85) - (dynamicCameraDepth/playerZ * Util.interpolate(playerSegment.p1.screen.y, playerSegment.p2.screen.y, playerPercent) * height/2 * (playerY - playerSegment.p1.world.y) / cameraHeight),
+          displaySteer,
+          playerSegment.p2.world.y - playerSegment.p1.world.y);
       }
     }
+  }
 
-    //=========================================================================
-    // THE GAME LOOP
-    //=========================================================================
+  function findSegment(z) {
+    return segments[Math.floor(z/segmentLength) % segments.length];
+  }
 
-    Game.run({
-      canvas: canvas, render: render, update: update, /* stats: stats, */ step: step,
-      images: ["background", "sprites", "goldcoin"],
-      keys: [
-        { keys: [KEY.LEFT,  KEY.A], mode: 'down', action: function() { keyLeft   = true;  } },
-        { keys: [KEY.RIGHT, KEY.D], mode: 'down', action: function() { keyRight  = true;  } },
-        { keys: [KEY.UP,    KEY.W], mode: 'down', action: function() { keyFaster = true;  } },
-        { keys: [KEY.DOWN,  KEY.S], mode: 'down', action: function() { keySlower = true;  } },
-        { keys: [KEY.LEFT,  KEY.A], mode: 'up',   action: function() { keyLeft   = false; } },
-        { keys: [KEY.RIGHT, KEY.D], mode: 'up',   action: function() { keyRight  = false; } },
-        { keys: [KEY.UP,    KEY.W], mode: 'up',   action: function() { keyFaster = false; } },
-        { keys: [KEY.DOWN,  KEY.S], mode: 'up',   action: function() { keySlower = false; } }
-      ],
-      ready: function(images) {
-        console.log('Game ready callback called');
-        background = images[0];
-        sprites    = images[1];
-        goldcoinImage = images[2];
-        reset();
-        Dom.storage.fast_lap_time = Dom.storage.fast_lap_time || 180;
-        updateHud('fast_lap_time', formatTime(Util.toFloat(Dom.storage.fast_lap_time)));
+  // ========== ROAD GEOMETRY ==========
+  function lastY() { return segments.length == 0 ? 0 : segments[segments.length-1].p2.world.y; }
 
-        // Load standalone player car images (overrides spritesheet for player car)
-        Render.loadPlayerImages('images/');
-
-        // Initialize start screen after game is ready
-        console.log('Calling initStartScreen');
-        initStartScreen();
-
-        // Setup play again button
-        document.getElementById('playAgainBtn').onclick = resetToStart;
-      }
+  function addSegment(curve, y) {
+    var n = segments.length;
+    segments.push({
+      index: n,
+      p1: { world: { y: lastY(), z:  n   *segmentLength }, camera: {}, screen: {} },
+      p2: { world: { y: y,       z: (n+1)*segmentLength }, camera: {}, screen: {} },
+      curve: curve, sprites: [], cars: [],
+      color: Math.floor(n/rumbleLength)%2 ? COLORS.DARK : COLORS.LIGHT
     });
+  }
 
-    function reset(options) {
-      options       = options || {};
-      canvas.width  = width  = Util.toInt(options.width,          width);
-      canvas.height = height = Util.toInt(options.height,         height);
-      lanes                  = Util.toInt(options.lanes,          lanes);
-      roadWidth              = Util.toInt(options.roadWidth,      roadWidth);
-      cameraHeight           = Util.toInt(options.cameraHeight,   cameraHeight);
-      drawDistance           = Util.toInt(options.drawDistance,   drawDistance);
-      fogDensity             = Util.toInt(options.fogDensity,     fogDensity);
-      fieldOfView            = Util.toInt(options.fieldOfView,    fieldOfView);
-      segmentLength          = Util.toInt(options.segmentLength,  segmentLength);
-      rumbleLength           = Util.toInt(options.rumbleLength,   rumbleLength);
-      cameraDepth            = 1 / Math.tan((fieldOfView/2) * Math.PI/180);
-      playerZ                = (cameraHeight * cameraDepth);
-      resolution             = height/480;
-      refreshTweakUI();
+  function addSprite(n, sprite, offset) { segments[n].sprites.push({ source: sprite, offset: offset }); }
 
-      if ((segments.length==0) || (options.segmentLength) || (options.rumbleLength))
-        resetRoad(); // only rebuild road when necessary
+  function addRoad(enter, hold, leave, curve, y) {
+    var startY = lastY(), endY = startY + (Util.toInt(y,0) * segmentLength);
+    var n, total = enter + hold + leave;
+    for (n = 0; n < enter; n++) addSegment(Util.easeIn(0, curve, n/enter), Util.easeInOut(startY, endY, n/total));
+    for (n = 0; n < hold;  n++) addSegment(curve, Util.easeInOut(startY, endY, (enter+n)/total));
+    for (n = 0; n < leave; n++) addSegment(Util.easeInOut(curve, 0, n/leave), Util.easeInOut(startY, endY, (enter+hold+n)/total));
+  }
+
+  var ROAD = {
+    LENGTH: { NONE: 0, SHORT: 25, MEDIUM: 50, LONG: 100 },
+    HILL:   { NONE: 0, LOW:   20, MEDIUM: 40, HIGH:  60 },
+    CURVE:  { NONE: 0, EASY:   2, MEDIUM:  4, HARD:   6 }
+  };
+
+  function addStraight(num) { num = num || ROAD.LENGTH.MEDIUM; addRoad(num, num, num, 0, 0); }
+  function addHill(num, h)  { num = num || ROAD.LENGTH.MEDIUM; h = h || ROAD.HILL.MEDIUM; addRoad(num, num, num, 0, h); }
+  function addCurve(num, c, h) { num = num || ROAD.LENGTH.MEDIUM; c = c || ROAD.CURVE.MEDIUM; h = h || ROAD.HILL.NONE; addRoad(num, num, num, c, h); }
+
+  function addLowRollingHills(num, h) {
+    num = num || ROAD.LENGTH.SHORT; h = h || ROAD.HILL.LOW;
+    addRoad(num, num, num, 0, h/2); addRoad(num, num, num, 0, -h);
+    addRoad(num, num, num, ROAD.CURVE.EASY, h); addRoad(num, num, num, 0, 0);
+    addRoad(num, num, num, -ROAD.CURVE.EASY, h/2); addRoad(num, num, num, 0, 0);
+  }
+
+  function addSCurves() {
+    addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, -ROAD.CURVE.EASY,   ROAD.HILL.NONE);
+    addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  ROAD.CURVE.MEDIUM, ROAD.HILL.MEDIUM);
+    addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM,  ROAD.CURVE.EASY,  -ROAD.HILL.LOW);
+    addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, -ROAD.CURVE.EASY,   ROAD.HILL.MEDIUM);
+    addRoad(ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, ROAD.LENGTH.MEDIUM, -ROAD.CURVE.MEDIUM,-ROAD.HILL.MEDIUM);
+  }
+
+  function addBumps() {
+    addRoad(10,10,10,0,5); addRoad(10,10,10,0,-2); addRoad(10,10,10,0,-5);
+    addRoad(10,10,10,0,8); addRoad(10,10,10,0,5);  addRoad(10,10,10,0,-7);
+    addRoad(10,10,10,0,5); addRoad(10,10,10,0,-2);
+  }
+
+  function addDownhillToEnd(num) { num = num || 200; addRoad(num, num, num, -ROAD.CURVE.EASY, -lastY()/segmentLength); }
+
+  function resetRoad() {
+    segments = [];
+    addStraight(ROAD.LENGTH.SHORT); addLowRollingHills(); addSCurves();
+    addCurve(ROAD.LENGTH.MEDIUM, ROAD.CURVE.MEDIUM, ROAD.HILL.LOW); addBumps();
+    addLowRollingHills(); addCurve(ROAD.LENGTH.LONG*2, ROAD.CURVE.MEDIUM, ROAD.HILL.MEDIUM);
+    addStraight(); addHill(ROAD.LENGTH.MEDIUM, ROAD.HILL.HIGH); addSCurves();
+    addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.MEDIUM, ROAD.HILL.NONE);
+    addHill(ROAD.LENGTH.LONG, ROAD.HILL.HIGH);
+    addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM, -ROAD.HILL.LOW); addBumps();
+    addHill(ROAD.LENGTH.LONG, -ROAD.HILL.MEDIUM); addStraight(); addSCurves(); addDownhillToEnd();
+    resetSprites(); resetCars();
+    segments[findSegment(playerZ).index + 2].color = COLORS.START;
+    segments[findSegment(playerZ).index + 3].color = COLORS.START;
+    for (var n = 0; n < rumbleLength; n++) segments[segments.length-1-n].color = COLORS.FINISH;
+    trackLength = segments.length * segmentLength;
+  }
+
+  function resetSprites() {
+    var n, i;
+    addSprite(20,  SPRITES.BILLBOARD07, -1); addSprite(40,  SPRITES.BILLBOARD06, -1);
+    addSprite(60,  SPRITES.BILLBOARD08, -1); addSprite(80,  SPRITES.BILLBOARD09, -1);
+    addSprite(100, SPRITES.BILLBOARD01, -1); addSprite(120, SPRITES.BILLBOARD02, -1);
+    addSprite(140, SPRITES.BILLBOARD03, -1); addSprite(160, SPRITES.BILLBOARD04, -1);
+    addSprite(180, SPRITES.BILLBOARD05, -1);
+    addSprite(240, SPRITES.BILLBOARD07, -1.2); addSprite(240, SPRITES.BILLBOARD06, 1.2);
+    addSprite(segments.length-25, SPRITES.BILLBOARD07, -1.2);
+    addSprite(segments.length-25, SPRITES.BILLBOARD06,  1.2);
+    for (n = 10; n < 200; n += 4 + Math.floor(n/100)) {
+      addSprite(n, SPRITES.PALM_TREE, 0.5 + Math.random()*0.5);
+      addSprite(n, SPRITES.PALM_TREE,   1 + Math.random()*2);
     }
-
-    //=========================================================================
-    // TWEAK UI HANDLERS
-    //=========================================================================
-
-    function refreshTweakUI() {
-			return;
+    for (n = 250; n < 1000; n += 5) {
+      addSprite(n, SPRITES.COLUMN, 1.1);
+      addSprite(n + Util.randomInt(0,5), SPRITES.TREE1, -1 - Math.random()*2);
+      addSprite(n + Util.randomInt(0,5), SPRITES.TREE2, -1 - Math.random()*2);
     }
+    for (n = 200; n < segments.length; n += 3) {
+      addSprite(n, Util.randomChoice(SPRITES.PLANTS), Util.randomChoice([1,-1]) * (2 + Math.random()*5));
+    }
+    var side, sprite, offset;
+    for (n = 1000; n < (segments.length-50); n += 100) {
+      side = Util.randomChoice([1,-1]);
+      addSprite(n + Util.randomInt(0,50), Util.randomChoice(SPRITES.BILLBOARDS), -side);
+      for (i = 0; i < 20; i++) {
+        sprite = Util.randomChoice(SPRITES.PLANTS);
+        offset = side * (1.5 + Math.random());
+        addSprite(n + Util.randomInt(0,50), sprite, offset);
+      }
+    }
+  }
 
-    //=========================================================================
+  function resetCars() {
+    cars = [];
+    for (var n = 0; n < totalCars; n++) {
+      var offset = Math.random() * Util.randomChoice([-0.6, 0.6]);
+      var z      = Math.floor(Math.random() * segments.length) * segmentLength;
+      var sprite = Util.randomChoice(SPRITES.CARS);
+      var spd    = maxSpeed/4 + Math.random() * maxSpeed/(sprite == SPRITES.SEMI ? 4 : 2);
+      var car    = { offset: offset, z: z, sprite: sprite, speed: spd };
+      findSegment(car.z).cars.push(car);
+      cars.push(car);
+    }
+  }
 
-    // Expose reset function globally for onresize handler
-    window.reset = reset;
+  // ========== GAME LOOP ==========
+  Game.run({
+    canvas: canvas, render: render, update: update, step: step,
+    images: ["background", "sprites", "goldcoin"],
+    keys: [], // Mobile only - no keyboard controls
+    ready: function(images) {
+      background    = images[0];
+      sprites       = images[1];
+      goldcoinImage = images[2];
+      reset();
+      Dom.storage.fast_lap_time = Dom.storage.fast_lap_time || 180;
+      updateHud('fast_lap_time', formatTime(Util.toFloat(Dom.storage.fast_lap_time)));
+      Render.loadPlayerImages('images/');
+      initStartScreen();
+      document.getElementById('playAgainBtn').onclick = resetToStart;
+    }
+  });
 
-  </script>
+  function reset(options) {
+    options      = options || {};
+    canvas.width = width  = Util.toInt(options.width,        width);
+    canvas.height= height = Util.toInt(options.height,       height);
+    lanes        = Util.toInt(options.lanes,        lanes);
+    roadWidth    = Util.toInt(options.roadWidth,    roadWidth);
+    cameraHeight = Util.toInt(options.cameraHeight, cameraHeight);
+    drawDistance = Util.toInt(options.drawDistance, drawDistance);
+    fogDensity   = Util.toInt(options.fogDensity,   fogDensity);
+    fieldOfView  = Util.toInt(options.fieldOfView,  fieldOfView);
+    segmentLength= Util.toInt(options.segmentLength,segmentLength);
+    rumbleLength = Util.toInt(options.rumbleLength, rumbleLength);
+    cameraDepth  = 1 / Math.tan((fieldOfView/2) * Math.PI/180);
+    playerZ      = cameraHeight * cameraDepth;
+    resolution   = height/480;
+    if ((segments.length==0) || (options.segmentLength) || (options.rumbleLength)) resetRoad();
+  }
 
-</body> 
+  window.reset = reset;
+</script>
+
+</body>
 </html>
